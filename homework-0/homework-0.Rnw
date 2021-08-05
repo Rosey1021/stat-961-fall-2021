@@ -22,7 +22,7 @@
 % Enter name and homework title here
 %==============================================================================
 \author{FirstName LastName}
-\title{Homework Title}
+\title{Homework 0}
 
 %==============================================================================
 % Put title and author in PDF properties
