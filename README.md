@@ -3,3 +3,7 @@
 ## Course information
 
 ## Course schedule
+
+Date | Topic | Readings | Recording | Assignments
+:---|:---|:---|:---|:---
+Test | Test | Test | Test | Test
