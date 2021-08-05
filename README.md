@@ -1,1 +1,1 @@
-# STAT-961-Fall-21
+# STAT 961 (Fall 2021)
