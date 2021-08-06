@@ -88,6 +88,51 @@ opts_chunk$set(cache = TRUE)
 @
 
 \begin{document}
+
+\section{Setup}
+
+\begin{enumerate}
+  \item If you have not already done so, download and set up git by following the instructions \href{https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup}{here}.
+  \item If you have not already done so, download and set up R and RStudio by following the instructions \href{https://rstudio-education.github.io/hopr/starting.html}{here}. Open RStudio.
+  \item Create a folder on your computer called \texttt{stat-961-fall-2021}, and navigate to this directory in the RStudio "Files" pane. Click "More" -> "Set As Working Directory". 
+  \item If you are on a Windows machine, go to Tools -> Global Options -> Terminal. In the drop down box for "New terminals open with", select "Git Bash".
+  \item Open the Terminal in RStudio, click the down arrow, and click "Go to Current Directory." 
+  \item In the terminal, type
+<<eval=FALSE>>=
+git clone https://github.com/katsevich-teaching/stat-961-fall-2021.git
+@
+This will copy the STAT 961 Github repository onto your local computer.
+  \item On Github, create a repository named \texttt{stat-961-fall-2021}. 
+  \item Point push remote to above repo.
+\item Install the \texttt{knitr} package by typing at the console:
+<<eval=FALSE>>=
+install.packages("knitr")
+@
+  \item Install the TinyTeX LaTeX distribution by typing at the console:
+<<eval=FALSE>>=
+install.packages('tinytex')
+tinytex::install_tinytex() 
+@ 
+  \item Set the appropriate Sweave options. 
+  \item Locate and open the file \texttt{homework-0/homework-0.Rnw}. Select "R Sweave" from the menu in the bottom right-hand corner of the editor pane.
+  \item Change "FirstName LastName" to your first and last name in line 24. 
+  \item Click "Compile PDF" near the top of the editor pane, and make sure the PDF compiled.
+  \item Commit using the following command:
+  \item Push using the following command:
+  \item Submit compiled PDF to Gradescope.
+\end{enumerate}
+
+\section{LaTeX tutorial}
+
+\begin{enumerate}
+  \item Learn about LaTeX basics like formulas, cross-referencing
+\end{enumerate}
+
+
+\section{R tutorial}
+
+\section{Rnw tutorial}
+
 %==============================================================================
 % Problem 1
 %==============================================================================
