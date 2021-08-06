@@ -2,3 +2,4 @@
 *.gz
 *.log
 *.pages
+.Rproj.user
