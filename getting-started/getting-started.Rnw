@@ -160,10 +160,11 @@ This will have the effect of copying the contents of the repository to your pers
 \label{fig:new-github-repo}
 \end{figure}
 
+\clearpage 
+
 \section{Homework assignments}
 
-
-
+Homework assignments will be made available on the Github \href{https://github.com/Katsevich-Teaching/stat-961-fall-2021/tree/main/homework/}{webpage}. As an example, see Homework 0. 
 
 \paragraph{Pulling, editing, compiling, and pushing.}
 
