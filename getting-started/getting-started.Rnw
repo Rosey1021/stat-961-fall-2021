@@ -1,0 +1,271 @@
+% (C) Brett Klamer - MIT - http://opensource.org/licenses/MIT
+% Please contact me if you find any errors or make improvements
+% Contact details at brettklamer.com
+
+\documentclass[11pt,letterpaper,english,oneside]{article} % article class is a standard class
+%==============================================================================
+%Load Packages
+%==============================================================================
+\usepackage[left=1in,right=1in,top=1in,bottom=1in]{geometry} % easy page margins
+\usepackage[utf8]{inputenc} % editor uses utf-8 encoding
+\usepackage[T1]{fontenc} % T1 font pdf output
+\usepackage{lmodern} % Latin modern roman font
+\usepackage{amsmath, amsfonts, amssymb, amsthm} % math packages
+\usepackage[final]{microtype} % better microtypography
+\usepackage{graphicx} % for easier grahics handling
+\usepackage[hidelinks, colorlinks=true, linkcolor = blue, urlcolor = blue]{hyperref} % to create hyperlinks
+\usepackage{float} % tells floats to stay [H]ere!
+\usepackage{mdframed} % it's better than framed. knitr uses framed so settings won't conflict
+\usepackage{enumitem} % nice lists
+\usepackage{fancyhdr} % nice headers
+
+%==============================================================================
+% Enter name and homework title here
+%==============================================================================
+\title{Getting Started with STAT 961 \vspace{-0.3in}}
+
+%==============================================================================
+% Put title and author in PDF properties
+%==============================================================================
+\makeatletter % change interpretation of @
+\hypersetup{pdftitle={\@title},pdfauthor={\@author}}
+
+
+%==============================================================================
+% Header settings
+%==============================================================================
+\pagestyle{fancy} % turns on fancy header styles
+\fancyhf{} % clear all header and footer fields
+\makeatletter
+\lhead{\@author} % left header
+\chead{\@title} % center header
+\makeatother
+\rhead{Page \thepage} % right header
+\setlength{\headheight}{13.6pt} % fixes minor warning
+\makeatother % change back interpretation of @
+
+%==============================================================================
+% List spacing
+%==============================================================================
+\setlist[itemize]{parsep=0em} % fix itemize spacing
+\setlist[enumerate]{parsep=0em} % fix enumerate spacing
+
+%==============================================================================
+% Float spacing (changes spacing of tables, graphs, etc)
+%==============================================================================
+%\setlength{\textfloatsep}{3pt}
+%\setlength{\intextsep}{3pt}
+
+%==============================================================================
+% Define Problem and Solution Environments
+%==============================================================================
+\theoremstyle{definition} % use definition's look
+\newtheorem{problem}{Problem}
+\newtheorem{solution}{Solution}
+\mdfsetup{ % box margin fix for mdframe and how it plays with parskip and others.
+innerleftmargin=4pt,
+innerrightmargin=4pt,
+innertopmargin=-1pt,
+innerbottommargin=4pt}
+\newenvironment{prob}{\begin{mdframed}\begin{problem}\hspace{0pt}}{\end{problem}\end{mdframed}}
+\newenvironment{sol}{\begin{solution}\hspace{0pt}}{\end{solution}}
+
+%==============================================================================
+% set knitr options
+%==============================================================================
+% latex (change space before and after knitr kframe; based on framed package)
+\setlength{\OuterFrameSep}{0.3em}
+% R
+<<setup, include=FALSE, cache=FALSE>>=
+library(knitr)
+# inline hook to process the output of \Sexpr{} statements to just 2 digits
+inline_hook <- function(x) {
+  if(is.numeric(x)) x <- round(x, 2)
+  paste(as.character(x), collapse=", ")
+}
+knit_hooks$set(inline = inline_hook)
+# cache all chunks
+opts_chunk$set(cache = TRUE)
+@
+
+\begin{document}
+
+
+\maketitle
+
+\section{Setup}
+
+\paragraph{R and RStudio setup.}
+
+\begin{itemize}
+\item If you do not have R and/or RStudio installed, download and install these softwares by following the instructions \href{https://rstudio-education.github.io/hopr/starting.html}{here}. If you do have RStudio installed, update it to the latest version by opening RStudio and clicking \texttt{Help} -> \texttt{Check for Updates}. If you do have R installed, update it to the latest version by following the instructions \href{https://bootstrappers.umassmed.edu/bootstrappers-courses/courses/rCourse/Additional_Resources/Updating_R.html#updating-r}{here}. Open RStudio.
+\item Install packages for compiling reports by entering the following commands at the console (labeled B in Figure~\ref{fig:rstudio}):
+<<eval=FALSE>>=
+install.packages("knitr")
+install.packages("xtable")
+install.packages('tinytex')
+tinytex::install_tinytex() 
+@
+\item If you are on a Windows machine, go to \texttt{Tools} -> \texttt{Global Options} -> \texttt{Terminal}. In the drop down box for \texttt{New terminals open with}, select "Git Bash".
+\item Go to \texttt{Tools} -> \texttt{Global Options} -> \texttt{Sweave} on Windows or \texttt{RStudio} -> \texttt{Preferences} -> \texttt{Sweave} on Mac and select the options pictured in Figure~\ref{fig:sweave-options}.
+\end{itemize}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width = 0.85\textwidth]{RStudio.png}
+\caption{RStudio interface}
+\label{fig:rstudio}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width = \textwidth]{sweave-options.png}
+\caption{Options for PDF generation.}
+\label{fig:sweave-options}
+\end{figure}
+
+\clearpage
+
+\paragraph{Git and Github setup.}
+
+\begin{itemize}
+\item Install Git by following the instructions \href{https://git-scm.com/book/en/v2/Getting-Started-Installing-Git}{here} (if not already done so).
+\item Set up Git by following the instructions \href{https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup}{here} (if not already done so).
+\item Create an account on \href{https://github.com/signup?ref_cta=Sign+up&ref_loc=header+logged+out&ref_page=\%2F&source=header-home}{Github} (if not already done so).
+\item Create a repository on Github named \texttt{stat-961-fall-2021} by signing into your Github account, clicking "Repositories", clicking the green "New" button, choosing the options pictured in Figure~\ref{fig:new-github-repo}, and clicking the green "Create repository" button.
+\item Create a folder on your computer called \texttt{stat-961-fall-2021}. 
+  \item Open RStudio and navigate to the \texttt{stat-961-fall-2021} directory in the RStudio "Files" pane (Figure~\ref{fig:rstudio}F). Click \texttt{More} -> \texttt{Set As Working Directory} (Figure~\ref{fig:rstudio}E).
+  \item Open the Terminal in RStudio (Figure~\ref{fig:rstudio}C), click the down arrow, and click \texttt{Go to Current Directory}. 
+  \item In the terminal, type
+<<eval=FALSE>>=
+git clone https://github.com/katsevich-teaching/stat-961-fall-2021.git
+@
+This will copy the STAT 961 Github repository onto your local computer.
+  \item In the terminal, type
+<<eval=FALSE>>=
+git remote set-url --push origin https://github.com/[USERNAME]/stat-961-fall-2021.git
+@
+Here, "[USERNAME]" should be replaced by your Github username. This command will tell Github that any changes you make will be synchronized to your version of the class repository, as opposed to the main version.
+\item In the terminal, type 
+<<eval=FALSE>>=
+git push
+@
+This will have the effect of copying the contents of the repository to your personal Github account. Go to \texttt{https://github.com/[USERNAME]/stat-961-fall-2021} and check that this operation succeeded.
+\end{itemize}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width = \textwidth]{github-new-repo.png}
+\caption{Creating a new Github repository for the class.}
+\label{fig:new-github-repo}
+\end{figure}
+
+\section{Homework assignments}
+
+
+
+
+\paragraph{Pulling, editing, compiling, and pushing.}
+
+
+
+\begin{enumerate}
+  \item Locate and open the file \texttt{homework-0/homework-0.Rnw} in the files pane (Figure~\ref{fig:rstudio}F). Select "R Sweave" from the menu in the bottom right-hand corner of the editor pane (Figure~\ref{fig:rstudio}A).
+  \item Change "FirstName LastName" to your first and last name in line 24. 
+  \item Click "Compile PDF" near the top of the editor pane, and make sure the PDF compiled.
+  \item See what changes have been made by typing \texttt{git status} in the Terminal
+  \item Stage the changes for committing by typing the following command in the Terminal:
+<<eval=FALSE>>=
+git add --all
+@  
+  \item Commit the changes by typing the following command in the Terminal:
+<<eval=FALSE>>=
+git commit -m "Changed name on homework 0"
+@
+  \item Push the changes to your Github repository by typing the following command in the Terminal
+<<eval=FALSE>>=
+git push
+@
+  \item Submit compiled PDF to Gradescope.
+\end{enumerate}
+
+\section{LaTeX tutorial}
+
+\begin{enumerate}
+  \item Learn about LaTeX basics like formulas, cross-referencing
+\end{enumerate}
+
+
+\section{R tutorial}
+
+\section{Rnw tutorial}
+
+%==============================================================================
+% Problem 1
+%==============================================================================
+\begin{prob}
+How to reference R values within \LaTeX\ using $\backslash Sexpr\{\}$.
+\end{prob}
+%==============================================================================
+% Problem 1 Solution
+%==============================================================================
+\begin{sol}
+Here is some R code...
+
+<<message = FALSE, results = "hide">>=
+x <- c(1, 2, 3, 4, 5)
+y <- c(1, 2, 1.5, 3.5, 2.5)
+x.mean <- mean(x); x.sd <- sd(x)
+y.mean <- mean(y); y.sd <- sd(y)
+@
+The mean for $x$ is $\Sexpr{x.mean}$ and the standard deviation is $\Sexpr{x.sd}$. The mean for $y$ is $\Sexpr{y.mean}$ and the standard deviation is $\Sexpr{y.sd}$.
+\end{sol}
+
+%==============================================================================
+% Problem 2
+%==============================================================================
+\begin{prob}
+How to add regression tables to \LaTeX\ with $xtable()$.
+\end{prob}
+%==============================================================================
+% Problem 2 Solution
+%==============================================================================
+\begin{sol}
+Run the regression using the data above...
+
+<<message = FALSE, results = "hide">>=
+reg <- lm(y ~ x)
+@
+<<echo = FALSE, results = 'asis'>>=
+library(xtable)
+print(xtable(reg, caption ="This is a caption", label ="regression_problem_2"), caption.placement = "top")
+@
+
+<<echo = FALSE, results = 'asis'>>=
+reg
+@
+\end{sol}
+
+%==============================================================================
+% Problem 3
+%==============================================================================
+\begin{prob}
+How to add pdf plots to \LaTeX\ using knitr.
+\end{prob}
+%==============================================================================
+% Problem 3 Solution
+%==============================================================================
+\begin{sol}
+Still using the same data...
+
+<<this-is-a-label, message=FALSE, fig.cap = 'This is a caption', fig.lp = 'fig:', fig.width = 5, fig.height = 4, fig.align = 'center', out.width = '3in', fig.pos = 'H'>>=
+data <- data.frame(cbind(y, x))
+library(ggplot2)
+ggplot(data = data, aes(x = x, y = y)) +
+    geom_point(shape = 1) +
+    geom_smooth(method = lm) +
+    ggtitle("This is a title")
+@
+\end{sol}
+
+\end{document}
