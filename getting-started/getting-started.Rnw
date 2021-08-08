@@ -162,12 +162,11 @@ This will have the effect of copying the contents of the repository to your pers
 
 \clearpage 
 
-\section{Homework assignments}
+\section{Course materials}
 
-Homework assignments will be made available on the Github \href{https://github.com/Katsevich-Teaching/stat-961-fall-2021/tree/main/homework/}{webpage}. As an example, see Homework 0. 
+\subsection{Homework assignments}
 
-\paragraph{Pulling, editing, compiling, and pushing.}
-
+Homework assignments will be made available on the Github \href{https://github.com/Katsevich-Teaching/stat-961-fall-2021/tree/main/homework/}{webpage}. As an example, see \href{https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/homework/homework-0/homework-0.pdf}{Homework 0}. To complete homework use the following steps:
 
 
 \begin{enumerate}
@@ -190,83 +189,11 @@ git push
   \item Submit compiled PDF to Gradescope.
 \end{enumerate}
 
-\section{LaTeX tutorial}
 
-\begin{enumerate}
-  \item Learn about LaTeX basics like formulas, cross-referencing
-\end{enumerate}
+Homework will be in the Rnw format, based on LaTeX and R. If you need to brush up on LaTeX, browse \href{https://www.overleaf.com/learn}{here}. Useful articles on this page are those under the heading "mathematics" as well as the \href{https://www.overleaf.com/learn/latex/Cross_referencing_sections,_equations_and_floats}{article} on cross-referencing.
+
+\subsection{Lecture materials}
 
 
-\section{R tutorial}
-
-\section{Rnw tutorial}
-
-%==============================================================================
-% Problem 1
-%==============================================================================
-\begin{prob}
-How to reference R values within \LaTeX\ using $\backslash Sexpr\{\}$.
-\end{prob}
-%==============================================================================
-% Problem 1 Solution
-%==============================================================================
-\begin{sol}
-Here is some R code...
-
-<<message = FALSE, results = "hide">>=
-x <- c(1, 2, 3, 4, 5)
-y <- c(1, 2, 1.5, 3.5, 2.5)
-x.mean <- mean(x); x.sd <- sd(x)
-y.mean <- mean(y); y.sd <- sd(y)
-@
-The mean for $x$ is $\Sexpr{x.mean}$ and the standard deviation is $\Sexpr{x.sd}$. The mean for $y$ is $\Sexpr{y.mean}$ and the standard deviation is $\Sexpr{y.sd}$.
-\end{sol}
-
-%==============================================================================
-% Problem 2
-%==============================================================================
-\begin{prob}
-How to add regression tables to \LaTeX\ with $xtable()$.
-\end{prob}
-%==============================================================================
-% Problem 2 Solution
-%==============================================================================
-\begin{sol}
-Run the regression using the data above...
-
-<<message = FALSE, results = "hide">>=
-reg <- lm(y ~ x)
-@
-<<echo = FALSE, results = 'asis'>>=
-library(xtable)
-print(xtable(reg, caption ="This is a caption", label ="regression_problem_2"), caption.placement = "top")
-@
-
-<<echo = FALSE, results = 'asis'>>=
-reg
-@
-\end{sol}
-
-%==============================================================================
-% Problem 3
-%==============================================================================
-\begin{prob}
-How to add pdf plots to \LaTeX\ using knitr.
-\end{prob}
-%==============================================================================
-% Problem 3 Solution
-%==============================================================================
-\begin{sol}
-Still using the same data...
-
-<<this-is-a-label, message=FALSE, fig.cap = 'This is a caption', fig.lp = 'fig:', fig.width = 5, fig.height = 4, fig.align = 'center', out.width = '3in', fig.pos = 'H'>>=
-data <- data.frame(cbind(y, x))
-library(ggplot2)
-ggplot(data = data, aes(x = x, y = y)) +
-    geom_point(shape = 1) +
-    geom_smooth(method = lm) +
-    ggtitle("This is a title")
-@
-\end{sol}
 
 \end{document}
