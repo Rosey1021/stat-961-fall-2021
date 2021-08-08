@@ -3,3 +3,5 @@
 *.log
 *.pages
 .Rproj.user
+*/cache/
+.DS_Store

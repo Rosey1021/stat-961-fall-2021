@@ -24,7 +24,6 @@
 %==============================================================================
 \author{FirstName LastName}
 \title{Homework 0}
-\date{Due August 31, 2021}
 
 %==============================================================================
 % Put title and author in PDF properties
@@ -97,40 +96,75 @@ opts_chunk$set(cache = TRUE)
 
 \paragraph{Instructions.}
 
-This very short ``homework'' is meant to expose you to the Rnw format. It will be submitted but not graded. Before starting this assignment, please complete the setup described in Section 1 of \href{https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/getting-started/getting-started.pdf}{getting-started.pdf}. Then, follow the steps described in Section 2 as you work through this homework. Please submit your completed PDF to \href{https://www.gradescope.com/courses/284562}{Gradescope} as described in the aforementioned document. 
-
-\paragraph*{}
+This ``homework" is meant to expose you to the Rnw format and to make sure you have set up Git, Github, R, and RStudio correctly. It will be submitted but not graded. 
 
 %==============================================================================
 % Problem 1
 %==============================================================================
 \begin{prob}
-Write a function that takes as input two numbers and outputs their sum. Apply this function to the inputs (2,2) and print the output. Hint: See \href{https://r4ds.had.co.nz/functions.html}{Chapter 19} of R for Data Science if you need to review how functions are defined in R.
+How to reference R values within \LaTeX\ using $\backslash Sexpr\{\}$.
 \end{prob}
 %==============================================================================
 % Problem 1 Solution
 %==============================================================================
 \begin{sol}
-<<>>=
-# insert your code here
+Here is some R code...
+
+<<message = FALSE, results = "hide">>=
+x <- c(1, 2, 3, 4, 5)
+y <- c(1, 2, 1.5, 3.5, 2.5)
+x.mean <- mean(x); x.sd <- sd(x)
+y.mean <- mean(y); y.sd <- sd(y)
 @
+The mean for $x$ is $\Sexpr{x.mean}$ and the standard deviation is $\Sexpr{x.sd}$. The mean for $y$ is $\Sexpr{y.mean}$ and the standard deviation is $\Sexpr{y.sd}$.
 \end{sol}
 
 %==============================================================================
 % Problem 2
 %==============================================================================
 \begin{prob}
-Write down the statement of the Pythagorean Theorem as a display equation.
+How to add regression tables to \LaTeX\ with $xtable()$.
 \end{prob}
 %==============================================================================
 % Problem 2 Solution
 %==============================================================================
 \begin{sol}
+Run the regression using the data above...
 
-\begin{equation*}
-% insert your equation here
-\end{equation*}
+<<message = FALSE, results = "hide">>=
+reg <- lm(y ~ x)
+@
+<<echo = FALSE, results = 'asis'>>=
+library(xtable)
+print(xtable(reg, caption ="This is a caption", label ="regression_problem_2"), caption.placement = "top")
+@
 
+\end{sol}
+
+%==============================================================================
+% Problem 3
+%==============================================================================
+\begin{prob}
+How to add pdf plots to \LaTeX\ using knitr.
+\end{prob}
+%==============================================================================
+% Problem 3 Solution
+%==============================================================================
+\begin{sol}
+Figure~\ref{fig:regression-line} shows the regression line.
+
+\begin{figure}
+<<this-is-a-label, message=FALSE, fig.lp = 'fig:', fig.width = 5, fig.height = 4, fig.align = 'center', out.width = '6.5in', fig.pos = 'H'>>=
+data <- data.frame(cbind(y, x))
+library(ggplot2)
+ggplot(data = data, aes(x = x, y = y)) +
+    geom_point(shape = 1) +
+    geom_smooth(method = lm) +
+    ggtitle("This is a title")
+@
+\caption{Regression line}
+\label{fig:regression-line}
+\end{figure}
 \end{sol}
 
 \end{document}

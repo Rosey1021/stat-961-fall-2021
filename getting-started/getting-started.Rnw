@@ -165,55 +165,32 @@ This will have the effect of copying the contents of the repository to your pers
 
 \clearpage 
 
-\section{Course materials}
+\section{Homework assignments}
 
-\subsection{Homework assignments}
-
-\paragraph{Assignment format.} The homework assignment will be distributed as an Rnw document; see \href{https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/homework/homework-0/homework-0.Rnw}{homework-0.Rnw} for an example. This format facilitates the integration of LaTeX (for typesetting mathematical formulas) with R code (for statistical programming), producing a PDF report; see \href{https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/homework/homework-0/homework-0.pdf}{homework-0.pdf} for an example. Read more about Rnw format \href{http://edrub.in/ARE212/latexKnitr.html}{here}. For those unfamiliar with LaTeX, browse \href{https://www.overleaf.com/learn}{this webpage}. Useful articles on this page are those under the heading ``mathematics'' as well as the \href{https://www.overleaf.com/learn/latex/Cross_referencing_sections,_equations_and_floats}{article} on cross-referencing.  
+\paragraph{Assignment format.} The homework assignment will be distributed as an Rnw document; see \href{https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/homework/homework-0/homework-0.Rnw}{homework-0.Rnw} for an example. This format facilitates the integration of LaTeX (for typesetting mathematical formulas) with R code (for statistical programming), producing a PDF report; see \href{https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/homework/homework-0/homework-0.pdf}{homework-0.pdf} for an example. Read more about Rnw format \href{http://edrub.in/ARE212/latexKnitr.html}{here}. For those unfamiliar with LaTeX, please browse \href{https://www.overleaf.com/learn}{this webpage}. Useful articles on this page are those under the heading ``mathematics'' as well as the \href{https://www.overleaf.com/learn/latex/Cross_referencing_sections,_equations_and_floats}{article} on cross-referencing. For those unfamiliar with R, please read Chapters 1-5,7,9,10,12,15,17-21 of \href{https://r4ds.had.co.nz/}{R for Data Science}. Those familiar with R should also browse these chapters to fill in any gaps.
 
 \paragraph{Assignment download, completion and submission.}
 
+The following steps should be carried out for each homework assignment. Work through these steps for Homework 0.
+
 \begin{itemize}
-\item \textbf{Download.} Homework assignments will be made available on the class Github repository (under the \href{https://github.com/Katsevich-Teaching/stat-961-fall-2021/tree/main/homework/}{homework} folder). To download the assignment, navigate to the \texttt{stat-961-fall-2021} directory on your computer in the Terminal (either through RStudio or a separate Terminal window), as in step 5 of the section ``Git and Github setup'' above. Then, pull the latest version of the class repository from Github by typing 
+\item \textbf{Download.} Homework assignments will be made available on the class Github repository (under the \href{https://github.com/Katsevich-Teaching/stat-961-fall-2021/tree/main/homework/}{homework} folder). To download the assignment, navigate to the \texttt{stat-961-fall-2021} directory on your computer in the Terminal (either through RStudio or a separate Terminal window), as in step 5 of the section ``Git and Github setup'' above. Then, pull the latest version of the class repository from Github by typing
 <<eval=FALSE>>=
 git pull
 @  
-\noindent Note that, if the repository has changed on Github and on your computer, then Git will automatically merge these two sets of changes. In this case, Git will automatically open an editor to allow you to type an informative message about this merge. However, a default message is already present and you do not need to change it, so simply close this editor. The default editor Git uses is Vim, and to close it you can type ``:q'' and then press enter. 
+\noindent If the repository has changed on Github and on your computer, then Git will automatically merge these two sets of changes. In this case, Git will automatically open an editor to allow you to type an informative message about this merge. However, a default message is already present and you do not need to change it, so simply close this editor. The default editor Git uses is Vim, and to close it you can type ``:q'' and then press enter. 
+\textit{Note:} Other course materials (e.g. lecture notes) will also be distributed via the course Github. These materials should be downloaded using the same process as above.
 \item \textbf{Complete.} Open RStudio. Navigate to the directory (e.g. \texttt{homework-0/}) containing the homework assignment in the files pane (Figure~\ref{fig:rstudio}F). Click \texttt{More} -> \texttt{Set As Working Directory} (Figure~\ref{fig:rstudio}E). Then, click on the Rnw file (e.g. \texttt{homework-0.Rnw}) to open it in the RStudio editor. Select ``R Sweave'' from the menu in the bottom right-hand corner of the editor pane (Figure~\ref{fig:rstudio}A). Change ``FirstName LastName'' to your first and last name. Work through the problems in the assignment, keeping the problem statements as they are and updating only the solutions between $\backslash$\texttt{begin\{sol\}} and $\backslash$\texttt{end\{sol\}}. When you make changes to the Rnw file, click ``Compile PDF'' near the top of the editor pane (Figure~\ref{fig:rstudio}D) to update the PDF output file. It is convenient to place the RStudio and PDF preview windows side by side. To save your work, periodically \textit{commit} it to Git by typing
 <<eval=FALSE>>=
-git commit -am "[commit message briefly describing the changes]"
+git add --all
+git commit -m "[commit message briefly describing the changes]"
 @  
-at the Terminal.
-\item \textbf{Submit.}
-\end{itemize}
-
-
-
-To complete this homework use the following steps:
-
-
-\begin{enumerate}
-  \item Locate and open the file \texttt{homework-0/homework-0.Rnw} in the files pane (Figure~\ref{fig:rstudio}F). 
-  \item Change ``FirstName LastName'' to your first and last name in line 24. 
-  \item Click ``Compile PDF'' near the top of the editor pane, and make sure the PDF compiled.
-  \item Stage the changes for committing by typing the following command in the Terminal:
-<<eval=FALSE>>=
-git commit -am "[commit message briefly describing the changes]"
-@  
-  \item Commit the changes by typing the following command in the Terminal:
-<<eval=FALSE>>=
-git commit -m "Changed name on homework 0"
-@
-  \item Push the changes to your Github repository by typing the following command in the Terminal
+at the Terminal. 
+\item \textbf{Submit.} When you have completed your assignment, compile to PDF and commit one last time. Then, push the changes to your Github repository by typing the following command in the Terminal:
 <<eval=FALSE>>=
 git push
 @
-  \item Submit compiled PDF to Gradescope.
-\end{enumerate}
-
-
-\subsection{Lecture materials}
-
-
+This will have the effect of synchronizing your files with your \textit{personal} Github repository (but not the class repository). Submit the compiled PDF to \href{https://www.gradescope.com/courses/284562}{Gradescope}. If you are unfamiliar with Gradescope, please watch \href{https://www.youtube.com/watch?v=oHvYPaYVhpo}{this brief video}.
+\end{itemize}
 
 \end{document}
