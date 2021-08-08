@@ -128,28 +128,47 @@ tinytex::install_tinytex()
 
 \paragraph{Git and Github setup.}
 
+Git and Github are version control and code sharing tools used ubiquitously in applied statistics and data science. In STAT 961, you will use these tools to obtain course materials as well as to complete assignments. If you are unfamiliar with these tools (familiarity is not a prerequisite for this course), please read the first three sections of \href{https://www.educative.io/blog/git-github-tutorial-beginners}{this webpage}. 
+
+Course materials are stored in a Github repository (course repository) called \href{https://github.com/katsevich-teaching/stat-961-fall-2021}{\texttt{stat-961-fall-2021}}, which also serves as the primary course webpage (the repository is private; see instructions below to gain access). You have read-only access to this repository. You will create a separate Github repository (personal repository) with the same name but under your personal Github account, which will contain your work in addition to all of the course materials available in the course repository. It is also private and other students will not have access to it. Both of these repositories will be linked to a folder named \texttt{stat-961-fall-2021} on your computer. See Figure~\ref{fig:git-github} to visualize the relationship among these three repositories.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width = \textwidth]{git-github.png}
+\caption{Relationship among Git repositories on Github and on your computer.}
+\label{fig:git-github}
+\end{figure}
+
+Follow the instructions below to set up these repositories. 
+
 \begin{enumerate}
-\item Create an account on \href{https://github.com/signup?ref_cta=Sign+up&ref_loc=header+logged+out&ref_page=\%2F&source=header-home}{Github} (if not already done so).
-\item Create a repository on Github named \texttt{stat-961-fall-2021} by signing into your Github account, clicking ``Repositories'', clicking the green ``New'' button, choosing the options pictured in Figure~\ref{fig:new-github-repo}, and clicking the green ``Create repository'' button.
+\item Create an account on \href{https://github.com/signup?ref_cta=Sign+up&ref_loc=header+logged+out&ref_page=\%2F&source=header-home}{Github} if you do not already have one, and log into your account.
+\item Click the \href{https://classroom.github.com/g/Kbt0vB3h}{course invitation link} (please do not share this link with students not in the class). Then, follow the prompts to click ``Authorize Github Classroom'', join ``STAT 961 Students (Fall 2021)'', and then navigate to the class Github repository. 
+\item Create a repository named \texttt{stat-961-fall-2021} on your personal Github account by clicking ``Repositories'', clicking the green ``New'' button, choosing the options pictured in Figure~\ref{fig:new-github-repo}, and clicking the green ``Create repository'' button. 
 \item Create a folder on your computer called \texttt{stat-961-fall-2021}.
-\item Install Git by following the instructions \href{https://git-scm.com/book/en/v2/Getting-Started-Installing-Git}{here} (if not already done so).
-\item Open RStudio and navigate to the \texttt{stat-961-fall-2021} directory in the RStudio ``Files'' pane (Figure~\ref{fig:rstudio}F). Click \texttt{More} -> \texttt{Set As Working Directory} (Figure~\ref{fig:rstudio}E). Open the Terminal in RStudio (Figure~\ref{fig:rstudio}C), click the down arrow, and click \texttt{Go to Current Directory}. (For Mac/Linux users, alternatively you can open a Terminal window outside of RStudio and navigate to the \texttt{stat-961-fall-2021} directory).
+\item Open a Terminal either via RStudio (see Figure~\ref{fig:rstudio}C; works on any operating system) or by opening the Terminal application (works on Mac and Linux systems). 
+\item Check if you have Git installed by typing
+<<eval=FALSE>>=
+git --version
+@
+in the Terminal. If you get an error message indicating that git does not exist, install it by following the instructions \href{https://git-scm.com/book/en/v2/Getting-Started-Installing-Git}{here}.
 \item To set up Git (if not already done so), type the following commands in the Terminal, using your name and email address:
 <<eval=FALSE>>=
 git config --global user.name "Your name here"
 git config --global user.email "your_email@example.com"
 @
-\item In the terminal, type
+\item Change the directory to \texttt{stat-961-fall-2021}. In RStudio, you can do this by navigating to the \texttt{stat-961-fall-2021} directory in the ``Files'' pane (Figure~\ref{fig:rstudio}F), clicking \texttt{More} -> \texttt{Set As Working Directory} (Figure~\ref{fig:rstudio}E), clicking the down arrow next to the ``Terminal" tab, and clicking \texttt{Go to Current Directory}. 
+\item In the Terminal, type
 <<eval=FALSE>>=
 git clone https://github.com/katsevich-teaching/stat-961-fall-2021.git
 @
 This will copy the STAT 961 Github repository onto your local computer.
-  \item In the terminal, type
+  \item In the Terminal, type
 <<eval=FALSE>>=
 git remote set-url --push origin https://github.com/[USERNAME]/stat-961-fall-2021.git
 @
-Here, ``[USERNAME]'' should be replaced by your Github username. This command will tell Github that any changes you make will be synchronized to your version of the class repository, as opposed to the main version.
-\item In the terminal, type 
+Here, ``[USERNAME]'' should be replaced by your Github username. This command will tell Github that any changes you make will be synchronized to your personal repository  as opposed to the course repository.
+\item In the Terminal, type 
 <<eval=FALSE>>=
 git push
 @
@@ -163,11 +182,13 @@ This will have the effect of copying the contents of the repository to your pers
 \label{fig:new-github-repo}
 \end{figure}
 
+
+
 \clearpage 
 
 \section{Homework assignments}
 
-\paragraph{Assignment format.} The homework assignment will be distributed as an Rnw document; see \href{https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/homework/homework-0/homework-0.Rnw}{homework-0.Rnw} for an example. This format facilitates the integration of LaTeX (for typesetting mathematical formulas) with R code (for statistical programming), producing a PDF report; see \href{https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/homework/homework-0/homework-0.pdf}{homework-0.pdf} for an example. Read more about Rnw format \href{http://edrub.in/ARE212/latexKnitr.html}{here}. For those unfamiliar with LaTeX, please browse \href{https://www.overleaf.com/learn}{this webpage}. Useful articles on this page are those under the heading ``mathematics'' as well as the \href{https://www.overleaf.com/learn/latex/Cross_referencing_sections,_equations_and_floats}{article} on cross-referencing. For those unfamiliar with R, please read Chapters 1-5,7,9,10,12,15,17-21 of \href{https://r4ds.had.co.nz/}{R for Data Science}. Those familiar with R should also browse these chapters to fill in any gaps.
+\paragraph{Assignment format.} The homework assignment will be distributed as an Rnw document; see \href{https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/homework/homework-0/homework-0.Rnw}{homework-0.Rnw} for an example. This format facilitates the integration of LaTeX (for typesetting mathematical formulas) with R code (for statistical programming), producing a PDF report; see \href{https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/homework/homework-0/homework-0.pdf}{homework-0.pdf} for an example. Read more about Rnw format \href{http://edrub.in/ARE212/latexKnitr.html}{here}. For those unfamiliar with LaTeX, please browse \href{https://www.overleaf.com/learn}{this webpage}. Useful articles on this page are those under the heading ``mathematics'' as well as the \href{https://www.overleaf.com/learn/latex/Cross_referencing_sections,_equations_and_floats}{article} on cross-referencing. For those unfamiliar with R, please read Chapters 1-5, 7, 9, 10, 12, 15, 17-21 of \href{https://r4ds.had.co.nz/}{R for Data Science}. Those familiar with R should also browse these chapters to fill in any gaps.
 
 \paragraph{Assignment download, completion and submission.}
 
