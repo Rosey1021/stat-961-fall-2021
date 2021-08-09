@@ -8,7 +8,7 @@
 
 - [Canvas](https://canvas.upenn.edu/courses/1597407) (announcements, grades, class recordings)
 
-- [Piazza](piazza.com/upenn/fall2021/stat961) (discussion forum)
+- [Piazza](https://piazza.com/upenn/fall2021/stat961) (discussion forum)
 
 ## Course schedule
 
