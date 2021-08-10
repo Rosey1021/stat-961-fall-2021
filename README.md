@@ -2,7 +2,7 @@
 
 ## Course links
 
-- [Syllabus](https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/Syllabus.pdf) (course information)
+- [Syllabus](https://apps.wharton.upenn.edu/syllabi/2021C/STAT961001/) (course information)
 
 - [Gradescope](https://www.gradescope.com/courses/285243) (assignment submission and feedback)
 
@@ -14,4 +14,6 @@
 
 Date | Topic | Readings | Recording | Assignments
 :---|:---|:---|:---|:---
-Test | Test | Test | Test | Test
+Tue, Aug 31 | TBD | TBD | TBD | --
+Thu, Sep 2 | TBD | TBD | TBD | --
+Fri, Sep 3 | -- | -- | -- | [Homework 0](https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/homework/homework-0/homework-0.pdf) due at 11:59pm
