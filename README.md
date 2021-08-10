@@ -2,7 +2,7 @@
 
 ## Course links
 
-- [Syllabus](https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/Syllabus.pdf) (course information)
+- [Syllabus](https://apps.wharton.upenn.edu/syllabi/2021C/STAT961001/) (course information)
 
 - [Gradescope](https://www.gradescope.com/courses/285243) (assignment submission and feedback)
 
