@@ -213,7 +213,7 @@ at the Terminal.
 <<eval=FALSE>>=
 git push
 @
-This will have the effect of synchronizing your files with your \textit{personal} Github repository (but not the class repository). Submit the compiled PDF to \href{https://www.gradescope.com/courses/285259}{Gradescope}. If you are unfamiliar with Gradescope, please watch \href{https://www.youtube.com/watch?v=oHvYPaYVhpo}{this brief video}.
+This will have the effect of synchronizing your files with your \textit{personal} Github repository (but not the class repository). Submit the compiled PDF to \href{https://www.gradescope.com/courses/285243}{Gradescope}. If you are unfamiliar with Gradescope, please watch \href{https://www.youtube.com/watch?v=oHvYPaYVhpo}{this brief video}.
 \end{itemize}
 
 \end{document}
