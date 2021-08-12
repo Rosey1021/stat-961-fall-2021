@@ -10,6 +10,8 @@
 
 - [Piazza](https://piazza.com/upenn/fall2021/stat961) (discussion forum)
 
+- [Feedback](https://forms.gle/GbkRzddrwLgBkdCd7) (provide feedback anonymously at any point during the semester)
+
 ## Course schedule
 
 Date | Topic | Readings | Recording | Assignments
