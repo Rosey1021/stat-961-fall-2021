@@ -24,7 +24,7 @@
 %==============================================================================
 \author{FirstName LastName}
 \title{Homework 0}
-\date{Due August 31, 2021}
+\date{Due September 1, 2021 at 11:59pm}
 
 %==============================================================================
 % Put title and author in PDF properties
