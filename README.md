@@ -17,5 +17,5 @@
 Date | Topic | Readings | Recording | Assignments
 :---|:---|:---|:---|:---
 Tue, Aug 31 | TBD | TBD | TBD | --
+Wed, Sep 1 | -- | -- | -- | [Homework 0](https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/homework/homework-0/homework-0.pdf) due at 11:59pm
 Thu, Sep 2 | TBD | TBD | TBD | --
-Fri, Sep 3 | -- | -- | -- | [Homework 0](https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/homework/homework-0/homework-0.pdf) due at 11:59pm
