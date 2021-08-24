@@ -14,3 +14,18 @@ if(!file.exists(destination)){
 } else{
   cat(sprintf("%s already exists.\n", filename))
 }
+
+# data from R4DS book
+r4ds_data_site = "https://raw.githubusercontent.com/hadley/r4ds/master/data/"
+
+# download height data
+filename = "heights.csv"
+destination = sprintf("data/%s", filename)
+if(!file.exists(destination)){
+  cat(sprintf("Downloading %s...\n", filename))
+  source = sprintf("%s/%s", r4ds_data_site, filename)
+  height_data = read_csv(source, col_types = "ddfiif")
+  write_csv(height_data, file = destination)
+} else{
+  cat(sprintf("%s already exists.\n", filename))
+}

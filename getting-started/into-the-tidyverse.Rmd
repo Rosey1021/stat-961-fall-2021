@@ -1,0 +1,622 @@
+---
+title: "Into the `tidyverse`"
+author: "Shuxiao Chen"
+date: "1/22/2021"
+output:
+  pdf_document: default
+  pdf: default
+---
+
+Many thanks to Shuxiao Chen, who prepared this tutorial for STAT 471 in Spring 2021. You can view the corresponding video [here](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=2f111421-bd3e-4907-9c94-acb8017c7d17).
+
+# Data science workflow
+
+![Data science workflow (R for Data Science).](figures/data_science_workflow.png)
+
+We will cover Chapter 3 (visualization), 5 (transformation), 11 (import), and 12 (tidy data) of R for Data Science (R4DS).
+
+```{r, message=FALSE}
+# install.packages("tidyverse")
+library(tidyverse)
+```
+
+
+# Importing data
+
+The materials in this section comes from Chapter 11 of R4DS. 
+
+## The basics
+
+The `readr` package can read all kinds of data into R. The functions related to data importing are named as `read_something()`. For example:
+
+- `read_csv()` reads *comma separated values* files; 
+- `read_tsv()` reads *tab separated values* files;
+- `read_delim()` reads files with an arbitrary (but user-defined) delimiter.
+
+All such functions share a similar syntax and we will focus on `read_csv` here.
+
+```{r}
+# read .csv files from a path
+heights <- read_csv("../data/heights.csv")
+
+heights
+```
+
+```{r}
+# read an inline csv file
+manual_data <- read_csv(
+  "a,b,c
+  1,2,3
+  4,5,6")
+
+manual_data
+```
+
+```{r}
+# skip a few lines
+manual_data <- read_csv(
+  "The first line of metadata
+  The second line of metadata
+  x,y,z
+  1,2,3", skip = 2)
+
+manual_data
+```
+
+```{r}
+# skip all lines that start with a "#" sign
+manual_data <- read_csv(
+  "# A comment I want to skip
+  x,y,z
+  1,2,3", comment = "#")
+
+manual_data
+```
+
+```{r}
+# read files without headings
+manual_data <- read_csv(
+  "1,2,3
+  4,5,6", col_names = FALSE)
+
+manual_data
+```
+
+```{r}
+# read files without headings + specify the headings
+manual_data <- read_csv(
+  "1,2,3
+  4,5,6", col_names = c("x", "y", "z"))
+
+manual_data
+```
+
+```{r}
+# dealing with NA (not available, e.g., missing) values
+manual_data <- read_csv(
+  "a,b,c
+  1,2,.", na = ".")
+
+manual_data
+```
+
+## Manually specifying column types
+
+```{r}
+heights <- read_csv(
+  "../data/heights.csv",
+  col_types = cols(
+      earn = col_double(),
+      height = col_double(),
+      sex = col_factor(),
+      ed = col_integer(),
+      age = col_integer(),
+      race = col_factor()
+  )
+)
+
+heights
+```
+
+# Tidying Data
+
+The materials in this section comes from Chapter 12 of R4DS.
+
+After getting your data into R, you need to bring it into a form that will be easy to analyze. This form is called “tidy data” and the process of bringing it into that form is called “tidying.” Most of the datasets you encounter in homework problems will already be tidy, but when you go out into the real world to find data (including for your final projects!), it will likely be much more messy.
+
+## What kinds of data are "tidy"?
+
+A single dataset can be represented in multiple ways.
+
+```{r}
+table1
+```
+
+```{r}
+table2
+```
+
+```{r}
+table3
+```
+
+```{r}
+# stores cases
+table4a
+```
+
+```{r}
+# stores population
+table4b
+```
+
+There are three interrelated rules which make a dataset tidy:
+
+1. Each variable must have its own column.
+2. Each observation must have its own row.
+3. Each value must have its own cell.
+
+![Rules of tidy data.](figures/tidy_rules.png)
+
+
+## How to make a dataset tidy
+
+### pivot_longer()
+
+Let us look at `table4a` more closely.
+
+```{r}
+table4a
+```
+
+`table4a` itself is not tidy: 1999 and 2000 are values, not variables. Ideally we want to modify it as follows: 
+
+![Pivot `table4a` to be longer.](figures/pivot_longer.png)
+
+We then pivot it to be longer.
+
+```{r}
+table4a %>% 
+  pivot_longer(cols = c(`1999`, `2000`), 
+               names_to = "year", 
+               values_to = "cases")
+```
+
+### pivot_wider()
+
+Let us look at `table2` more closely.
+
+```{r}
+table2
+```
+
+`table2` is not tidy: one observation is scattered across two rows. Ideally we want to modify it as follows: 
+
+![Pivot `table2` to be wider.](figures/pivot_wider.png)
+
+We then pivot it to be wider.
+
+```{r}
+table2 %>%
+    pivot_wider(names_from = type, values_from = count)
+```
+
+
+### separate()
+
+Let us look at `table3` more closely.
+
+```{r}
+table3
+```
+
+`table3` is not tidy: two values are squeezed into one cell.
+
+```{r}
+table3 %>% 
+  separate(col = rate, into = c("cases", "population"))
+```
+### unite()
+
+Let us look at a new `table5`:
+
+```{r}
+table5
+```
+
+```{r}
+table5 %>% 
+  unite(col = new, century, year)
+```
+
+## Dealing with missing values
+
+### Types of missing-ness
+A value can be missing in two possible ways:
+
+- *Explicitly*, i.e, flagged with `NA`.
+- *Implicitly*, i.e. simply not present in the data.
+
+```{r}
+stocks <- tibble(
+  year   = c(2015, 2015, 2015, 2015, 2016, 2016, 2016),
+  qtr    = c(   1,    2,    3,    4,    2,    3,    4),
+  return = c(1.88, 0.59, 0.35,   NA, 0.92, 0.17, 2.66)
+)
+
+stocks
+```
+
+The return of the observation with `year=2015, qtr=4` is *explicitly* missing, whereas the observation with `year=2016, qtr=1` is *implicitly* missing.
+
+### complete()
+
+We make the implicitly missing values explicit by `complete()`.
+
+```{r}
+stocks %>% 
+  complete(year, qtr)
+```
+
+### fill()
+
+```{r}
+treatment <- tribble(
+  ~ person,           ~ treatment, ~response,
+  "Derrick Whitmore", 1,           7,
+  NA,                 2,           10,
+  NA,                 3,           9,
+  "Katherine Burke",  1,           4
+)
+treatment
+```
+
+The `fill()` function takes a set of columns where you want missing values to be replaced by the most recent non-missing value (sometimes called last observation carried forward).
+
+```{r}
+treatment %>% 
+  fill(person)
+```
+
+
+# Transforming Data 
+
+## Overview
+Below is a list of popular `dplyr` commands. We will go through each one. 
+
+- `filter()`: filter out rows (i.e., observations) according to certain conditions;
+- `select()`: select columns (i.e., variables) according to certain conditions;
+- `distinct()`: 
+- `arrange()`: re-order rows;
+- `rename()`: rename columns;
+- `mutate()`: create new columns;
+- `group_by()`: "split" dataset into groups;
+- `summarise()`: creating summary statistics.
+
+
+To illustrate these commands, we will use a pre-existing dataset the contains 336,776 flights that departed from New York City in 2013. `Dplyr` allows you to gather insight from a dataset without altering the original dataset. 
+It is considered best practice not to alter the original dataset. For example in this case, we will never overwrite the existing dataset 'flights'. We will first take a look at the summary statistics.
+
+```{r}
+# install.packages("nycflights13")
+library(nycflights13)
+summary(flights)
+```
+
+
+## Pipes
+
+The `%>%` command is called a pipe. This means that the result of the code before `%>%` is sent, or "piped", to the one after after `%>%`. Piping is a powerful tool for clearly expressing a sequence of multiple operations, as we will see shortly.
+
+
+## filter()
+
+The filter command will only display the subset of your dataset that match a certain condition. This command will only show flights on Jan 1st, 2013.  
+
+```{r}
+flights %>%
+  filter(month == 1 & day == 1)
+```
+
+This code is the same as doing `filter(flights, month == 1 & day == 1)` since the `%>%` command passes the `flights` dataframe to the filter command.
+
+It is important to remember that this command does not alter the orignal `flight` dataset. If we want to save this subset as its own object, we run the following. Remember the `<-` is the assignment operator in `R`. 
+
+```{r}
+filteredFlight <- flights %>%
+                  filter(month == 1 & day == 1)
+
+filteredFlight
+```
+
+Multiple conditions can be included in a filter command. The command below shows any flights from Jan through June to PHL or SLC airports. 
+
+```{r}
+flights %>%
+  filter(dest %in% c("PHL","SLC") & month <= 6)
+```
+
+## select()
+
+Select will only return columns that are listed. In this case, the resulting dataset will consist of the Origin, Destination, and Carrier of flights that were destined for PHL or SLC in the first 6 months of the year. Remember, the pipe command sends the result of the current line to the next line. In this case, the filtered dataset is then piped into the select command. 
+
+```{r}
+flights %>%
+  filter(dest %in% c("PHL","SLC") & month <= 6) %>%
+  select(origin, dest, carrier)
+```
+
+On the contrary, we can use `-` to deselect columns. If we want to drop `year`, `month` and `day`, we just need to prefix `-` to each column name.
+
+```{r}
+flights %>%
+  filter(dest %in% c("PHL","SLC") & month <= 6) %>%
+  select(-year, -month, -day)
+```
+
+## distinct() 
+
+Distinct will remove any duplicate rows from the given dataset. Notice in the previous command, it returned a subset with 2116 rows, but with distinct, we can see that only 8 carriers flew to PHL or SLC in the first half of the year. 
+
+```{r}
+flights %>%
+  filter(dest %in% c("PHL","SLC") & month <= 6) %>%
+  select(origin, dest, carrier) %>% 
+  distinct()
+```
+
+## arrange()
+
+Arrange puts your data into alphabetical order. In this case the order is first by origin, then descending alphabetical order of the destination, then alphabetical order of carrier. 
+
+```{r}
+flights %>%
+  filter(dest %in% c("PHL","SLC") & month <= 6) %>%
+  select(origin, dest, carrier) %>% 
+  distinct() %>%
+  arrange(origin, desc(dest), carrier)
+```
+
+## rename()
+The Rename function can be used to easily rename a column Header. Here, we rename carrier to airline. 
+
+```{r}
+flights %>%
+  filter(dest %in% c("PHL","SLC") & month <= 6) %>%
+  select(origin, dest, carrier) %>% 
+  distinct() %>%
+  arrange(origin, desc(dest), carrier) %>%
+  rename(airline = carrier)
+```
+
+## mutate() 
+
+Mutate is used to create new columns based on current ones. This feature is very useful. Here, we create three new variables "gain", "speed", and "gain_per_hour". Notice how "gain_per_hour" uses the column "gain", which was created in the same mutate statement.  
+
+```{r}
+flights %>%
+  mutate(
+    gain = dep_delay - arr_delay, 
+    speed = distance / air_time * 60, 
+    gain_per_hour = gain / (air_time / 60)) %>% 
+  select(dep_delay, arr_delay, gain, 
+         distance, distance, air_time, 
+         speed, gain_per_hour)
+```
+
+## group_by() 
+
+
+This function groups the rows of a dataset according to a column. It is usually used in conjunction with `summerise()` to produce summary statistics of each group.
+
+Here, the origin column had three categories, `EWR`, `JFK`, & `LGA`. The `group_by(origin)` command organizes the data by the three origins. Then `summarise()` is used to get metrics related to each origin.
+
+From this table, we can see that EWR had the most flights with 120835, and LGA had the lowest avg delay at 10.34
+
+```{r}
+flights %>%
+  group_by(origin) %>%
+  summarise(
+    num_of_flights = n(), 
+    avg_delay = mean(dep_delay, na.rm = TRUE)
+  ) # na.rm removes any NA data
+```
+
+`group_by` can also take expressions. The following returns the number of flights that started late but arrived early (or on time), started and arrived late etc.
+
+```{r}
+flights %>%
+  filter(!is.na(dep_delay) & !is.na(arr_delay)) %>%
+  group_by(dep_delay > 0, arr_delay > 0) %>%
+  summarise(num_of_flights = n())
+```
+
+### summarise()
+
+Summarise has a number of other functions that can be used within it. `n_distinct(dest)` returns the number of distinct destinations. From this table we can see that EWR has flights to the largest number of destinations (56). We can also see LGA flights has a lower average distance than those of EWR & JFK.  
+
+```{r}
+flights %>%
+  group_by(origin) %>%
+  summarise(destinations = n_distinct(dest), 
+            avg_distance = mean(distance, na.rm = TRUE))
+```
+
+Here we summarise the whole dataset. We can see we have 337,776 observations, 105 distinct destinations and a 12.6 min avg delay.
+
+```{r}
+flights %>%
+  summarise(num_of_flights = n(), 
+            destinations = n_distinct(dest), 
+            avg_delay = mean(dep_delay, na.rm = TRUE))
+```
+
+`dpylr` is a great way to answer initial questions about a dataset. For example, say we want to know what the farthest flight to leave NYC is.
+
+To answer this, we can group by origin and destination, summarise the max distance for each pair, and then order by the maximum distance value we created. It is now easy to see that the max distance was from EWR or JFK to HNL. 
+
+```{r}
+flights %>%
+  group_by(origin, dest) %>%
+  summarise(max_distance = max(distance)) %>%
+  arrange(desc(max_distance))
+```
+
+More details can be found in Chapter 5 of R4DS.
+
+# Visualizing Data 
+
+## Building blocks of `ggplot`
+
+We now move on to `ggplot`. The basic idea of `ggplot` is to independently specify building blocks and combine them to create just about any kind of graphical display you want. Building blocks of a graph include:
+
++ data
++ aesthetic mapping
++ geometric object
++ faceting
+
+## Aesthetic Mappings
+
+In `ggplot` land aesthetic means "something you can see". Examples include:
+
++ position (i.e., on the x and y axes)
++ color ("outside" color)
++ fill ("inside" color)
++ shape (of points)
++ size
+
+We now use a different dataset, gapminder. Let's do a quick summary.
+
+```{r}
+library(gapminder)
+summary(gapminder)
+```
+
+
+## Plots by Data Types
+
+
+|**Data** | **Plots** | **Geom (ggplot command)**|
+|----------------------------------|----------------------|----------------------------|
+| One Continuous | Histogram | geom_histogram |
+| One Continuous + One Categorical | Boxplot | geom_boxplot |
+| Two Continuous | Scatter Plot | geom_point |
+| Three Continuous | Scatter Plot + Size | geom_point w/ size aesthetic |
+| Two Continuous + One Categorical | Scatter Plot + Color | geom_point w/ color aesthetic |
+| Categorical with reasonable number of levels  | Faceting!! |  facet_wrap() |
+
+**Note: Time is always the x-axis.**
+
+There are many more geom types, but we will focus on the ones listed in the table above.
+
+[Here](https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf) is an extremely useful cheatsheet that shows all of ggplots functions and how to use them.
+
+### One Continous /  Geom_Histogram
+
+The following shows the histogram of life Expectancy in 2007. Life expectancy is a continuous variable, so we use `geom_histogram()`.
+
+Note how the `%>%` or "piping" also works with ggplot. If you are not piping in a dataframe, the first input to ggplot should be your dataframe. For example, the command would become `ggplot(gapminder, aes(x = lifeExP)) + geom_histogram(binwidth = 2)`
+
+```{r}
+#hist(gapminder$lifeExp)
+gapminder %>%
+  ggplot(aes(x = lifeExp)) + geom_histogram(binwidth = 2) +
+  theme_bw()
+```
+
+### One Continuous + One Categorical / Geom_boxplot
+
+Now, we want to show `lifeExp` broken down by continent. `Continent` is a categorical variable, also called factors in R. For this, we use the geom_boxplot() command. 
+
+```{r}
+gapminder %>%
+  filter(year == 2007) %>%
+  ggplot(aes(x = continent, y = lifeExp)) + geom_boxplot() +
+  theme_bw()
+```
+
+### Two Continous / Geom_Point
+
+Using `geom_point()` we create a scatter plot of our two continuous variables, `gdpPercap` and `LifeExp`.
+
+```{r}
+#plot(gapminder$gdpPercap, gapminder$lifeExp, pch=16)
+gapminder %>%
+  ggplot(aes(x = gdpPercap, y = lifeExp)) + 
+  geom_point() +
+  theme_bw()
+```
+
+Some relationships will look better on different scales, and ggplot allows you to change scales very quickly. Here we log the x-axis, with `scale_x_log10()`, which makes the relationship between these two varibles much clearer.
+
+```{r, message=FALSE}
+gapminder %>%
+  ggplot(aes(x = gdpPercap, y = lifeExp)) + 
+  geom_point() +
+  scale_x_log10() +
+  theme_bw()
+```
+
+### Three Continuous / Geom_point With Size Aesthetic
+
+If we want to show three continuous variables at the same time, we can use the size aesthetic in ggplot. This will alter the size of the point by the value in the `pop` column of the gapminder data frame.
+
+```{r, message=FALSE}
+gapminder %>%
+  filter(year == 2007) %>%
+  ggplot(aes(x = gdpPercap, y = lifeExp, size = pop)) + 
+  geom_point() +
+  scale_x_log10() +
+  theme_bw()
+```
+
+
+### Two Continuous + One Categorical / Geom_point With Color Aesthetic
+
+To show more insight into this graph, we can show each point by which continent it is from. Adding the color Aesthetic allows us to show a categorical variable, `continent`, as each point is colored by what continent it is from. 
+
+```{r, message=FALSE}
+gapminder %>%
+  ggplot(aes(x = gdpPercap, y = lifeExp, color = continent)) + 
+  geom_point() +
+  scale_x_log10() +
+  theme_bw()
+```
+
+## Faceting
+
+Instead of changing the color of points on the graph by continent, you can also create a different graph for each continent by 'faceting'. Depending on the number of factors and your dataset, faceting may look better than just changing colors. To do this we add the `facet_wrap(~ continent)` command. 
+
+```{r,message=FALSE}
+gapminder %>%
+  ggplot(aes(x = gdpPercap, y = lifeExp)) +
+  geom_point() +
+  scale_x_log10() +
+  facet_wrap(~continent) + 
+  theme_bw()
+```
+
+You can facet with any geom type. Here is an example with `geom_histogram()`. It is also possible to color and facet on the same variable, as shown below. 
+```{r}
+gapminder %>%
+  filter(year == 2007) %>%
+  ggplot(aes(x = lifeExp, fill = continent)) +
+  geom_histogram(binwidth = 2) +
+  facet_wrap(~ continent) + 
+  theme_bw()
+```
+
+## Adding a linear model line quickly / Geom_smooth
+
+`ggplot` can also quickly add a linear model to a graph. There are also other models geom_smooth can do ("lm", "glm", "gam", "loess", "rlm"). If you leaving it blank it will automatically choose one for you, but that is not recommended.
+
+To add the linear model line, we add `geom_smooth(method = 'lm', se = TRUE)` to the command. se = TRUE tells it to plot the standard error ranges on the graph.
+
+```{r,message=FALSE}
+gapminder %>%
+  ggplot(aes(x = gdpPercap, y = lifeExp)) + 
+  geom_point(aes(alpha = year)) + 
+  geom_smooth(method = 'lm', se = TRUE) + 
+  scale_x_log10() + 
+  theme_bw()
+```
