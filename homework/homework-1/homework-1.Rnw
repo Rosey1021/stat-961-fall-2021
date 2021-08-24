@@ -1,0 +1,205 @@
+% (C) Brett Klamer - MIT - http://opensource.org/licenses/MIT
+% Please contact me if you find any errors or make improvements
+% Contact details at brettklamer.com
+
+\documentclass[11pt,letterpaper,english,oneside]{article} % article class is a standard class
+%==============================================================================
+%Load Packages
+%==============================================================================
+\usepackage[left=1in,right=1in,top=1in,bottom=1in]{geometry} % easy page margins
+\usepackage[utf8]{inputenc} % editor uses utf-8 encoding
+\usepackage[T1]{fontenc} % T1 font pdf output
+\usepackage{lmodern} % Latin modern roman font
+\usepackage{bm, bbm} % bold and blackboard bold math symbols
+\usepackage{amsmath, amsfonts, amssymb, amsthm} % math packages
+\usepackage[final]{microtype} % better microtypography
+\usepackage{graphicx} % for easier grahics handling
+\usepackage[hidelinks, colorlinks=true, linkcolor = blue, urlcolor = blue]{hyperref} % to create hyperlinks
+\usepackage{float} % tells floats to stay [H]ere!
+\usepackage{mdframed} % it's better than framed. knitr uses framed so settings won't conflict
+\usepackage{enumitem} % nice lists
+\usepackage{fancyhdr} % nice headers
+\usepackage{caption}  % to control figure and table captions
+
+\captionsetup{width=0.9\textwidth, justification = raggedright}
+
+%==============================================================================
+% Enter name and homework title here
+%==============================================================================
+\author{FirstName LastName}
+\title{Homework 1}
+\date{Due September 13, 2021 at 11:59pm}
+
+%==============================================================================
+% Put title and author in PDF properties
+%==============================================================================
+\makeatletter % change interpretation of @
+\hypersetup{pdftitle={\@title},pdfauthor={\@author}}
+
+
+%==============================================================================
+% Header settings
+%==============================================================================
+\pagestyle{fancy} % turns on fancy header styles
+\fancyhf{} % clear all header and footer fields
+\makeatletter
+\lhead{\@author} % left header
+\chead{\@title} % center header
+\makeatother
+\rhead{Page \thepage} % right header
+\setlength{\headheight}{13.6pt} % fixes minor warning
+\makeatother % change back interpretation of @
+
+%==============================================================================
+% List spacing
+%==============================================================================
+\setlist[itemize]{parsep=0em} % fix itemize spacing
+\setlist[enumerate]{parsep=0em} % fix enumerate spacing
+
+%==============================================================================
+% Float spacing (changes spacing of tables, graphs, etc)
+%==============================================================================
+%\setlength{\textfloatsep}{3pt}
+%\setlength{\intextsep}{3pt}
+
+%==============================================================================
+% Define Problem and Solution Environments
+%==============================================================================
+\theoremstyle{definition} % use definition's look
+\newtheorem{problem}{Problem}
+\newtheorem{solution}{Solution}
+\mdfsetup{ % box margin fix for mdframe and how it plays with parskip and others.
+innerleftmargin=4pt,
+innerrightmargin=4pt,
+innertopmargin=-1pt,
+innerbottommargin=4pt}
+% \newenvironment{prob}{\begin{mdframed}\begin{problem}\hspace{0pt}}{\end{problem}\end{mdframed}}
+\newenvironment{prob}{\clearpage \begin{problem}\hspace{0pt}}{\end{problem}}
+\newenvironment{sol}{\begin{solution}\hspace{0pt}}{\end{solution}}
+
+%==============================================================================
+% set knitr options
+%==============================================================================
+% latex (change space before and after knitr kframe; based on framed package)
+\setlength{\OuterFrameSep}{0.3em}
+% R
+<<setup, include=FALSE, cache=FALSE>>=
+library(knitr)
+# inline hook to process the output of \Sexpr{} statements to just 2 digits
+inline_hook <- function(x) {
+  if(is.numeric(x)) x <- round(x, 2)
+  paste(as.character(x), collapse=", ")
+}
+knit_hooks$set(inline = inline_hook)
+# cache all chunks
+opts_chunk$set(cache = TRUE)
+@
+
+\begin{document}
+
+
+\maketitle
+
+\section{Instructions}
+
+\paragraph{Setup.} Pull the latest version of this assignment from Github and set your working directory to \texttt{stat-961-fall-2021/homework/homework-1}. Consult the \href{https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/getting-started/getting-started.pdf}{getting started guide} if you need to brush up on \texttt{R}, \texttt{LaTeX}, or \texttt{Git}.
+
+\paragraph{Collaboration.} The collaboration policy is as stated on the Syllabus:
+
+\begin{quote}
+``Students are permitted to work together on homework assignments, but solutions must be written up and submitted individually. Students must disclose any sources of assistance they received; furthermore, they are prohibited from verbatim copying from any source and from consulting solutions to problems that may be available online and/or from past iterations of the course.''
+\end{quote}
+
+\noindent In accordance with this policy, \\
+
+\noindent \textit{Please list anyone you discussed this homework with:} \\
+
+\noindent \textit{Please list what external references you consulted (e.g. articles, books, or websites):} 
+
+\paragraph{Writeup.} Use this document as a starting point for your writeup, adding your solutions between \verb|\begin{sol}| and \verb|\end{sol}|. See the \href{https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/getting-started/preparing-reports.pdf}{preparing reports guide} for guidance on compilation, creation of figures and tables, and presentation quality. Show all the code you wrote to produce your numerical results, and include complete derivations typeset in LaTeX for the mathematical questions. 
+
+\paragraph{Programming.}
+
+The \texttt{tidyverse} paradigm for data manipulation (\texttt{dplyr}) and plotting (\texttt{ggplot2}) are strongly encouraged, but points will not be deducted for using base \texttt{R}. 
+<<message=FALSE, cache = FALSE>>=
+library(tidyverse)
+@
+
+\paragraph{Grading.} Each sub-part of each problem will be worth 3 points: 0 points for no solution or completely wrong solution; 1 point for some progress; 2 points for a mostly correct solution; 3 points for a complete and correct solution modulo small flaws. The presentation quality of the solution for each problem (as exemplified by the guidelines in Section 3 of the \href{https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/getting-started/preparing-reports.pdf}{preparing reports guide}) will be evaluated out of an additional 3 points.
+
+\paragraph{Submission.} Compile your writeup to PDF and submit to \href{https://www.gradescope.com/courses/284562}{Gradescope}.
+
+\clearpage
+
+\begin{prob} \label{prob:change-of-basis}\textbf{Change of basis.} (Adapted from Agresti Ex. 1.17) \\
+
+\noindent Let $\bm X$ and $\bm X'$ be full-rank $n \times p$ model matrices.
+\begin{enumerate}
+\item[(a)]  Show that $C(\bm X) = C(\bm X')$ if and only if $\bm X' = \bm X \bm A$ for some nonsingular $p \times p$ matrix $\bm A$. In plain language, express what the operation $\bm X \mapsto \bm X \bm A$ does to the columns of $\bm X$ (one sentence is sufficient).
+\item[(b)] Let $\bm{\widehat \beta}$ and $\bm{\widehat \beta'}$ be the least squares solutions obtained from regressing a response vector $\bm y$ on $\bm X$ and $\bm X' \equiv \bm X \bm A$, respectively, where $\bm A$ is a nonsingular $p \times p$ matrix. What is the relationship between $\bm{\widehat \beta}$ and $\bm{\widehat \beta'}$ (express the latter in terms of the former)? Justify your answer. 
+\item[(c)] Consider the linear model
+\begin{equation}
+y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \epsilon; \quad \epsilon \sim (0, \sigma^2),
+\label{eq:two-predictors}
+\end{equation}
+so that $\bm X = [\bm 1, \bm x_{*1}, \bm x_{*2}]$ for columns $\bm x_{*j} \equiv (x_{1j}, \dots, x_{nj})^T$, $j \in \{1,2\}$. Sometimes it is useful to center the predictors by subtracting their means: 
+\begin{equation*}
+\bm x'_{*j} \equiv \bm x_{*j} - \bar x_j \bm 1; \quad \bar x_j \equiv \frac{1}{n}\sum_{i = 1}^n x_{ij}, \quad j \in \{1,2\}.
+\end{equation*}
+Defining $\bm X' \equiv [\bm 1, \bm x'_{*1}, \bm x'_{*2}]$, find the matrix $\bm A$ such that $\bm X' = \bm X \bm A$ ($\bm A$ may itself be expressed in terms of $\bm X$). Express the coefficient estimates from the centered regression ($\widehat \beta'_0$, $\widehat \beta'_1$, $\widehat \beta'_2$) in terms of those from the original regression ($\widehat \beta_0$, $\widehat \beta_1$, $\widehat \beta_2$).
+\item[(d)] Let $w \in \{a,b,c\}$ be a categorical variable with three levels. Define $x_1 \equiv \mathbbm 1(w = b)$ and $x_2 \equiv \mathbbm 1(w = c)$, and consider the linear regression~\eqref{eq:two-predictors}. This corresponds to regressing $y$ on the categorical variable $w$, with baseline category $a$. Sometimes a different baseline category may make more sense, e.g. category $b$. In this case, we would define $x'_1 \equiv \mathbbm 1(w = a)$ and $x'_2 \equiv \mathbbm 1(w = c)$. Defining $\bm X$ and $\bm X'$ as in part (c), find the matrix $\bm A$ such that $\bm X' = \bm X \bm A$. Express the coefficient estimates from the transformed regression ($\widehat \beta'_0$, $\widehat \beta'_1$, $\widehat \beta'_2$) in terms of those from the original regression ($\widehat \beta_0$, $\widehat \beta_1$, $\widehat \beta_2$). What are the interpretations of the original and transformed coefficients, and why do the relationships between these coefficients derived above make sense in terms of these interpretations? 
+
+\end{enumerate}
+
+\end{prob}
+
+\begin{sol}
+% Solution goes here
+\end{sol}
+
+\begin{prob} \textbf{Predictor correlation.} (Adapted from Agresti Ex. 2.9) \\
+
+\noindent Consider the linear regression
+\begin{equation*}
+y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \epsilon; \quad \epsilon \sim (0, \sigma^2),
+\end{equation*}
+with observed observed predictor vectors denoted $\bm x_{*1} \equiv (x_{11}, \dots, x_{n1})^T$ and $\bm x_{*2} \equiv (x_{12}, \dots, x_{n2})^T$. (This is the same setup as in Problem~\ref{prob:change-of-basis}(c).) 
+\begin{enumerate}
+\item[(a)] Suppose $\bm x_{*1}$ and $\bm x_{*2}$  have sample correlation $\rho \in (-1,1)$. In terms of $\rho$, what is the correlation between the estimates $\widehat \beta_1$ and $\widehat \beta_2$ (which are random variables due to the randomness in $\epsilon$)?
+\item[(b)] To build intuition for the preceding result, consider the extreme case when $\bm x_{*1} = \bm x_{*2}$. In this case, $\rho = 1$ and the regression is not identifiable. For a fixed parameter vector $(\beta_0^0, \beta_1^0, \beta_2^0)$, write down the set $\mathcal S$ of parameter vectors $(\beta_0, \beta_1, \beta_2)$ giving the same value of $\mathbb E[\bm y]$ as $(\beta_0, \beta_1, \beta_2) = (\beta_0^0, \beta_1^0, \beta_2^0)$. In what sense does the result in part (a) reflect the relationship between $\beta_1$ and $\beta_2$ for $(\beta_0, \beta_1, \beta_2) \in \mathcal S$? (Ignore the fact that the case $\rho = 1$ is not covered in part (a).)
+\item[(c)] Suppose $z_1, z_2 \overset{\text{i.i.d.}} \sim N(0,1)$, and $x_1 \equiv z_1 + 0.5z_2$ and $x_2 \equiv z_1 - 0.5z_2$. What is the correlation between the random variables $x_1$ and $x_2$? Suppose the predictors in each row $\{(x_{i1}, x_{i2})\}_{i = 1}^n$ are a sample from this joint distribution. Roughly what do we expect to be the sample correlation between $\bm x_{*1}$ and $\bm x_{*2}$? Fixing $\bm x_{*1}$ and $\bm x_{*2}$ at their realizations, roughly what do we expect to be the correlation between $\widehat \beta_1$ and $\widehat \beta_2$?
+\item[(d)] To check the conclusions in part (b), run a numerical simulation with $n = 100$, $\sigma^2 = 1$, $(\beta_0, \beta_1, \beta_2) = (0,1,2)$, and $\epsilon \sim N(0, \sigma^2)$. Sample one realization of $\bm x_{*1}$ and $\bm x_{*2}$, generate 250 realizations of the response $\bm y$, and for each realization calculate least squares estimates $\bm{\widehat \beta}$. Summarize the results of your simulation by creating scatter plots of $\bm x_{*2}$ versus $\bm x_{*1}$ and $\widehat \beta_{2}$ versus $\widehat \beta_{1}$, with the title of each plot containing the sample correlations of the data it displays. On the scatter plot of $\widehat \beta_{2}$ versus $\widehat \beta_{1}$, indicate the theoretical expected value of $(\widehat \beta_{1}, \widehat \beta_2)$ with a red point. Display these two scatter plots side by side using \texttt{cowplot::plot\_grid}. Do the sample correlations match what you predicted in part (c)?
+\end{enumerate}
+
+\end{prob}
+\begin{sol}
+% Solution goes here
+\end{sol}
+
+
+\begin{prob} \textbf{Data analysis: Anorexia treatment.} (Adapted from Agresti Ex. 1.24) \\
+
+\noindent For 72 young girls suffering from anorexia, the \texttt{Anorexia.dat} file under \texttt{stat-961-fall-2021/data} shows their weights before and after an experimental period: 
+<<>>=
+anorexia_data = read_tsv("../../data/Anorexia.dat", col_types = "ifdd")
+print(anorexia_data, n = 5)
+@
+\noindent The girls were randomly assigned to receive one of three therapies during this period. A control group received the standard therapy, which was compared to family therapy and cognitive behavioral therapy. The goal of the study is to compare the effectiveness of the therapies in increasing the girls' weights. 
+
+\begin{enumerate}
+\item[(a)] Prepare the data by (1) removing the \texttt{subj} variable, (2) re-coding the factor levels of \texttt{therapy} as \texttt{behavioral}, \texttt{family}, and \texttt{control}, (3) renaming \texttt{before} and \texttt{after} to \texttt{weight\_before} and \texttt{weight\_after}, respectively, and (4) adding a variable called \texttt{weight\_gain} defined as the difference of \texttt{weight\_after} and \texttt{weight\_before}. Print the resulting tibble.
+\item[(b)] Explore the data by (1) making box plots of \texttt{weight\_gain} as a function of \texttt{therapy}, (2) making a scatter plot of \texttt{weight\_gain} against \texttt{weight\_before}, coloring points based on \texttt{therapy} and (3) creating a table displaying, for each \texttt{therapy} group, the mean weight gain, maximum weight gain, and fraction gained weight. Based on these summaries: What therapy appears overall the most successful and why? How effective does the standard therapy appear to be? What is the greatest weight gain observed in this study? Which girls tended to gain most weight, based on their weight before therapy? Why might this be the case? 
+
+\item[(c)] Run a linear regression of \texttt{weight\_gain} on \texttt{therapy} and print the regression summary (print in \texttt{R}, without using \texttt{kable}). Identify the base category chosen by \texttt{R} and discuss the interpretations of the fitted coefficients. It makes more sense to choose \texttt{control} as the base category. Recode the factor levels so that \texttt{control} is the first (and therefore will be chosen as the base category), rerun the linear regression, and print the summary again. Do the relationships among the fitted coefficients in these two regressions match what was found in Problem~\ref{prob:change-of-basis}d? 
+
+\item[(d)] Directly compute the between-groups, within-groups, and corrected total sums of squares (without appealing to the \texttt{aov} function or equivalent) and verify that the first two add up to the third. What is the  ratio of the between-groups sum of squares and the corrected total sum of squares? What is the interpretation of this quantity, and what quantity in the regression summaries printed in part (c) is it equivalent to? Finally, compute an unbiased estimate for the error variance in the regression.
+
+\end{enumerate}
+
+\end{prob}
+
+\begin{sol}
+% Solution goes here
+\end{sol}
+
+\end{document}
