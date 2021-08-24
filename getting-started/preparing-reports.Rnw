@@ -64,14 +64,21 @@
 % R
 <<setup, include=FALSE, cache=FALSE>>=
 library(knitr)
+
 # inline hook to process the output of \Sexpr{} statements to just 2 digits
 inline_hook <- function(x) {
   if(is.numeric(x)) x <- round(x, 2)
   paste(as.character(x), collapse=", ")
 }
 knit_hooks$set(inline = inline_hook)
+
 # cache all chunks
 opts_chunk$set(cache = TRUE)
+
+# create directory for figures
+if(!dir.exists("figures")){
+  dir.create("figures")
+}
 @
 
 \begin{document}
@@ -108,7 +115,7 @@ While the figure is displayed in your report, it comes without a caption or a la
 # create figure but don't plot it
 p = test_data %>% ggplot(aes(x = x, y = y)) + geom_point() + theme_bw()
 # save the figure
-ggsave(plot = p, filename = "test_plot.png", 
+ggsave(plot = p, filename = "figures/test_plot.png", 
        device = "png", width = 2, height = 2)
 @
 \begin{verbatim}
@@ -143,7 +150,7 @@ lm_fit = lm(y ~ x, data = test_data)
 coef(summary(lm_fit)) %>% 
   kableExtra::kable(format = "latex", row.names = NA, 
                   booktabs = TRUE, digits = 2) %>%
-  kableExtra::save_kable("test_table.png")
+  kableExtra::save_kable("figures/test_table.png")
 @
 \begin{verbatim}
 % add table to report via LaTeX
@@ -198,22 +205,22 @@ The \textbf{aspect ratio} (i.e. ratio of width to height) of your plots is consi
 The \textbf{absolute size} of your figures (passed to \texttt{ggsave} via the \texttt{width} and \texttt{height} arguments) should be such that the the text on the plot is easy to read. Consider the following three choices for the absolute sizes of the test plot from Figure~\ref{fig:test-plot}: 
 <<>>=
 # small
-ggsave(plot = p, filename = "test_plot_small.png", 
+ggsave(plot = p, filename = "figures/test_plot_small.png", 
        device = "png", width = 1, height = 1)
 # medium
-ggsave(plot = p, filename = "test_plot_medium.png", 
+ggsave(plot = p, filename = "figures/test_plot_medium.png", 
        device = "png", width = 2, height = 2)
 # large
-ggsave(plot = p, filename = "test_plot_large.png", 
+ggsave(plot = p, filename = "figures/test_plot_large.png", 
        device = "png", width = 5, height = 5)
 @
 \noindent These three choices are compared in Figure~\ref{fig:test-plot-sizes}; the small-sized plot is too cramped, the large-sized plot has axis titles and labels that are too small to read, and the medium-sized plot is about right. A good rule of thumb is that the smallest text in your plots should be roughly the same size as the text in your report.
 
 \begin{figure}[h!]
 \centering
-\includegraphics[width = 0.3\textwidth]{test_plot_small.png}
-\includegraphics[width = 0.3\textwidth]{test_plot_medium.png}
-\includegraphics[width = 0.3\textwidth]{test_plot_large.png}
+\includegraphics[width = 0.3\textwidth]{figures/test_plot_small.png}
+\includegraphics[width = 0.3\textwidth]{figures/test_plot_medium.png}
+\includegraphics[width = 0.3\textwidth]{figures/test_plot_large.png}
 \caption{The plot from Figure~\ref{fig:test-plot} saved as three different absolute sizes (small, medium, and large).}
 \label{fig:test-plot-sizes}
 \end{figure}
@@ -221,33 +228,33 @@ ggsave(plot = p, filename = "test_plot_large.png",
 The \textbf{relative size} of your figures (relative to the dimensions of your report, as specified in the \verb|\includegraphics| command) should also be chosen appropriately. Compare Figures~\ref{fig:test-plot-small-relative}, \ref{fig:test-plot-medium-relative}, and \ref{fig:test-plot-large-relative}, which correspond to the following three relative sizes:
 \begin{verbatim}
 % small relative size
-\includegraphics[width = 0.1\textwidth]{test_plot.png}
+\includegraphics[width = 0.1\textwidth]{figures/test_plot.png}
 
 % medium relative size
-\includegraphics[width = 0.4\textwidth]{test_plot.png}
+\includegraphics[width = 0.4\textwidth]{figures/test_plot.png}
 
 % large relative size
-\includegraphics[width = 0.8\textwidth]{test_plot.png}
+\includegraphics[width = 0.8\textwidth]{figures/test_plot.png}
 \end{verbatim}
 The small plot is too small to see, the large plot takes up too much space, and the medium one is about right.
 
 \begin{figure}[h!]
 \centering
-\includegraphics[width = 0.1\textwidth]{test_plot_medium.png}
+\includegraphics[width = 0.1\textwidth]{figures/test_plot_medium.png}
 \caption{The plot from Figure~\ref{fig:test-plot} included with \texttt{width = 0.1$\backslash$textwidth}. Its relative size is too small.}
 \label{fig:test-plot-small-relative}
 \end{figure}
 
 \begin{figure}[h!]
 \centering
-\includegraphics[width = 0.4\textwidth]{test_plot_medium.png}
+\includegraphics[width = 0.4\textwidth]{figures/test_plot_medium.png}
 \caption{The plot from Figure~\ref{fig:test-plot} included with \texttt{width = 0.4$\backslash$textwidth}. Its relative size is about right.}
 \label{fig:test-plot-medium-relative}
 \end{figure}
 
 \begin{figure}[h!]
 \centering
-\includegraphics[width = 0.8\textwidth]{test_plot_medium.png}
+\includegraphics[width = 0.8\textwidth]{figures/test_plot_medium.png}
 \caption{The plot from Figure~\ref{fig:test-plot} included with \texttt{width = 0.8$\backslash$textwidth}. Its relative size is too large.}
 \label{fig:test-plot-large-relative}
 \end{figure}
@@ -264,13 +271,13 @@ p = mpg %>%
   theme_bw()
 
 # save plot
-ggsave(plot = p, filename = "cars-unlabeled.png", 
+ggsave(plot = p, filename = "figures/cars-unlabeled.png", 
        device = "png", width = 5, height = 3.75)
 @
 This is a plot of fuel efficiency versus engine displacement for various types of cars, but the axis and legend labels on the plot do not make this very clear. 
 \begin{figure}[h!]
 \centering
-\includegraphics[width = 0.8\textwidth]{cars-unlabeled.png}
+\includegraphics[width = 0.8\textwidth]{figures/cars-unlabeled.png}
 \caption{A plot without clear titles.}
 \label{fig:cars-unlabeled}
 \end{figure}
@@ -289,12 +296,12 @@ p = mpg %>%
   theme_bw()
 
 # save the plot
-ggsave(plot = p, filename = "cars-labeled.png", 
+ggsave(plot = p, filename = "figures/cars-labeled.png", 
        device = "png", width = 5, height = 3.75)
 @
 \begin{figure}[h!]
 \centering
-\includegraphics[width = 0.8\textwidth]{cars-labeled.png}
+\includegraphics[width = 0.8\textwidth]{figures/cars-labeled.png}
 \caption{(A plot with clear axis and legend titles). Fuel efficiency generally decreases with engine size; two-seaters (sports cars) are an exception because of their light weight.}
 \label{fig:cars-labeled}
 \end{figure}
@@ -312,12 +319,12 @@ p = tibble(x = runif(10),
   theme_bw()
 
 # save the plot
-ggsave(plot = p, filename = "fig-formulas.png", 
+ggsave(plot = p, filename = "figures/fig-formulas.png", 
        device = "png", width = 2.5, height = 2.5)
 @
 \begin{figure}[h!]
 \centering
-\includegraphics[width = 0.5\textwidth]{fig-formulas.png}
+\includegraphics[width = 0.5\textwidth]{figures/fig-formulas.png}
 \caption{An illustration of using formulas in axis titles.}
 \label{fig:formulas}
 \end{figure}
@@ -345,12 +352,12 @@ p = mpg %>%
   theme_bw()
 
 # save the plot
-ggsave(plot = p, filename = "facet-wrap.png", 
+ggsave(plot = p, filename = "figures/facet-wrap.png", 
        device = "png", width = 5.5, height = 2.25)
 @
 \begin{figure}[h!]
 \centering
-\includegraphics[width = \textwidth]{facet-wrap.png}
+\includegraphics[width = \textwidth]{figures/facet-wrap.png}
 \caption{An illustration of using \texttt{facet\_wrap} to create a multi-panel plot.}
 \label{fig:facet-wrap}
 \end{figure}
@@ -395,12 +402,12 @@ p = cowplot::plot_grid(p1, p2,
                        align = "h")         # how to align subplots
 
 # save the plot
-ggsave(plot = p, filename = "cowplot-demo.png", 
+ggsave(plot = p, filename = "figures/cowplot-demo.png", 
        device = "png", width = 5, height = 2.5)
 @
 \begin{figure}[h!]
 \centering
-\includegraphics[width = \textwidth]{cowplot-demo.png}
+\includegraphics[width = \textwidth]{figures/cowplot-demo.png}
 \caption{(An illustration of using \texttt{cowplot} to create a multi-panel plot.) Relationships between highway fuel economy and car type (a) and engine displacement (b). }
 \label{fig:cowplot-demo}
 \end{figure}

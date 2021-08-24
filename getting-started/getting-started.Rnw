@@ -112,14 +112,14 @@ tinytex:::install_yihui_pkgs()  # to compile LaTeX documents
 
 \begin{figure}[h!]
 \centering
-\includegraphics[width = 0.9\textwidth]{RStudio.png}
+\includegraphics[width = 0.9\textwidth]{figures/RStudio.png}
 \caption{RStudio interface. Relevant parts are marked with white letters: A (\texttt{R Sweave} option), B (\texttt{Console}), C (\texttt{Terminal}), D (\texttt{Compile PDF} button), E (\texttt{More} button), F (\texttt{Files} pane).}
 \label{fig:rstudio}
 \end{figure}
 
 \begin{figure}[h!]
 \centering
-\includegraphics[width = \textwidth]{sweave-options.png}
+\includegraphics[width = \textwidth]{figures/sweave-options.png}
 \caption{Options for PDF generation.}
 \label{fig:sweave-options}
 \end{figure}
@@ -134,7 +134,7 @@ Course materials are stored in a Github repository (course repository) called \h
 
 \begin{figure}[h!]
 \centering
-\includegraphics[width = \textwidth]{git-github.png}
+\includegraphics[width = \textwidth]{figures/git-github.png}
 \caption{Relationship among Git repositories on Github and on your computer.}
 \label{fig:git-github}
 \end{figure}
@@ -181,7 +181,7 @@ If you successfully set up credential caching in step 8 above, you will not be a
 
 \begin{figure}[h!]
 \centering
-\includegraphics[width = \textwidth]{github-new-repo.png}
+\includegraphics[width = \textwidth]{figures/github-new-repo.png}
 \caption{Creating a new Github repository for the class. Please make sure to check \texttt{Private} to make the repository private! The \texttt{Owner} at the top will be your username instead of \texttt{ekatsevi-test}.}
 \label{fig:new-github-repo}
 \end{figure}
