@@ -5,6 +5,7 @@ date: "1/22/2021"
 output:
   pdf_document: default
   pdf: default
+urlcolor: blue
 ---
 
 Many thanks to Shuxiao Chen, who prepared this tutorial for STAT 471 in Spring 2021. You can view the corresponding video [here](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=2f111421-bd3e-4907-9c94-acb8017c7d17).
