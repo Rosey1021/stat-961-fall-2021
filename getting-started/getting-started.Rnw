@@ -101,17 +101,18 @@ opts_chunk$set(cache = TRUE)
 \item If you do not have R and/or RStudio installed, download and install these softwares by following the instructions \href{https://rstudio-education.github.io/hopr/starting.html}{here}. If you do have RStudio installed, update it to the latest version by opening RStudio and clicking \texttt{Help} -> \texttt{Check for Updates}. If you do have R installed, update it to the latest version by following the instructions \href{https://bootstrappers.umassmed.edu/bootstrappers-courses/courses/rCourse/Additional_Resources/Updating_R.html#updating-r}{here}. Open RStudio.
 \item Install packages for compiling reports by entering the following commands at the console (labeled B in Figure~\ref{fig:rstudio}):
 <<eval=FALSE>>=
-install.packages("knitr")
-install.packages("xtable")
-install.packages("tinytex")
-tinytex::install_tinytex() 
+install.packages("knitr")       # for integrating LaTeX with R
+install.packages("kableExtra")  # for creating tables
+install.packages("tinytex")     # to compile LaTeX documents
+tinytex::install_tinytex()      # to compile LaTeX documents
+tinytex:::install_yihui_pkgs()  # to compile LaTeX documents
 @
 \item Go to \texttt{Tools} -> \texttt{Global Options} -> \texttt{Sweave} on Windows or \texttt{RStudio} -> \texttt{Preferences} -> \texttt{Sweave} on Mac and select the options pictured in Figure~\ref{fig:sweave-options}.
 \end{enumerate}
 
 \begin{figure}[h!]
 \centering
-\includegraphics[width = 0.95\textwidth]{RStudio.png}
+\includegraphics[width = 0.9\textwidth]{RStudio.png}
 \caption{RStudio interface. Relevant parts are marked with white letters: A (\texttt{R Sweave} option), B (\texttt{Console}), C (\texttt{Terminal}), D (\texttt{Compile PDF} button), E (\texttt{More} button), F (\texttt{Files} pane).}
 \label{fig:rstudio}
 \end{figure}
