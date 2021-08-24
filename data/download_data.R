@@ -1,5 +1,9 @@
+### Download data for STAT 961 (Fall 2021)
+
+# many datasets will come from course textbook website
 textbook_site = "http://users.stat.ufl.edu/~aa/glm/data"
 
+# download anorexia data
 filename = "Anorexia.dat"
 destination = sprintf("data/%s", filename)
 if(!file.exists(destination)){
