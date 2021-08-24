@@ -14,8 +14,11 @@
 
 ## Course schedule
 
-Date | Topic | Readings | Recording | Assignments
-:---|:---|:---|:---|:---
-Tue, Aug 31 | TBD | TBD | TBD | --
-Wed, Sep 1 | -- | -- | -- | [Homework 0](https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/homework/homework-0/homework-0.pdf) due at 11:59pm
-Thu, Sep 2 | TBD | TBD | TBD | --
+Date | Unit | Topic | Readings | Recording | Assignments
+:---|:---|:---|:---|:---|:---
+Tue, Aug 31 | 1. Linear model: Estimation | Intro, least squares, Gauss-Markov | Agresti Ch. 1.1-1.4, 2.1.1, 2.7.1 | TBA | --
+Wed, Sep 1 | -- | -- | -- | -- | [Homework 0](https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/homework/homework-0/homework-0.pdf) due at 11:59pm
+Thu, Sep 2 | 1. Linear model: Estimation | TBA | TBA | TBA | --
+Tue, Sep 7 | 1. Linear model: Estimation | TBA | TBA | TBA | --
+Thu, Sep 9 | 1. Linear model: Estimation | TBA | TBA | TBA | --
+Mon, Sep 13 | -- | -- | -- | -- | [Homework 1](https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/homework/homework-1/homework-1.pdf) due at 11:59pm
