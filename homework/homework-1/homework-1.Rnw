@@ -169,7 +169,7 @@ Defining $\bm X' \equiv [\bm 1, \bm x'_{*1}, \bm x'_{*2}]$, find the matrix $\bm
 \begin{equation*}
 y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \epsilon; \quad \epsilon \sim (0, \sigma^2),
 \end{equation*}
-with observed observed predictor vectors denoted $\bm x_{*1} \equiv (x_{11}, \dots, x_{n1})^T$ and $\bm x_{*2} \equiv (x_{12}, \dots, x_{n2})^T$. (This is the same setup as in Problem~\ref{prob:change-of-basis}(c).) 
+with observed predictor vectors denoted $\bm x_{*1} \equiv (x_{11}, \dots, x_{n1})^T$ and $\bm x_{*2} \equiv (x_{12}, \dots, x_{n2})^T$. (This is the same setup as in Problem~\ref{prob:change-of-basis}(c).) 
 \begin{enumerate}
 \item[(a)] Suppose $\bm x_{*1}$ and $\bm x_{*2}$  have sample correlation $\rho \in (-1,1)$. In terms of $\rho$, what is the correlation between the estimates $\widehat \beta_1$ and $\widehat \beta_2$ (which are random variables due to the randomness in $\epsilon$)?
 \item[(b)] To build intuition for the preceding result, consider the extreme case when $\bm x_{*1} = \bm x_{*2}$. In this case, $\rho = 1$ and the regression is not identifiable. For a fixed parameter vector $(\beta_0^0, \beta_1^0, \beta_2^0)$, write down the set $\mathcal S$ of parameter vectors $(\beta_0, \beta_1, \beta_2)$ giving the same value of $\mathbb E[\bm y]$ as $(\beta_0, \beta_1, \beta_2) = (\beta_0^0, \beta_1^0, \beta_2^0)$. In what sense does the result in part (a) reflect the relationship between $\beta_1$ and $\beta_2$ for $(\beta_0, \beta_1, \beta_2) \in \mathcal S$? (Ignore the fact that the case $\rho = 1$ is not covered in part (a).)
