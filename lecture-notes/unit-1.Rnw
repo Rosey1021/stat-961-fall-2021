@@ -1,0 +1,304 @@
+% (C) Brett Klamer - MIT - http://opensource.org/licenses/MIT
+% Please contact me if you find any errors or make improvements
+% Contact details at brettklamer.com
+
+\documentclass[11pt,letterpaper,english,oneside]{article} % article class is a standard class
+%==============================================================================
+%Load Packages
+%==============================================================================
+\usepackage[left=1in,right=1in,top=1in,bottom=1in]{geometry} % easy page margins
+\usepackage[utf8]{inputenc} % editor uses utf-8 encoding
+\usepackage[T1]{fontenc} % T1 font pdf output
+\usepackage{lmodern} % Latin modern roman font
+\usepackage{bm, bbm} % bold and blackboard bold math symbols
+\usepackage{amsmath, amsfonts, amssymb, amsthm} % math packages
+\usepackage[final]{microtype} % better microtypography
+\usepackage{graphicx} % for easier grahics handling
+\usepackage[hidelinks, colorlinks=true, linkcolor = blue, urlcolor = blue]{hyperref} % to create hyperlinks
+\usepackage{float} % tells floats to stay [H]ere!
+\usepackage{mdframed} % it's better than framed. knitr uses framed so settings won't conflict
+\usepackage{enumitem} % nice lists
+\usepackage{fancyhdr} % nice headers
+\usepackage{caption}  % to control figure and table captions
+
+\captionsetup{width=0.9\textwidth, justification = raggedright}
+
+%==============================================================================
+% Enter name and homework title here
+%==============================================================================
+\title{Unit 1: Linear models: Estimation}
+\author{Eugene Katsevich}
+% \date{August 31, 2021}
+
+%==============================================================================
+% Put title and author in PDF properties
+%==============================================================================
+\makeatletter % change interpretation of @
+\hypersetup{pdftitle={\@title},pdfauthor={\@author}}
+
+
+%==============================================================================
+% Header settings
+%==============================================================================
+\pagestyle{fancy} % turns on fancy header styles
+\fancyhf{} % clear all header and footer fields
+\makeatletter
+\lhead{\@author} % left header
+\chead{\@title} % center header
+\makeatother
+\rhead{Page \thepage} % right header
+\setlength{\headheight}{13.6pt} % fixes minor warning
+\makeatother % change back interpretation of @
+
+%==============================================================================
+% List spacing
+%==============================================================================
+\setlist[itemize]{parsep=0em} % fix itemize spacing
+\setlist[enumerate]{parsep=0em} % fix enumerate spacing
+
+%==============================================================================
+% set knitr options
+%==============================================================================
+% latex (change space before and after knitr kframe; based on framed package)
+\setlength{\OuterFrameSep}{0.3em}
+% R
+<<setup, include=FALSE, cache=FALSE>>=
+library(knitr)
+
+# inline hook to process the output of \Sexpr{} statements to just 2 digits
+inline_hook <- function(x) {
+  if(is.numeric(x)) x <- round(x, 2)
+  paste(as.character(x), collapse=", ")
+}
+knit_hooks$set(inline = inline_hook)
+
+# cache all chunks
+opts_chunk$set(cache = TRUE)
+
+@
+
+\begin{document}
+
+\maketitle
+
+\section{Types of predictors; interpreting linear model coefficients\\(Agresti 1.2)}
+
+The types of predictors $x_j$ (e.g. binary or continuous) has less of an effect on the regression than the type of response, but it is still important to pay attention to the former.
+
+\paragraph{Intercepts.} It is common to include an \textit{intercept} in a linear regression model, a predictor $x_0$ such that $x_{i0} = 1$ for all $i$. When an intercept is present, we index it as the 0th predictor. The simplest kind of linear model is the \textit{intercept-only model} or the \textit{one-sample model}:
+\begin{equation}
+y = \beta_0 + \epsilon.
+\label{eq:one-sample-model}
+\end{equation}
+The parameter $\beta_0$ is the mean of the response. 
+
+\paragraph{Binary predictors.} In addition to an intercept, suppose we have a binary predictor $x_1 \in \{0,1\}$ (e.g. $x_1 = 1$ for patients who took blood pressure medication and $x_1 = 0$ for those who didn't). This leads to the following linear model:
+\begin{equation}
+y = \beta_0 + \beta_1 x_1 + \epsilon.
+\label{eq:two-sample-model}
+\end{equation}
+Here, $\beta_0$ is the mean response (say blood pressure) for observations with $x_1 = 0$ and $\beta_0 + \beta_1$ is the mean response for observations with $x_1 = 1$. Therefore, the parameter $\beta_1$ is the difference in mean response between observations with $x_1 = 1$ and $x_1 = 0$. This parameter is sometimes called the \textit{effect} or \textit{effect size} of $x_1$, though a causal relationship might or might not be present. The model~\eqref{eq:two-sample-model} is sometimes called the \textit{two-sample model}, because the response data can be split into two ``samples'': those corresponding to $x_1 = 0$ and those corresponding to $x_1 = 1$.
+
+\paragraph{Categorical predictors.} A binary predictor is a special case of a categorical predictor: A predictor taking two or more discrete values. Suppose we have a predictor $w \in \{w_0, w_1, \dots, w_{C-1}\}$, where $C \geq 2$ is the number of categories and $w_0, \dots, w_{C-1}$ are the \textit{levels} of $w$. E.g. suppose $\{w_0, \dots, w_{C-1}\}$ is the collection of U.S. states, so that $C = 50$. If we want to regress a response on the categorical predictor $w$, we cannot simply set $x_1 = w$ in the context of the linear regression~\eqref{eq:two-sample-model}. Indeed, $w$ does not necessarily take numerical values. Instead, we need to add a predictor $x_j$ for each of the levels of $w$. In particular, define $x_j \equiv \mathbbm 1(w = w_j)$ for $j = 1, \dots, C-1$ and consider the regression
+\begin{equation}
+y = \beta_0 + \beta_1 x_1 + \cdots + \beta_{C-1}x_{C-1} + \epsilon.
+\label{eq:C-sample-model}
+\end{equation}
+Here, category 0 is the \textit{base category}, and $\beta_0$ represents the mean response in the base category. The coefficient $\beta_j$ represents the difference in mean response between the $j$th category and the base category.
+
+\paragraph{Quantitative predictors.} A quantitative predictor is one that can take on any real value. For example, suppose that $x_1 \in \mathbb R$, and consider the linear model
+\begin{equation}
+y = \beta_0 + \beta_1 x_1 + \epsilon.
+\label{eq:simple-regression}
+\end{equation}
+Now, the interpretation of $\beta_1$ is that an increase in $x_1$ by 1 is associated with an increase in $y$ by $\beta_1$. We must be careful to avoid saying ``an increase in $x_1$ by 1 \textit{causes} $y$ to increase by $\beta_1$'' unless we make additional causal assumptions. Note that the units of $x_1$ matter. If $x_1$ is the height of a person, then the value and the interpretation of $\beta_1$ changes depending on whether that height is measured in feet or in meters. 
+
+\paragraph{Ordinal predictors.} There is an awkward category of predictor in between categorical and continuous called \textit{ordinal}. An ordinal predictor is one that takes a discrete number of values, but these values have an intrinsic ordering, e.g. $x_1 \in \{\texttt{small}, \texttt{medium}, \texttt{large}\}$. It can be treated as categorical at the cost of losing the ordering information, or as continuous if one is willing to assign quantatitive values to each category.
+
+\paragraph{Multiple predictors.} A linear regression need not contain just one predictor (aside from an intercept). For example, let's say $x_1$ and $x_2$ are two predictors. Then, a linear model with both predictors is
+\begin{equation}
+y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \epsilon.
+\label{eq:multiple-regression}
+\end{equation}
+When there are multiple predictors, the interpretation of coefficients must be revised somewhat. For example, $\beta_1$ in the above regression is the effect of an increase in $x_1$ by 1 \textit{while holding $x_2$ constant} or \textit{while adjusting for $x_2$} or \textit{while controlling for $x_2$}. If $y$ is blood pressure, $x_1$ is a binary predictor indicating blood pressure medication taken and $x_2$ is sex, then $\beta_1$ is the effect of the medication on blood pressure while controlling for sex. In general, the coefficient of a predictor depends on what other predictors are in the model. As an extreme case, suppose the medication has no actual effect, but that men generally have higher blood pressure and higher rates of taking the medication. Then, the coefficient $\beta_1$ in the single regression model~\eqref{eq:two-sample-model} would be nonzero but the coefficient in the multiple regression model~\eqref{eq:multiple-regression} would be equal to zero. In this case, sex acts as a \textit{confounder}.
+
+
+\paragraph{Interactions.} Note that the multiple regression model~\eqref{eq:multiple-regression} has the built-in assumption that the effect of $x_1$ on $y$ is the same for any fixed value of $x_2$ (and vice versa). In some cases, the effect of one variable on the response may depend on the value of another variable. In this case, it's appropriate to add another predictor called an \textit{interaction}. Suppose $x_2$ is quantitative (e.g. years of job experience) and $x_2$ is binary (e.g. sex, with $x_2 = 1$ meaning male). Then, we can define a third predictor $x_3$ as the product of the first two, i.e. $x_3 = x_1x_2$. This gives the regression model
+\begin{equation}
+y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 x_1 x_2 + \epsilon.
+\label{eq:interaction}
+\end{equation}
+Now, the effect of adding another year of job experience is $\beta_1$ for females and $\beta_1 + \beta_3$ for males. The coefficient $\beta_3$ is the difference in the effect of job experience between males and females.
+
+\section{Model matrices, model vectors spaces, and identifiability\\(Agresti 1.3-1.4)}
+
+The matrix $\bm X$ is called the \textit{model matrix} or the \textit{design matrix}. Concatenating the linear model equations across observations give us an equivalent formulation:
+\begin{equation*}
+\bm y = \bm X \bm \beta + \bm \epsilon; \quad \mathbb E[\bm \epsilon] = \bm 0,\ \text{Var}[\bm \epsilon] = \sigma^2 \bm I_n
+\end{equation*}
+or
+\begin{equation*}
+\mathbb E[\bm y] = \bm X \bm \beta = \bm \eta.
+\end{equation*}
+As $\bm \beta$ varies in $\mathbb R^p$, the set of possible vectors $\bm \eta \in \mathbb R^n$ is defined
+\begin{equation*}
+C(\bm X) \equiv \{\bm \eta = \bm X \bm \beta: \bm \beta \in \mathbb R^p\}. 
+\end{equation*}
+$C(\bm X)$, called the \textit{model vector space}, is a subspace of $\mathbb R^n$: $C(\bm X) \subseteq \mathbb R^n$. Since
+\begin{equation*}
+\bm X \bm \beta = \beta_1 \bm x_{*1} + \cdots + \beta_p \bm x_{*p},
+\end{equation*}
+the model vector space is the column space of the matrix $\bm X$.
+
+The \textit{dimension} of $C(\bm X)$ is the rank of $\bm X$, i.e. the number of linearly independent columns of $\bm X$. If $\text{rank}(\bm X) < p$, this means that there are two different vectors $\bm \beta$ and $\bm \beta'$ such that $\bm X \bm \beta = \bm X \bm \beta'$. Therefore, we have two values of the parameter vector that give the same model for $\bm y$. This makes $\bm \beta$ \textit{not identifiable}, and makes it impossible to reliably determine $\bm \beta$ based on the data. For this reason, we will generally assume that $\bm \beta$ is \textit{identifiable}, i.e. $\bm X \bm \beta \neq \bm X \bm \beta'$ if $\bm \beta \neq \bm \beta'$. This is equivalent to the assumption that $\text{rank}(\bm X) = p$. Note that this cannot hold when $p > n$, so for the majority of the course we will assume that $p \leq n$. In this case, $\text{rank}(\bm X) = p$ if and only if $\bm X$ has \textit{full-rank}.
+
+As an example when $p \leq n$ but when $\bm \beta$ is still not identifiable, consider the case of a categorical predictor. Suppose the categories of $w$ were $\{w_1, \dots, w_{C-1}\}$, i.e. the baseline category $w_0$ did not exist. In this case, the model~\eqref{eq:C-sample-model} would not be identifiable because $x_0 = 1 = x_1 + \cdots + x_{C-1}$ and thus $x_{*0} = 1 = x_{*1} + \cdots + x_{*,C-1}$. Indeed, this means that one of the predictors can be expressed as a linear combination of the others, so $\bm X$ cannot have full rank. A simpler way of phrasing the problem is that we are describing $C-1$ intrinsic parameters (the means in each of the $C-1$ groups) with $C$ model parameters. There must therefore be some redundancy. For this reason, if we include an intercept term in the model then we must designate one of our categories as the baseline and exclude its indicator from the model.
+
+\section{Least squares estimation (Agresti 2.1.1, 2.7.1)}
+
+Now, suppose that we are given a dataset $(\bm X, \bm y)$. How do we go about estimating $\bm \beta$ based on this data? The canonical approach is the \textit{method of least squares}:
+\begin{equation}
+\bm {\widehat \beta} \equiv \underset{\bm \beta}{\arg \min}\ \|\bm y - \bm X \bm \beta\|^2.
+\end{equation}
+The quantity 
+\begin{equation}
+\|\bm y - \bm X \bm{\widehat \beta}\|^2 = \|\bm y - \bm{\widehat \mu}\|^2 = \sum_{i = 1}^n (y_i - \widehat \mu_i)^2 
+\end{equation}
+is called the \textit{residual sum of squares (RSS)}, and it measures the lack of fit of the linear regression model. We therefore want to choose $\bm{\widehat \beta}$ to minimize this lack of fit. Note that if $\bm \epsilon$ is assumed to be $N(0,\sigma^2 \bm I_n)$, then the least squares solution would also be the maximum likelihood solution. Indeed, for $y_i \sim N(\mu_i, \sigma^2)$, the log-likelihood is
+\begin{equation*}
+\log \left[\prod_{i = 1}^n \frac{1}{\sqrt{2\pi\sigma^2}}\exp\left(-\frac{(y_i - \mu_i)^2}{2\sigma^2}\right)\right] = \text{constant} - \frac{1}{2\sigma^2}\sum_{i = 1}^n (y_i - \mu_i)^2.
+\end{equation*}
+
+Letting $L(\bm{\beta}) = \frac12\|\bm y - \bm X \bm \beta\|^2$, we can do some calculus to derive that
+\begin{equation}
+\frac{\partial}{\partial \bm \beta}L(\bm \beta) = -\bm X^T(\bm y - \bm X \bm \beta).
+\end{equation}
+Setting this vector of partial derivatives equal to zero, we arrive at the \textit{normal equations}:
+\begin{equation}
+-\bm X^T(\bm y - \bm X \bm{\widehat \beta}) = 0 \quad \Longleftrightarrow \quad \bm X^T \bm X \bm {\widehat \beta} = \bm X^T \bm y.
+\label{eq:normal-equations}
+\end{equation}
+If $\bm X$ is full rank, the matrix $\bm X^T \bm X$ is invertible and we can therefore conclude that
+\begin{equation}
+\bm {\widehat \beta} = (\bm X^T \bm X)^{-1}\bm X^T \bm y.
+\label{eq:beta-hat}
+\end{equation}
+
+Now that we have derived the least squares estimator, we can compute its bias and variance. To obtain the bias, we first calculate that
+\begin{equation*}
+\mathbb E[\widehat{\bm\beta}] = \mathbb E[(\bm X^T \bm X)^{-1}\bm X^T \bm y] = (\bm X^T \bm X)^{-1}\bm X^T \mathbb E[\bm y] = (\bm X^T \bm X)^{-1}\bm X^T \bm X \bm \beta = \bm \beta.
+\end{equation*}
+Therefore, the least squares estimator is unbiased. To obtain the variance, we compute
+\begin{equation*}
+\begin{split}
+\text{Var}[\bm{\widehat\beta}] &= \text{Var}[(\bm X^T \bm X)^{-1}\bm X^T \bm y] \\
+&= (\bm X^T \bm X)^{-1}\bm X^T\text{Var}[\bm y]\bm X (\bm X^T \bm X)^{-1} \\
+&= (\bm X^T \bm X)^{-1}\bm X^T(\sigma^2 \bm I_n)\bm X (\bm X^T \bm X)^{-1} \\
+&= \sigma^2 (\bm X^T \bm X)^{-1}.
+\end{split}
+\end{equation*}
+According to the Gauss-Markov theorm, this covariance matrix computed above is the smallest (in the sense of positive semidefinite matrices) among all linear unbiased estimates of $\bm \beta$.
+
+\section{Least squares estimation R demo (Agresti 2.6)}
+
+The R demo will be based on the \texttt{ScotsRaces} data from the textbook. Data description (quoted from the textbook):
+\begin{quote}
+``Each year the Scottish Hill Runners Association publishes a list of hill races in Scotland for the year. The table below shows data on the record time for some of the races (in minutes). Explanatory variables listed are the distance of the race (in miles) and the cumulative climb (in thousands of feet).''
+\end{quote}
+
+<<cache = FALSE, message = FALSE>>=
+library(tidyverse)
+@
+
+<<>>=
+# read the data into R
+scots_races = read_tsv("../data/ScotsRaces.dat", col_types = "cddd")
+scots_races
+@
+
+<<>>=
+# Exploration
+
+# pairs plot
+
+
+# Q: What are the typical ranges of the variables?
+# Q: What are the relationships among the variables?
+
+
+# mile time versus distance 
+
+# Q: How does mile time vary with distance? 
+# Q: What races deviate from this trend?
+# Q: How does climb play into it?
+
+@
+
+<<>>=
+# Linear model
+
+# Q: What is the effect of an extra mile of distance on time?
+
+@
+
+<<>>=
+# Linear model with interaction
+
+# Q: What is the effect of an extra mile of distance on time 
+#  for a run with low climb?
+
+# Q: What is the effect of an extra mile of distance on time 
+#  for a run with high climb?
+
+@
+
+\section{Linear regression as orthogonal projection \\ (Agresti 2.2, 2.3, 2.4.2, 2.4.3, 2.4.4)}
+
+Let's think about the mapping $\bm y \mapsto \bm{\widehat \mu} = \bm X\bm{\widehat \beta} \in C(\bm X)$. We claim that this mapping is an \textit{orthogonal projection}. Geometrically it makes sense, since we define $\bm{\widehat \beta}$ so that $\bm{\widehat \mu} \in C(\bm X)$ is as close to $\bm y$ as possible. The shortest path between a point and a plane is the perpendicular. One way of seeing this is to show that $\bm v^T (\bm y - \bm X \bm{\widehat \beta}) = 0$ for each $\bm v \in C(\bm X)$. Since the columns $\{\bm x_{*1}, \dots, \bm x_{*p}\}$ of $\bm X$ form a basis for $C(\bm X)$, it suffices to show that $\bm x_{*j}^T (\bm y - \bm X \bm{\widehat \beta}) = 0$ for each $j = 1, \dots, p$. This is a consequence of the normal equations $\bm X^T(\bm y - \bm X\bm{\widehat \beta}) = 0$ derived in~\eqref{eq:normal-equations}.
+
+To derive the projection matrix corresponding to this orthogonal projection, we write
+\begin{equation}
+\bm{\widehat \mu} = \bm X\bm{\widehat \beta} = \bm X(\bm X^T \bm X)^{-1}\bm X^T \bm y = \bm H \bm y,
+\end{equation}
+where
+\begin{equation}
+\bm H \equiv  \bm X(\bm X^T \bm X)^{-1}\bm X^T
+\end{equation}
+is called the \textit{hat matrix}. This is the orthogonal projection matrix onto $C(\bm X)$. Recall that a matrix $\bm P$ is an orthogonal projection onto a subspace $\bm W$ if for all $\bm v \in \bm W$ we have $\bm P\bm v = \bm v$ and for all $\bm v \in \bm W^{\perp}$ we have $\bm P \bm v = 0$. We can check for example the first of these conditions by noting that if $\bm v \in C(\bm X)$, then $\bm v = \bm X \bm \beta$ for some $\bm \beta \in \mathbb R^p$. Therefore, we have 
+\begin{equation*}
+\bm H \bm v = \bm X(\bm X^T \bm X)^{-1}\bm X^T \bm X \bm \beta = \bm X \bm \beta = \bm v.
+\end{equation*}
+A simple example of $\bm H$ can be obtained by considering the intercept-only regression.
+
+One consequence of this observation is that the fitted values $\bm{\widehat \mu}$ depend on $\bm X$ only through $C(\bm X)$. As we will see in Homework 1, there are many different model matrices $\bm X$ leading to the same model space. Essentially, this reflects the fact that there are many different bases for the same vector space. Consider for example changing the units on the columns of $\bm X$. It can be verified that not just the fitted values $\bm{\widehat \mu}$ but also the predictions on a new set of features remain invariant to reparametrization (this follows from parts (a) and (b) of Homework 1 Problem 1). Therefore, while reparametrization can have a huge impact on the fitted coefficients, it has no impact on the predictions of linear regression.
+
+The orthogonality property of least squares, together with the Pythagorean theorem, leads to the following fundamental relationship. Let's say that $S \subset \{1, \dots, p\}$ is a subset of the predictors. First regress $\bm y$ on $\bm X$ to get $\bm{\widehat \beta}$ as usual. Then, we consider the \textit{partial model matrix} $\bm X_{*S}$ obtained by selecting only the columns in $S$. Regression $\bm y$ on $\bm X_{*S}$ results in $\bm{\widehat \beta}_S$ (note: $\bm{\widehat \beta}_S$ is not necessarily obtained from $\bm{\widehat\beta}$ by extracting the coefficients corresponding to $S$). Now, consider the three points $\bm y, \bm X\bm{\widehat \beta}, \bm X_{*S}\bm{\widehat \beta}_S \in \mathbb R^n$. Since $\bm X\bm{\widehat \beta}$ and $\bm X_{*S}\bm{\widehat \beta}_S$ are both in $C(\bm X)$, it follows by the orthogonal projection properpty that $\bm y - \bm X\bm{\widehat \beta}$ is orthogonal to $\bm X\bm{\widehat \beta}- \bm X_{*S}\bm{\widehat \beta}_S$. In other words, these three points form a right triangle. By the Pythagorean theorem, we conclude that
+\begin{equation}
+\|\bm y -  \bm X_{*S}\bm{\widehat \beta}_S\|^2 = \|\bm y - \bm X\bm{\widehat \beta}\|^2 + \|\bm X\bm{\widehat \beta}- \bm X_{*S}\bm{\widehat \beta}_S\|^2.
+\label{eq:pythagorean-theorem}
+\end{equation}
+We will rely on this fundamental relationship throughout this course.
+
+For now, we can extract a few consequences of the relationship~\eqref{eq:pythagorean-theorem}. 
+
+\begin{itemize}
+\item TSS = SSR + SSE, $R^2$, and what happens as you add more predictors
+\item Special case: One-way ANOVA
+\end{itemize}
+
+
+
+\section{Correlation, multiple correlation, and $R^2$ \\ (Agresti 2.1.3, 2.4.6)}
+
+TBD.
+
+\section{Collinearity, adjustment, and partial correlation (Agresti 2.2.4, 2.5.6, 2.5.7)}
+
+TBD.
+
+\section{R demo}
+
+TBD.
+
+
+\end{document}
