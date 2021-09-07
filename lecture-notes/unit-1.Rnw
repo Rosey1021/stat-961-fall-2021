@@ -279,10 +279,17 @@ The orthogonality property of least squares, together with the Pythagorean theor
 \end{equation}
 We will rely on this fundamental relationship throughout this course.
 
-For now, we can extract a few consequences of the relationship~\eqref{eq:pythagorean-theorem}. 
+For now, we can extract a few consequences of the relationship~\eqref{eq:pythagorean-theorem}. As a starting point, consider the case when $S = \{0\}$, i.e. the partial model is the intercept-only model. In this case, $\bm X_{*S} = \bm 1_n$ and $\bm{\widehat \beta_S} = \bar y$. Therefore, equation~\eqref{eq:pythagorean-theorem} implies that
+\begin{equation}
+\|\bm y -  \bar y \bm 1_n\|^2 = \|\bm y - \bm X\bm{\widehat \beta}\|^2 + \|\bm X\bm{\widehat \beta}- \bar y \bm 1_n\|^2.
+\end{equation}
+Equivalently, we can rewrite this equation as follows:
+\begin{equation}
+\text{TSS} \equiv \sum_{i = 1}^n (y_i - \bar y)^2 = \sum_{i = 1}^n (\widehat \mu_i - \bar y)^2 + \sum_{i = 1}^n (y_i - \widehat \mu_i)^2 \equiv \text{SSR} + \text{SSE}.
+\end{equation}
 
 \begin{itemize}
-\item TSS = SSR + SSE, $R^2$, and what happens as you add more predictors
+\item $R^2$, and what happens as you add more predictors
 \item Special case: One-way ANOVA
 \end{itemize}
 
