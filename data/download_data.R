@@ -3,7 +3,7 @@
 # many datasets will come from course textbook website
 textbook_site = "http://users.stat.ufl.edu/~aa/glm/data"
 
-# download anorexia data
+# download Anorexia data
 filename = "Anorexia.dat"
 destination = sprintf("data/%s", filename)
 if(!file.exists(destination)){
@@ -14,6 +14,19 @@ if(!file.exists(destination)){
 } else{
   cat(sprintf("%s already exists.\n", filename))
 }
+
+# download ScotsRaces data
+filename = "ScotsRaces.dat"
+destination = sprintf("data/%s", filename)
+if(!file.exists(destination)){
+  cat(sprintf("Downloading %s...\n", filename))
+  source = sprintf("%s/%s", textbook_site, filename)
+  scots_races_data = suppressWarnings(read_table(source, col_types = "cddd"))
+  write_tsv(scots_races_data, file = destination)
+} else{
+  cat(sprintf("%s already exists.\n", filename))
+}
+
 
 # data from R4DS book
 r4ds_data_site = "https://raw.githubusercontent.com/hadley/r4ds/master/data/"
