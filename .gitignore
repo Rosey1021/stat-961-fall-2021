@@ -8,3 +8,4 @@ git-and-github.key
 */figure/
 *.html
 .Rhistory
+*/*/cache
