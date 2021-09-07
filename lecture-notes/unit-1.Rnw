@@ -304,16 +304,14 @@ Equivalently, we can rewrite this equation as follows:
 \text{TSS} \equiv \sum_{i = 1}^n (y_i - \bar y)^2 = \sum_{i = 1}^n (\widehat \mu_i - \bar y)^2 + \sum_{i = 1}^n (y_i - \widehat \mu_i)^2 \equiv \text{SSR} + \text{SSE}.
 \end{equation}
 
+
+\section{Correlation, multiple correlation, and $R^2$ \\ (Agresti 2.1.3, 2.4.6)}
+
 \begin{itemize}
 \item $R^2$, and what happens as you add more predictors
 \item Special case: One-way ANOVA
 \end{itemize}
 
-
-
-\section{Correlation, multiple correlation, and $R^2$ \\ (Agresti 2.1.3, 2.4.6)}
-
-TBD.
 
 \section{Collinearity, adjustment, and partial correlation (Agresti 2.2.4, 2.5.6, 2.5.7)}
 
