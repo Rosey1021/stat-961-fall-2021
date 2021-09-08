@@ -220,6 +220,7 @@ scots_races
 # Exploration
 
 # pairs plot
+GGally::ggpairs(scots_races %>% select(-race))
 
 
 # Q: What are the typical ranges of the variables?
@@ -227,6 +228,17 @@ scots_races
 
 
 # mile time versus distance 
+
+scots_races %>% 
+  mutate(mile_time = time/distance) %>%
+  ggplot(aes(x = distance, y = mile_time)) +
+  geom_point()
+
+scots_races %>% 
+  mutate(mile_time = time/distance) %>%
+  ggplot(aes(x = distance, y = mile_time, label = race,
+             color = climb)) +
+  geom_point()
 
 # Q: How does mile time vary with distance? 
 # Q: What races deviate from this trend?
@@ -238,7 +250,8 @@ scots_races
 # Linear model
 
 # Q: What is the effect of an extra mile of distance on time?
-
+lm_fit = lm(time ~ distance + climb, data = scots_races)
+summary(lm_fit)
 @
 
 <<>>=
@@ -249,6 +262,9 @@ scots_races
 
 # Q: What is the effect of an extra mile of distance on time 
 #  for a run with high climb?
+
+lm_fit_int = lm(time ~ distance*climb, data = scots_races)
+summary(lm_fit_int)
 
 @
 
