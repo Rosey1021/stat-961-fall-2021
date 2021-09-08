@@ -26,9 +26,9 @@
 %==============================================================================
 % Enter name and homework title here
 %==============================================================================
-\author{FirstName LastName}
+\author{Samuel Rosenberg}
 \title{Homework 1}
-\date{Due September 13, 2021 at 11:59pm}
+\date{Due September 19, 2021 at 11:59pm}
 
 %==============================================================================
 % Put title and author in PDF properties
@@ -160,7 +160,77 @@ Defining $\bm X' \equiv [\bm 1, \bm x'_{*1}, \bm x'_{*2}]$, find the matrix $\bm
 \end{prob}
 
 \begin{sol}
-% Solution goes here
+
+\begin{enumerate}[label=(\alph*)]
+  \item Because each column space is full rank (rank $p$), the columns of each model matrix form a basis; we write each of these bases as follows: $\{\bm{x_1}, \dots, \bm{x_p}\}$ and $\{\bm{x_1'}, \dots, \bm{x_p'}\}$ respectively.
+  
+  $\underline{\Rightarrow}$: Suppose that $C(\bm{X}) = C(\bm{X'})$. Since $C(\bm{X}) = C(\bm{X'})$, $\bm{x_j'} \in C(\bm{X})$. This means that $\bm{x_j'} = \sum_{k=1}^p a_{kj}\bm{x_k} = \sum_{k=1}^p a_{kj}(x_{1k}, \dots, x_{nk})^T$ for some $a_{kj}$. So, $x_{ij}' = \sum_{k=1}^p a_{kj}x_{ik} = (x_{i1}, \dots, x_{ip})(a_{1j}, \dots, a_{pj})^T$. This is equivalent to saying that $\bm{X'} = \bm{XA}$, for the $p \times p$ matrix $\bm{A}$ with entry $a_{ij}$ in the $i$-th row and $j$-th column. 
+  
+  Suppose for contradiction that $\bm{A}$ is singular, then $\text{rank}(\bm{A}) < p$. So, there is some column $\bm{a_\ell} = (a_{1\ell}, \dots, a_{p\ell})^T$ that can be written as a linear combination of the other $\bm{a_j}$; i.e. $\bm{a_\ell} = \beta_1 \bm{a_1} + \dots + \beta_{\ell-1} \bm{a_{\ell-1}} + \beta_{\ell+1} \bm{a_{\ell+1}} + \dots + \beta_p \bm{a_p}$ and $a_{i\ell} = \beta_1 a_{i1} + \dots + \beta_{\ell-1} a_{i\ \ell-1} + \beta_{\ell+1} a_{i\ \ell+1} + \dots + \beta_p a_{i p}$. Then
+  \begin{align*}
+    \bm{x_\ell'} &= \sum_{k=1}^p a_{k\ell}\bm{x_k} \\
+    &= a_{1\ell}\bm{x_1} + \sum_{k=2}^p a_{k\ell}\bm{x_k} \\
+    &= 
+    (\sum_{k=2}^p \beta_k a_{1k} \bm{x_1}) + \sum_{k=2}^p a_{k\ell}\bm{x_k} \\
+    &= \sum_{k=2}^p (\beta_ka_{1k} + a_{k\ell})\bm{x_k}.
+  \end{align*}
+  But this means that $\bm{x_\ell'}$ is a non-unique linear combination of the $\bm{x_k}$, so $\text{rank}(C(\bm{X})) < p$. This is a contradiction since we assumed $\bm{X}$ was full rank, so $\bm{A}$ must be nonsingular.
+  
+  $\underline{\Leftarrow}$: Now suppose that $\bm{X'} = \bm{XA}$ for some nonsingular $p \times p$ matrix $\bm{A}$. Then each entry $x_{ij}'$ of $\bm{X'}$ has the following form:  $x_{ij}' = (x_{i1}, \dots, x_{ip})(a_{1j}, \dots, a_{pj})^T = \sum_{k=1}^p a_{kj}x_{ik}$. Consequently, the $j$-th column of $\bm{X'}$ is $\bm{x_j'} = \sum_{k=1}^p a_{kj}\bm{x_k}$. Thus, $\text{span}\{\bm{x_1'}, \dots, \bm{x_p'}\} = C(\bm{X'}) \subseteq C(\bm{X})$. But $\text{dim}(C(\bm{X'})) = \text{dim}(C(\bm{X}))$, so we must have that $C(\bm{X}) = C(\bm{X'})$.
+  
+  Thus, $C(\bm X) = C(\bm X')$ if and only if $\bm X' = \bm X \bm A$ for some nonsingular $p \times p$ matrix $\bm A$.
+  
+  The operation $\bm{X} \mapsto \bm{XA}$ converts the columns of $\bm{X}$ to use the same units as $\bm{X'}$ (i.e. it is a change of bases).
+  
+  \item Recall that the least square estimators for the linear regression of $\bm{y}$ on $\bm{X}$ and $\bm{X'}$ are $\bm{\widehat{\beta}} = (\bm{X}^T\bm{X})^{-1}\bm{X}^T \bm{y}$ and $\bm{\widehat{\beta}'} = ((\bm{X'})^T\bm{X'})^{-1}(\bm{X'})^T \bm{y}$ respectively (e.g. by equation 2.3 in Agresti). Taking $\bm{X'} \equiv \bm{XA}$ and using properties of the matrix transpose and matrix inverse (since $\bm{X}$, $\bm{X'}$, $\bm{A}$ are full rank), we have that
+  \begin{align*}
+    \bm{\widehat{\beta}'} &= ((\bm{X'})^T\bm{X'})^{-1}(\bm{X'})^T \bm{y} \\
+    &= ((\bm{XA})^T \bm{XA})^{-1}(\bm{XA})^T \bm{y} \\
+    &= (\bm{A}^T \bm{X}^T \bm{X} \bm{A})^{-1} \bm{A}^T \bm{X}^T \bm{y} \\
+    &= (\bm{X^T} \bm{XA})^{-1} (\bm{A}^T)^{-1} \bm{A}^T \bm{X}^T \bm{y} \\
+    &= (\bm{X^T} \bm{XA})^{-1} \bm{X}^T \bm{y} \\
+    &= \bm{A}^{-1} (\bm{X}^T \bm{X})^{-1} \bm{X}^T \bm{y} \\
+    &= \bm{A}^{-1} \bm{\widehat{\beta}}.
+  \end{align*}
+  
+  \item We take 
+    \[\bm{A} = 
+      \begin{pmatrix}
+        1 & -\overline{x}_1 & -\overline{x}_2 \\
+        0 & 1 & 0 \\
+        0 & 0 & 1
+      \end{pmatrix}.
+    \]
+    Then
+      \begin{align*}
+        \bm{XA} &= \begin{pmatrix} 1 & x_{11} & x_{12} \\ \vdots & \vdots & \vdots \\ 1 & x_{n1} & x_{n2} \end{pmatrix} \begin{pmatrix}
+        1 & -\overline{x}_1 & -\overline{x}_2 \\
+        0 & 1 & 0 \\
+        0 & 0 & 1
+      \end{pmatrix} \\
+        &= \begin{pmatrix} 1 & x_{11} - \overline{x}_1 & x_{12} - \overline{x}_2  \\ \vdots & \vdots & \vdots \\ 1 & x_{n1} - \overline{x}_1 & x_{n2} - \overline{x}_2 \end{pmatrix} \\
+        &= \bm{X'}
+      \end{align*} 
+      as desired.
+      
+      Note that 
+        \[
+          \bm{A} \begin{pmatrix} 1 & -\overline{x}_1 & -\overline{x}_2 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix} = 
+          \begin{pmatrix} 1 & -\overline{x}_1 & -\overline{x}_2 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix} \begin{pmatrix} 1 & \overline{x}_1 & \overline{x}_2 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix} = \bm{I}_3,
+          \]
+      so 
+        \[\bm{A}^{-1} = \begin{pmatrix} 1 & -\overline{x}_1 & -\overline{x}_2 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix}.\]
+      
+      As we saw in (b), $\bm{\widehat{\beta}'} = \bm{A}^{-1} \bm{\widehat{\beta}}$, so 
+        \begin{align*}
+          \bm{\widehat{\beta}'} &=\bm{A}^{-1} \bm{\widehat{\beta}} \\
+          &= \begin{pmatrix} 1 & -\overline{x}_1 & -\overline{x}_2 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix} \begin{pmatrix} \hat{\beta}_0 \\ \hat{\beta}_1 \\ \hat{\beta}_2 \end{pmatrix} \\
+          &= \begin{pmatrix} \hat{\beta}_0 - \overline{x}_1 \hat{\beta}_1 - \overline{x}_2 \hat{\beta}_2 \\ \hat{\beta}_1 \\ \hat{\beta}_2\end{pmatrix}.
+        \end{align*}
+  \item
+  
+\end{enumerate}
+
 \end{sol}
 
 \begin{prob} \textbf{Predictor correlation.} (Adapted from Agresti Ex. 2.9) \\
