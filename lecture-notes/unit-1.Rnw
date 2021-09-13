@@ -109,7 +109,7 @@ Here, category 0 is the \textit{base category}, and $\beta_0$ represents the mea
 \paragraph{Quantitative predictors.} A quantitative predictor is one that can take on any real value. For example, suppose that $x_1 \in \mathbb R$, and consider the linear model
 \begin{equation}
 y = \beta_0 + \beta_1 x_1 + \epsilon.
-\label{eq:simple-regression}
+\label{eq:simple-regression-intro}
 \end{equation}
 Now, the interpretation of $\beta_1$ is that an increase in $x_1$ by 1 is associated with an increase in $y$ by $\beta_1$. We must be careful to avoid saying ``an increase in $x_1$ by 1 \textit{causes} $y$ to increase by $\beta_1$'' unless we make additional causal assumptions. Note that the units of $x_1$ matter. If $x_1$ is the height of a person, then the value and the interpretation of $\beta_1$ changes depending on whether that height is measured in feet or in meters. 
 
@@ -288,34 +288,127 @@ A simple example of $\bm H$ can be obtained by considering the intercept-only re
 
 One consequence of this observation is that the fitted values $\bm{\widehat \mu}$ depend on $\bm X$ only through $C(\bm X)$. As we will see in Homework 1, there are many different model matrices $\bm X$ leading to the same model space. Essentially, this reflects the fact that there are many different bases for the same vector space. Consider for example changing the units on the columns of $\bm X$. It can be verified that not just the fitted values $\bm{\widehat \mu}$ but also the predictions on a new set of features remain invariant to reparametrization (this follows from parts (a) and (b) of Homework 1 Problem 1). Therefore, while reparametrization can have a huge impact on the fitted coefficients, it has no impact on the predictions of linear regression.
 
-The orthogonality property of least squares, together with the Pythagorean theorem, leads to the following fundamental relationship. Let's say that $S \subset \{1, \dots, p\}$ is a subset of the predictors. First regress $\bm y$ on $\bm X$ to get $\bm{\widehat \beta}$ as usual. Then, we consider the \textit{partial model matrix} $\bm X_{*S}$ obtained by selecting only the columns in $S$. Regression $\bm y$ on $\bm X_{*S}$ results in $\bm{\widehat \beta}_S$ (note: $\bm{\widehat \beta}_S$ is not necessarily obtained from $\bm{\widehat\beta}$ by extracting the coefficients corresponding to $S$). Now, consider the three points $\bm y, \bm X\bm{\widehat \beta}, \bm X_{*S}\bm{\widehat \beta}_S \in \mathbb R^n$. Since $\bm X\bm{\widehat \beta}$ and $\bm X_{*S}\bm{\widehat \beta}_S$ are both in $C(\bm X)$, it follows by the orthogonal projection properpty that $\bm y - \bm X\bm{\widehat \beta}$ is orthogonal to $\bm X\bm{\widehat \beta}- \bm X_{*S}\bm{\widehat \beta}_S$. In other words, these three points form a right triangle. By the Pythagorean theorem, we conclude that
+The orthogonality property of least squares, together with the Pythagorean theorem, leads to the following fundamental relationship. Let's say that $S \subset \{0, 1, \dots, p\}$ is a subset of the predictors. First regress $\bm y$ on $\bm X$ to get $\bm{\widehat \beta}$ as usual. Then, we consider the \textit{partial model matrix} $\bm X_{*S}$ obtained by selecting only the columns in $S$. Regression $\bm y$ on $\bm X_{*S}$ results in $\bm{\widehat \beta}_S$ (note: $\bm{\widehat \beta}_S$ is not necessarily obtained from $\bm{\widehat\beta}$ by extracting the coefficients corresponding to $S$). Now, consider the three points $\bm y, \bm X\bm{\widehat \beta}, \bm X_{*S}\bm{\widehat \beta}_S \in \mathbb R^n$. Since $\bm X\bm{\widehat \beta}$ and $\bm X_{*S}\bm{\widehat \beta}_S$ are both in $C(\bm X)$, it follows by the orthogonal projection properpty that $\bm y - \bm X\bm{\widehat \beta}$ is orthogonal to $\bm X\bm{\widehat \beta}- \bm X_{*S}\bm{\widehat \beta}_S$. In other words, these three points form a right triangle. By the Pythagorean theorem, we conclude that
 \begin{equation}
-\|\bm y -  \bm X_{*S}\bm{\widehat \beta}_S\|^2 = \|\bm y - \bm X\bm{\widehat \beta}\|^2 + \|\bm X\bm{\widehat \beta}- \bm X_{*S}\bm{\widehat \beta}_S\|^2.
+\|\bm y -  \bm X_{*S}\bm{\widehat \beta}_S\|^2 = \|\bm X\bm{\widehat \beta}- \bm X_{*S}\bm{\widehat \beta}_S\|^2 + \|\bm y - \bm X\bm{\widehat \beta}\|^2.
 \label{eq:pythagorean-theorem}
 \end{equation}
 We will rely on this fundamental relationship throughout this course.
 
 For now, we can extract a few consequences of the relationship~\eqref{eq:pythagorean-theorem}. As a starting point, consider the case when $S = \{0\}$, i.e. the partial model is the intercept-only model. In this case, $\bm X_{*S} = \bm 1_n$ and $\bm{\widehat \beta_S} = \bar y$. Therefore, equation~\eqref{eq:pythagorean-theorem} implies that
 \begin{equation}
-\|\bm y -  \bar y \bm 1_n\|^2 = \|\bm y - \bm X\bm{\widehat \beta}\|^2 + \|\bm X\bm{\widehat \beta}- \bar y \bm 1_n\|^2.
+\|\bm y -  \bar y \bm 1_n\|^2 = \|\bm X\bm{\widehat \beta}- \bar y \bm 1_n\|^2 + \|\bm y - \bm X\bm{\widehat \beta}\|^2.
 \end{equation}
 Equivalently, we can rewrite this equation as follows:
 \begin{equation}
-\text{TSS} \equiv \sum_{i = 1}^n (y_i - \bar y)^2 = \sum_{i = 1}^n (\widehat \mu_i - \bar y)^2 + \sum_{i = 1}^n (y_i - \widehat \mu_i)^2 \equiv \text{SSR} + \text{SSE}.
+\text{SST} \equiv \sum_{i = 1}^n (y_i - \bar y)^2 = \sum_{i = 1}^n (\widehat \mu_i - \bar y)^2 + \sum_{i = 1}^n (y_i - \widehat \mu_i)^2 \equiv \text{SSR} + \text{SSE}.
+\label{eq:anova}
 \end{equation}
-
-\begin{itemize}
-\item $R^2$, and what happens as you add more predictors
-\item Special case: One-way ANOVA
-\end{itemize}
-
-
 
 \section{Correlation, multiple correlation, and $R^2$ \\ (Agresti 2.1.3, 2.4.6)}
 
-TBD.
+\paragraph{ANOVA decomposition for $C$ groups model.} Let's consider the special case of the ANOVA decomposition~\eqref{eq:anova} when the model matrix $\bm X$ represents a single categorical predictor $w$. In this case, each observation $i$ is associated to one of the $C$ classes of $w$, which we denote $c(i) \in \{1, \dots, C\}$. Let's consider the $C$ groups of observations $\{i: c(i) = c\}$ for $c \in \{1, \dots, C\}$. For example, $w$ may be the type of a car (compact, midsize, minivan, etc.) and $y$ might be its fuel efficiency in miles per gallon.
+<<out.width = "75%", fig.width = 5, fig.height = 4, fig.align='center'>>=
+mpg %>%
+  ggplot() + 
+  geom_boxplot(aes(x = fct_reorder(class, hwy), y = hwy)) + 
+  labs(x = "Car class", y = "Gas mileage (mpg)") + 
+  theme_bw() 
+@
 
-\section{Collinearity, adjustment, and partial correlation (Agresti 2.2.4, 2.5.6, 2.5.7)}
+\noindent It is easy to check that the least squares fitted values $\widehat \mu_i$ are simply the means of the corresponding groups:
+\begin{equation}
+\widehat \mu_i = \bar y_{c(i)}, \quad \text{where}\ \bar y_{c(i)} \equiv \frac{\sum_{i: c(i) = c} y_i}{|\{i: c(i) = c\}|}.
+\end{equation}
+Therefore, we have
+\begin{equation}
+\text{SSR} = \sum_{i = 1}^n (\widehat \mu_i - \bar y)^2 = \sum_{i = 1}^n (\bar y_{c(i)} - \bar y)^2 \equiv \text{between-groups sum of squares (SSB)}
+\end{equation}
+and
+\begin{equation}
+\text{SSE} = \sum_{i = 1}^n (y_i - \widehat \mu_i)^2 = \sum_{i = 1}^n (y_i - \bar y_{c(i)})^2 \equiv \text{within-groups sum of squares (SSW)}.
+\end{equation}
+We therefore obtain the following corollary of the ANOVA decomposition~\eqref{eq:anova}:
+\begin{equation}
+\text{SST} = \text{SSB} + \text{SSW}.
+\label{eq:anova-C-groups}
+\end{equation}
+
+\paragraph{$R^2$ definition and (multiple) correlation.} The ANOVA decompositions~\eqref{eq:anova} and~\eqref{eq:anova-C-groups} of the variation in $\bm y$ into that explained by the linear regression model (SSR) and that left over (SSE) leads naturally to the definition of $R^2$ as the fraction of variation in $\bm y$ explained by the linear regression model:
+\begin{equation}
+R^2 \equiv \frac{\text{SSR}}{\text{SST}} = \frac{\sum_{i = 1}^n (\widehat \mu_i - \bar y)^2}{\sum_{i = 1}^n (y_i - \bar y)^2} = \frac{\|\bm X\bm{\widehat \beta}- \bar y \bm 1_n\|^2}{\|\bm y -  \bar y \bm 1_n\|^2}.
+\end{equation}
+By the decomposition~\eqref{eq:anova}, we have $R^2 \in [0,1]$. The closer $R^2$ is to 1, the closely the data follow the fitted linear regression model. There is a connection between $R^2$ and correlation. To see this, let us first consider the case of the simple linear regression model with one predictor
+\begin{equation}
+y = \beta_0 + \beta_1 x_1 + \epsilon.
+\label{eq:simple-regression}
+\end{equation}
+In this simple case, one can directly derive a formula for the fitted coefficients:
+\begin{equation}
+\widehat \beta_0 = \bar y - \widehat \beta_1 \bar x; \quad 
+\widehat \beta_1 = \frac{\sum_{i = 1}^n (x_i - \bar x)(y_i - \bar y)}{\sum_{i = 1}^n (x_i - \bar x)^2}.
+\label{eq:simple-regression-coefficients}
+\end{equation}
+Therefore,
+\begin{equation*}
+\bm{\widehat \mu}-\bar y \bm 1_n = \widehat \beta_0 \bm 1_n + \widehat \beta_1 \bm x_{*1} - \bar y \bm 1_n= \widehat \beta_1(\bm x_{*1} - \bar x \bm 1_n)
+\end{equation*}
+and thus
+\begin{equation}
+R^2 = \frac{\|\bm{\widehat \mu} - \bar y \bm 1_n\|^2}{\|\bm y - \bar y \bm 1_n\|^2} = \frac{\widehat \beta_1^2 \|\bm x_{*1} - \bar x \bm 1_n\|^2}{\|\bm y - \bar y \bm 1_n\|^2} = \left(\frac{\sum_{i = 1}^n (x_i - \bar x)(y_i - \bar y)}{\left(\sum_{i = 1}^n (x_i - \bar x)^2\right)^{1/2}\left(\sum_{i = 1}^n (y_i - \bar y)^2\right)^{1/2}}\right)^2 \equiv \rho_{xy}^2,
+\end{equation}
+where $\rho_{xy}$ is the sample correlation between $x_1$ and $y$. Therefore, in a simple linear regression, $R^2$ is the squared sample correlation between $x_1$ and $y$. For general regressions, one can derive that $R^2$ is the squared sample correlation between $\bm X \bm{\widehat \beta}$ and $\bm y$. For this reason, $R^2$ is sometimes called the \textit{multiple correlation coefficient}.
+
+\paragraph{Regression to the mean.}
+
+Let's go back to the simple regression model~\eqref{eq:simple-regression}, and let's take a closer look at $\widehat \beta_1$ in \eqref{eq:simple-regression-coefficients}. Denoting by $\rho_x$ is the sample standard deviation of $x_1$ and $\rho_y$ is the sample standard deviation of $y$, we can rewrite $\widehat \beta_1$ as
+\begin{equation}
+\widehat \beta_1 = \frac{\rho_y}{\rho_x}\cdot\rho_{xy}.
+\end{equation}
+Assuming that $\bm x_{*1}$ and $\bm y$ have been normalized to have the same sample standard deviation $\rho_x = \rho_y$, we find that the least squares coefficient $\widehat \beta_1$ is equal to the sample correlation $\rho_{xy}$ between $x$ and $y$. Since $|\rho_{xy}| < 1$ unless $\bm x_{*1}$ and $\bm y$ are perfectly correlated (by the Cauchy-Schwarz inequality), this means that 
+\begin{equation}
+|\widehat \mu_i - \bar y| < |x_i - \bar x| \quad \text{for each } i.
+\label{eq:regression-to-the-mean}
+\end{equation}
+Therefore, we expect $y_i$ to be closer to its mean than $x_i$ is to its mean. This phenomenon is called \textit{regression to the mean} (and is in fact the origin of the term ``regression''). Many mistakenly attribute a causal mechanism to this phenomenon, when in reality it is simply a statistical artifact. For example, suppose $x_i$ is the number of games a sports team won last season and $y_i$ is the number of games it won this season. It is widely observed that teams with exceptional performance in a given season suffer a ``winner's curse'', performing worse in the next season. The reason for the winner's curse is simple: teams perform exceptionally well due to a combination of skill and luck. While skill stays roughly constant from year to year, the team which performed exceptionally well in a given season is unlikely to get as lucky as it did next season. 
+
+\paragraph{$R^2$ increases as predictors are added.}
+
+The $R^2$ is an \textit{in-sample} measure, i.e. it uses the same data to fit the model and to assess the quality of the fit. Therefore, it is generally an optimistic measure of the (out-of-sample) prediction error. One manifestation of this is that the $R^2$ increases if any predictors are added to the model (even if these predictors are ``junk''). To see this, it suffices to show that SSE decreases as we add predictors. Without loss of generality, suppose that we start with a model including predictors $S \subset \{0, 1, \dots, p\}$ and compare it to the model including all the predictors $\{0,1,\dots,p\}$. We can read off from the Pythagorean theorem~\eqref{eq:pythagorean-theorem} that
+\begin{equation*}
+\text{SSE}(\bm X_{*S}, \bm y) = \|\bm y -  \bm X_{*S}\bm{\widehat \beta}_S\|^2 \geq  \|\bm y -  \bm X\bm{\widehat \beta}\|^2 = \text{SSE}(\bm X, \bm y).
+\end{equation*}
+Adding many junk predictors will have the effect of degrading predictive performance but will nevertheless increase $R^2$.
+
+
+\section{Collinearity, adjustment, and partial correlation (Agresti 2.2.4, 2.5.6, 2.5.7, 4.6.5)}
+
+An important part of linear regression analysis is the dependence of the least squares coefficient for a predictor on what other predictors are in the model. This relationship is dictated by the extent to which the given predictor is correlated with the other predictors.
+
+\paragraph{Least squares estimates in the orthogonal case.}
+
+The simplest case to analyze is when a groups of predictors $S \subset \{1, \dots, p\}$ (suppose without loss of generality that $S = \{1, \dots, s\}$ for some $1 \leq s < p$) is orthogonal to the rest of the predictors in the sense that.
+\begin{equation}
+\bm X_{*S}^T \bm X_{*,\text{-}S} = \bm 0.
+\end{equation}
+In this case, we can derive the least squares coefficient vector $\bm{\widehat \beta} = (\bm{\widehat \beta}_S, \bm{\widehat \beta}_{\text{-S}})$ from the normal equations:
+\begin{equation}
+{\bm{\widehat \beta}_S \choose \bm{\widehat \beta}_{\text{-}S}} =  \bm{\widehat \beta} = (\bm X^T \bm X)^{-1}\bm X^T \bm y = 
+\begin{pmatrix}
+\bm X_S^T \bm X_S & 0 \\
+0 & \bm X_{\text{-}S}^T \bm X_{\text{-}S}
+\end{pmatrix}^{-1}{\bm X_S^T \choose \bm X_{\text{-}S}}\bm y = {(\bm X_S^T \bm X_S)^{-1}\bm X_S^T\bm y \choose (\bm X_{\text{-}S}^T \bm X_{\text{-}S})^{-1}\bm X_{\text{-}S}^T\bm y}.
+\label{eq:orthogonality}
+\end{equation}
+Therefore, the least squares coefficients when regressing $\bm y$ on $(\bm X_S, \bm X_{\text{-}S})$ are the same as those obtained from regressing $\bm y$ separately on $\bm X_S$ and $\bm X_{\text{-}S}$.
+
+\paragraph{Least squares estimates in the non-orthogonal case.}
+
+Let's now focus our attention on a single predictor $x_j$. If this predictor is orthogonal to the remaining predictors, then the result~\eqref{eq:orthogonality} states that $\widehat \beta_j$ in the full regression can be obtained from simply regressing $y$ on $x_j$. However, this is usually not the case. Usually, $\bm x_{*j}$ has a nonzero projection onto $C(\bm X_{*,\text{-}j})$:
+\begin{equation}
+\bm x_{*j} = \bm X_{*,\text{-}j}\widehat \gamma + \bm x^{\perp}_{*j},
+\end{equation}
+where $\bm x^{\perp}_{*j}$ is the residual from regressing $\bm x_{*j}$ onto $\bm X_{*,\text{-}j}$ and is therefore orthogonal to $C(\bm X_{*,\text{-}j})$. In other words, $\bm x^{\perp}_{*j}$ is the projection of $\bm x_{*j}$ onto the orthogonal complement of $C(\bm X_{*,\text{-}j})$. 
 
 TBD.
 
