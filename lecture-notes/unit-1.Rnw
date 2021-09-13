@@ -376,7 +376,7 @@ Therefore, we expect $y_i$ to be closer to its mean than $x_i$ is to its mean. T
 
 The $R^2$ is an \textit{in-sample} measure, i.e. it uses the same data to fit the model and to assess the quality of the fit. Therefore, it is generally an optimistic measure of the (out-of-sample) prediction error. One manifestation of this is that the $R^2$ increases if any predictors are added to the model (even if these predictors are ``junk''). To see this, it suffices to show that SSE decreases as we add predictors. Without loss of generality, suppose that we start with a model including predictors $S \subset \{0, 1, \dots, p\}$ and compare it to the model including all the predictors $\{0,1,\dots,p\}$. We can read off from the Pythagorean theorem~\eqref{eq:pythagorean-theorem} that
 \begin{equation*}
-\text{SSE}(\bm X_{*S}, \bm y) = \|\bm y -  \bm X_{*S}\bm{\widehat \beta}_S\|^2 \leq  \|\bm y -  \bm X\bm{\widehat \beta}\|^2 = \text{SSE}(\bm X, \bm y).
+\text{SSE}(\bm X_{*S}, \bm y) = \|\bm y -  \bm X_{*S}\bm{\widehat \beta}_S\|^2 \geq  \|\bm y -  \bm X\bm{\widehat \beta}\|^2 = \text{SSE}(\bm X, \bm y).
 \end{equation*}
 Adding many junk predictors will have the effect of degrading predictive performance but will nevertheless increase $R^2$.
 
