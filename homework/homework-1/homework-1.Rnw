@@ -28,7 +28,7 @@
 %==============================================================================
 \author{FirstName LastName}
 \title{Homework 1}
-\date{Due September 19, 2021 at 11:59pm}
+\date{Due September 13, 2021 at 11:59pm}
 
 %==============================================================================
 % Put title and author in PDF properties
@@ -153,7 +153,7 @@ so that $\bm X = [\bm 1, \bm x_{*1}, \bm x_{*2}]$ for columns $\bm x_{*j} \equiv
 \bm x'_{*j} \equiv \bm x_{*j} - \bar x_j \bm 1; \quad \bar x_j \equiv \frac{1}{n}\sum_{i = 1}^n x_{ij}, \quad j \in \{1,2\}.
 \end{equation*}
 Defining $\bm X' \equiv [\bm 1, \bm x'_{*1}, \bm x'_{*2}]$, find the matrix $\bm A$ such that $\bm X' = \bm X \bm A$ ($\bm A$ may itself be expressed in terms of $\bm X$). Express the coefficient estimates from the centered regression ($\widehat \beta'_0$, $\widehat \beta'_1$, $\widehat \beta'_2$) in terms of those from the original regression ($\widehat \beta_0$, $\widehat \beta_1$, $\widehat \beta_2$).
-\item[(d)] Let $w \in \{a,b,c\}$ be a categorical variable with three levels. Define $x_1 \equiv \mathbbm 1(w = b)$ and $x_2 \equiv \mathbbm 1(w = c)$, and consider the linear regression~\eqref{eq:two-predictors}. This corresponds to regressing $y$ on the categorical variable $w$, with baseline category $a$. Sometimes a different baseline category may make more sense, e.g. category $b$. In this case, we would define $x'_1 \equiv \mathbbm 1(w = a)$ and $x'_2 \equiv \mathbbm 1(w = c)$. Defining $\bm X$ and $\bm X'$ as in part (c), find the matrix $\bm A$ such that $\bm X' = \bm X \bm A$. Express the coefficient estimates from the transformed regression ($\widehat \beta'_0$, $\widehat \beta'_1$, $\widehat \beta'_2$) in terms of those from the original regression ($\widehat \beta_0$, $\widehat \beta_1$, $\widehat \beta_2$). What are the interpretations of the original and transformed coefficients, and why do the relationships between these coefficients derived above make sense in terms of these interpretations? 
+\item[(d)] Let $w \in \{a,b,c\}$ be a categorical variable with three levels. Define $x_1 \equiv \mathbbm 1(w = b)$ and $x_2 \equiv \mathbbm 1(w = c)$, and consider the linear regression~\eqref{eq:two-predictors}. This corresponds to regressing $y$ on the categorical variable $w$, with baseline category $a$. Sometimes a different baseline category may make more sense, e.g. category $b$. In this case, we would define $x'_1 \equiv \mathbbm 1(w = a)$ and $x'_2 \equiv \mathbbm 1(w = c)$. Defining $\bm X \equiv [\bm 1, \bm x_{*1}, \bm x_{*2}]$ and $\bm X' \equiv [\bm 1, \bm x'_{*1}, \bm x'_{*2}]$, find the matrix $\bm A$ such that $\bm X' = \bm X \bm A$. Express the coefficient estimates from the transformed regression ($\widehat \beta'_0$, $\widehat \beta'_1$, $\widehat \beta'_2$) in terms of those from the original regression ($\widehat \beta_0$, $\widehat \beta_1$, $\widehat \beta_2$). What are the interpretations of the original and transformed coefficients, and why do the relationships between these coefficients derived above make sense in terms of these interpretations? 
 
 \end{enumerate}
 
