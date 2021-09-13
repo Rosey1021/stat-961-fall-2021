@@ -266,6 +266,21 @@ print(anorexia_data, n = 5)
 \begin{enumerate}
 \item[(a)] Prepare the data by (1) removing the \texttt{subj} variable, (2) re-coding the factor levels of \texttt{therapy} as \texttt{behavioral}, \texttt{family}, and \texttt{control}, (3) renaming \texttt{before} and \texttt{after} to \texttt{weight\_before} and \texttt{weight\_after}, respectively, and (4) adding a variable called \texttt{weight\_gain} defined as the difference of \texttt{weight\_after} and \texttt{weight\_before}. Print the resulting tibble.
 
+\item[(b)] Explore the data by (1) making box plots of \texttt{weight\_gain} as a function of \texttt{therapy}, (2) making a scatter plot of \texttt{weight\_gain} against \texttt{weight\_before}, coloring points based on \texttt{therapy} and (3) creating a table displaying, for each \texttt{therapy} group, the mean weight gain, maximum weight gain, and fraction of girls who gained weight (i.e. \texttt{weight\_gain > 0}). Based on these summaries: What therapy appears overall the most successful and why? How effective does the standard therapy appear to be? What is the greatest weight gain observed in this study? Which girls tended to gain most weight (in the absolute sense), based on their weight before therapy? Why might this be the case? 
+
+
+
+\item[(c)] Run a linear regression of \texttt{weight\_gain} on \texttt{therapy} and print the regression summary (print in \texttt{R}, without using \texttt{kable}). Identify the base category chosen by \texttt{R} and discuss the interpretations of the fitted coefficients. It makes more sense to choose \texttt{control} as the base category. Recode the factor levels so that \texttt{control} is the first (and therefore will be chosen as the base category), rerun the linear regression, and print the summary again. Do the relationships among the fitted coefficients in these two regressions match what was found in Problem~\ref{prob:change-of-basis}d? 
+
+\item[(d)] Directly compute the between-groups, within-groups, and corrected total sums of squares (without appealing to the \texttt{aov} function or equivalent) and verify that the first two add up to the third. What is the  ratio of the between-groups sum of squares and the corrected total sum of squares? What is the interpretation of this quantity, and what quantity in the regression summaries printed in part (c) is it equivalent to? Finally, compute an unbiased estimate for the error variance in the regression.
+
+\end{enumerate}
+
+\end{prob}
+
+\begin{sol}
+% Solution goes here
+\item[(a)]
 <<>>=
 anorexia_data_processed <-
   anorexia_data %>% 
@@ -282,8 +297,8 @@ anorexia_data_processed <-
 print(anorexia_data_processed, n=5)
 @
 
-\item[(b)] Explore the data by (1) making box plots of \texttt{weight\_gain} as a function of \texttt{therapy}, (2) making a scatter plot of \texttt{weight\_gain} against \texttt{weight\_before}, coloring points based on \texttt{therapy} and (3) creating a table displaying, for each \texttt{therapy} group, the mean weight gain, maximum weight gain, and fraction of girls who gained weight (i.e. \texttt{weight\_gain > 0}). Based on these summaries: What therapy appears overall the most successful and why? How effective does the standard therapy appear to be? What is the greatest weight gain observed in this study? Which girls tended to gain most weight (in the absolute sense), based on their weight before therapy? Why might this be the case? 
 
+\item[(b)]
 <<>>==
 
 anorexia_data_processed %>%
@@ -309,16 +324,10 @@ print(anorexia_data_summary)
 
 Note that the family therapy seems the most successful as it has the highest average weight gain, highest max weight gain, and highest proportion of individuals who gained weight as compared to the other two treatments. The standard (control) therapy seems quite ineffective, as less than half of the recipients of this therapy gained weight and the average weight gain for this group is negative (i.e. these participants had a tendency to \emph{lose} weight). The greatest weight gain observed in the study was 21.5 pounds, for an individual in the family therapy group. Girls with lower weights prior to the study tended to have higher weight gains following the study than those who had higher initial weights. This is negative correlation is possibly a sort of regression to the mean, where it is easier for individuals who are far from their ``equilibrium'' body weight to move toward that weight than away (i.e. an increase in weight for those below and a decrease/smaller increase for those above).
 
-\item[(c)] Run a linear regression of \texttt{weight\_gain} on \texttt{therapy} and print the regression summary (print in \texttt{R}, without using \texttt{kable}). Identify the base category chosen by \texttt{R} and discuss the interpretations of the fitted coefficients. It makes more sense to choose \texttt{control} as the base category. Recode the factor levels so that \texttt{control} is the first (and therefore will be chosen as the base category), rerun the linear regression, and print the summary again. Do the relationships among the fitted coefficients in these two regressions match what was found in Problem~\ref{prob:change-of-basis}d? 
+\item[(c)]
 
-\item[(d)] Directly compute the between-groups, within-groups, and corrected total sums of squares (without appealing to the \texttt{aov} function or equivalent) and verify that the first two add up to the third. What is the  ratio of the between-groups sum of squares and the corrected total sum of squares? What is the interpretation of this quantity, and what quantity in the regression summaries printed in part (c) is it equivalent to? Finally, compute an unbiased estimate for the error variance in the regression.
+\item[(d)]
 
-\end{enumerate}
-
-\end{prob}
-
-\begin{sol}
-% Solution goes here
 \end{sol}
 
 \end{document}
