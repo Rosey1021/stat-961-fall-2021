@@ -21,6 +21,7 @@
 \usepackage{fancyhdr} % nice headers
 \usepackage{caption}  % to control figure and table captions
 
+
 \captionsetup{width=0.9\textwidth, justification = raggedright}
 
 %==============================================================================
@@ -189,14 +190,15 @@ Now that we have derived the least squares estimator, we can compute its bias an
 \mathbb E[\widehat{\bm\beta}] = \mathbb E[(\bm X^T \bm X)^{-1}\bm X^T \bm y] = (\bm X^T \bm X)^{-1}\bm X^T \mathbb E[\bm y] = (\bm X^T \bm X)^{-1}\bm X^T \bm X \bm \beta = \bm \beta.
 \end{equation*}
 Therefore, the least squares estimator is unbiased. To obtain the variance, we compute
-\begin{equation*}
+\begin{equation}
 \begin{split}
 \text{Var}[\bm{\widehat\beta}] &= \text{Var}[(\bm X^T \bm X)^{-1}\bm X^T \bm y] \\
 &= (\bm X^T \bm X)^{-1}\bm X^T\text{Var}[\bm y]\bm X (\bm X^T \bm X)^{-1} \\
 &= (\bm X^T \bm X)^{-1}\bm X^T(\sigma^2 \bm I_n)\bm X (\bm X^T \bm X)^{-1} \\
 &= \sigma^2 (\bm X^T \bm X)^{-1}.
+\label{eq:var-of-beta-hat}
 \end{split}
-\end{equation*}
+\end{equation}
 According to the Gauss-Markov theorm, this covariance matrix computed above is the smallest (in the sense of positive semidefinite matrices) among all linear unbiased estimates of $\bm \beta$.
 
 \section{Least squares estimation R demo (Agresti 2.6)}
@@ -364,6 +366,7 @@ where $\rho_{xy}$ is the sample correlation between $x_1$ and $y$. Therefore, in
 Let's go back to the simple regression model~\eqref{eq:simple-regression}, and let's take a closer look at $\widehat \beta_1$ in \eqref{eq:simple-regression-coefficients}. Denoting by $\rho_x$ is the sample standard deviation of $x_1$ and $\rho_y$ is the sample standard deviation of $y$, we can rewrite $\widehat \beta_1$ as
 \begin{equation}
 \widehat \beta_1 = \frac{\rho_y}{\rho_x}\cdot\rho_{xy}.
+\label{eq:coefficient-as-correlation}
 \end{equation}
 Assuming that $\bm x_{*1}$ and $\bm y$ have been normalized to have the same sample standard deviation $\rho_x = \rho_y$, we find that the least squares coefficient $\widehat \beta_1$ is equal to the sample correlation $\rho_{xy}$ between $x$ and $y$. Since $|\rho_{xy}| < 1$ unless $\bm x_{*1}$ and $\bm y$ are perfectly correlated (by the Cauchy-Schwarz inequality), this means that 
 \begin{equation}
@@ -376,45 +379,156 @@ Therefore, we expect $y_i$ to be closer to its mean than $x_i$ is to its mean. T
 
 The $R^2$ is an \textit{in-sample} measure, i.e. it uses the same data to fit the model and to assess the quality of the fit. Therefore, it is generally an optimistic measure of the (out-of-sample) prediction error. One manifestation of this is that the $R^2$ increases if any predictors are added to the model (even if these predictors are ``junk''). To see this, it suffices to show that SSE decreases as we add predictors. Without loss of generality, suppose that we start with a model including predictors $S \subset \{0, 1, \dots, p\}$ and compare it to the model including all the predictors $\{0,1,\dots,p\}$. We can read off from the Pythagorean theorem~\eqref{eq:pythagorean-theorem} that
 \begin{equation*}
-\text{SSE}(\bm X_{*S}, \bm y) = \|\bm y -  \bm X_{*S}\bm{\widehat \beta}_S\|^2 \leq  \|\bm y -  \bm X\bm{\widehat \beta}\|^2 = \text{SSE}(\bm X, \bm y).
+\text{SSE}(\bm X_{*S}, \bm y) = \|\bm y -  \bm X_{*S}\bm{\widehat \beta}_S\|^2 \geq  \|\bm y -  \bm X\bm{\widehat \beta}\|^2 = \text{SSE}(\bm X, \bm y).
 \end{equation*}
 Adding many junk predictors will have the effect of degrading predictive performance but will nevertheless increase $R^2$.
 
 
 \section{Collinearity, adjustment, and partial correlation (Agresti 2.2.4, 2.5.6, 2.5.7, 4.6.5)}
 
-An important part of linear regression analysis is the dependence of the least squares coefficient for a predictor on what other predictors are in the model. This relationship is dictated by the extent to which the given predictor is correlated with the other predictors.
+An important part of linear regression analysis is the dependence of the least squares coefficient for a predictor on what other predictors are in the model. This relationship is dictated by the extent to which the given predictor is correlated with the other predictors. In this section, we'll use some additional notation. Let $S \subset \{1, \dots, p\}$ be a group of predictors (we can assume without loss of generality that $S = \{1, \dots, s\}$ for some $1 \leq s < p$). Then, denote $\text{-}S \equiv \{1, \dots, p\} \setminus S$. Let $\bm{\widehat \beta}_S$ denote the least squares coefficients when regressing $\bm y$ on $\bm X_{*S}$ and let $\bm{\widehat \beta}_{S|\text{-}S}$ denote the least squares coefficients corresponding to $S$ when regressing $\bm y$ on $\bm X = (\bm X_{*S}, \bm X_{*,\text{-}S})$.
 
 \paragraph{Least squares estimates in the orthogonal case.}
 
-The simplest case to analyze is when a groups of predictors $S \subset \{1, \dots, p\}$ (suppose without loss of generality that $S = \{1, \dots, s\}$ for some $1 \leq s < p$) is orthogonal to the rest of the predictors in the sense that.
+The simplest case to analyze is when a groups of predictors $\bm X_{*S}$ is orthogonal to the rest of the predictors $\bm X_{*,\text{-}S}$ in the sense that
 \begin{equation}
 \bm X_{*S}^T \bm X_{*,\text{-}S} = \bm 0.
 \end{equation}
-In this case, we can derive the least squares coefficient vector $\bm{\widehat \beta} = (\bm{\widehat \beta}_S, \bm{\widehat \beta}_{\text{-S}})$ from the normal equations:
+In this case, we can derive the least squares coefficient vector $\bm{\widehat \beta} = (\bm{\widehat \beta}_{S|\text{-}S}, \bm{\widehat \beta}_{\text{-}S|S})$ from the normal equations:
 \begin{equation}
-{\bm{\widehat \beta}_S \choose \bm{\widehat \beta}_{\text{-}S}} =  \bm{\widehat \beta} = (\bm X^T \bm X)^{-1}\bm X^T \bm y = 
+\begin{split}
+{\bm{\widehat \beta}_{S|\text{-}S} \choose \bm{\widehat \beta}_{\text{-}S|S}} &= (\bm X^T \bm X)^{-1}\bm X^T \bm y \\
+&= 
 \begin{pmatrix}
 \bm X_S^T \bm X_S & 0 \\
 0 & \bm X_{\text{-}S}^T \bm X_{\text{-}S}
-\end{pmatrix}^{-1}{\bm X_S^T \choose \bm X_{\text{-}S}}\bm y = {(\bm X_S^T \bm X_S)^{-1}\bm X_S^T\bm y \choose (\bm X_{\text{-}S}^T \bm X_{\text{-}S})^{-1}\bm X_{\text{-}S}^T\bm y}.
+\end{pmatrix}^{-1}{\bm X_S^T \choose \bm X_{\text{-}S}}\bm y \\
+&= {(\bm X_S^T \bm X_S)^{-1}\bm X_S^T\bm y \choose (\bm X_{\text{-}S}^T \bm X_{\text{-}S})^{-1}\bm X_{\text{-}S}^T\bm y} \\
+&= {\bm{\widehat \beta}_{S} \choose \bm{\widehat \beta}_{\text{-}S}}.
 \label{eq:orthogonality}
+\end{split}
 \end{equation}
-Therefore, the least squares coefficients when regressing $\bm y$ on $(\bm X_S, \bm X_{\text{-}S})$ are the same as those obtained from regressing $\bm y$ separately on $\bm X_S$ and $\bm X_{\text{-}S}$.
-
-\paragraph{Least squares estimates in the non-orthogonal case.}
-
-Let's now focus our attention on a single predictor $x_j$. If this predictor is orthogonal to the remaining predictors, then the result~\eqref{eq:orthogonality} states that $\widehat \beta_j$ in the full regression can be obtained from simply regressing $y$ on $x_j$. However, this is usually not the case. Usually, $\bm x_{*j}$ has a nonzero projection onto $C(\bm X_{*,\text{-}j})$:
+Therefore, the least squares coefficients when regressing $\bm y$ on $(\bm X_S, \bm X_{\text{-}S})$ are the same as those obtained from regressing $\bm y$ separately on $\bm X_S$ and $\bm X_{\text{-}S}$, i.e.
 \begin{equation}
-\bm x_{*j} = \bm X_{*,\text{-}j}\widehat \gamma + \bm x^{\perp}_{*j},
+\bm{\widehat \beta}_{S|\text{-}S} = \bm{\widehat \beta}_{S}.
+\label{eq:orthogonality-consequence}
+\end{equation}
+
+\paragraph{Least squares estimates via orthogonalization.}
+
+Let's now focus our attention on a single predictor $x_j$. If this predictor is orthogonal to the remaining predictors, then the result~\eqref{eq:orthogonality-consequence} states that $\widehat \beta_{j|\text{-}j}$ can be obtained from simply regressing $y$ on $x_j$. However, this is usually not the case. Usually, $\bm x_{*j}$ has a nonzero projection $\bm X_{*,\text{-}j}\bm{\widehat \gamma}$ onto $C(\bm X_{*,\text{-}j})$:
+\begin{equation}
+\bm x_{*j} = \bm X_{*,\text{-}j}\bm{\widehat \gamma} + \bm x^{\perp}_{*j},
 \end{equation}
 where $\bm x^{\perp}_{*j}$ is the residual from regressing $\bm x_{*j}$ onto $\bm X_{*,\text{-}j}$ and is therefore orthogonal to $C(\bm X_{*,\text{-}j})$. In other words, $\bm x^{\perp}_{*j}$ is the projection of $\bm x_{*j}$ onto the orthogonal complement of $C(\bm X_{*,\text{-}j})$. 
 
-TBD.
+With this decomposition, let us change basis from $(\bm x_{*j}, \bm X_{*,\text{-}j})$ to $(\bm x^{\perp}_{*j}, \bm X_{*,\text{-}j})$ by the process explored in Homework 1 Question 1. Let us write
+\begin{equation*}
+\begin{split}
+\bm y = \bm x_{*j} \beta_{j|\text{-}j} + \bm X_{*,\text{-}j}\bm \beta_{\text{-}j|j} + \bm \epsilon \ &\Longleftrightarrow \ \bm y = (\bm X_{*,\text{-}j}\bm{\widehat \gamma} + \bm x^{\perp}_{*j})\beta_{j|\text{-}j} + \bm X_{*,\text{-}j}\bm \beta_{\text{-}j|j} + \bm \epsilon\\
+\ &\Longleftrightarrow \ \bm y = \bm x^{\perp}_{*j}\beta_{j|\text{-}j} + \bm X_{*,\text{-}j}\bm \beta'_{\text{-}j|j} + \bm \epsilon.
+\end{split}
+\end{equation*}
+What this means is that $\widehat \beta_{j|\text{-}j}$, the least squares coefficient of $\bm x_{*j}$ in the regression of $\bm y$ on $(\bm x_{*j}, \bm X_{*,\text{-}j})$ is also the least squares coefficient of $\bm x^{\perp}_{*j}$ in the regression of $\bm y$ on $(\bm x^{\perp}_{*j}, \bm X_{*,\text{-}j})$. However, since $\bm x^{\perp}_{*j}$ is orthogonal to $\bm X_{*,\text{-}j}$ by construction, we can use the result~\eqref{eq:orthogonality} to conclude that 
+\begin{equation*}
+\widehat \beta_{j|\text{-}j} \text{ is the least squares coefficient of } \bm x^{\perp}_{*j} \text{ in the \textit{univariate} regression of } \bm y \text{ on } \bm x^{\perp}_{*j} \text{ (without intercept).} 
+\end{equation*}
+We can solve this univariate regression explicitly to obtain
+\begin{equation}
+\widehat \beta_{j|\text{-}j} = \frac{(\bm x^{\perp}_{*j})^T \bm y}{\|\bm x^{\perp}_{*j}\|^2}.
+\label{eq:orthogonal-univariate}
+\end{equation}
+
+\paragraph{Adjustment and partial correlation.}
+
+Equivalently, letting $\bm{\widehat \beta}_{\text{-}j}$ be the least squares estimate in the regression of $\bm y$ on $\bm X_{*,\text{-}j}$ (note that this is \textit{not} the same as $\bm{\widehat \beta}_{\text{-}j|j}$), we can write
+\begin{equation}
+\widehat \beta_{j|\text{-}j} = \frac{(\bm x^{\perp}_{*j})^T(\bm y - \bm X_{*,\text{-}j}\bm{\widehat \beta_{\text{-}j}})}{\|\bm x^{\perp}_{*j}\|^2} = \frac{(\bm x_{*j} - \bm X_{*,\text{-}j}\bm{\widehat \gamma})^T(\bm y - \bm X_{*,\text{-}j}\bm{\widehat \beta_{\text{-}j}})}{\|\bm x_{*j} -\bm X_{*,\text{-}j}\bm{\widehat \gamma}\|^2}.
+\end{equation}
+We can interpret this result as follows: The linear regression coefficient $\widehat \beta_{j|\text{-}j}$ results from first adjusting $\bm y$ and $\bm x_{*j}$ for the effects of all other variables, and then regressing the residuals from $\bm y$ onto the residuals from $\bm x_{*j}$. In this sense, \textit{the least squares coefficient for a predictor in a multiple linear regression reflects the effect of the predictor on the response after controlling for the effects of all other predictors.} A related quantity is the \textit{partial correlation} between $\bm x_{*j}$ and $\bm y$ after controlling for $\bm X_{*,\text{-}j}$, defined as the correlation between $\bm x_{*j} - \bm X_{*,\text{-}j}\bm{\widehat \gamma}$ and $\bm y - \bm X_{*,\text{-}j}\bm{\widehat \beta_{\text{-}j}}$. We can then connect the least squares coefficient $\widehat \beta_j$ to this partial correlation in a similar spirit to equation~\eqref{eq:coefficient-as-correlation}.
+
+\paragraph{Aside: Average treatment effect estimation in causal inference.}
+
+Suppose we'd like to study the effect of an exposure or treatment on a response $y$. Letting $y_1$ and $y_0$ denote the responses under treatment and control (Neyman-Rubin causal model), the most basic goal is to estimate the \textit{average treatment effect} $\tau \equiv \mathbb E[y_1 - y_0]$. Usually in observational studies we have \textit{confounding variables} $z_1, \dots, z_p$: variables that influence both the treatment assignment and the response. It is important to control for these confounders in order to get an unbiased estimate of the treatment effect. Suppose all confounders are measured (i.e. $(y_1, y_0) \perp\!\!\!\!\perp t \mid z_1, \dots, z_p$), the treatment effect is constant, and the response is a linear function of the treatment and confounders:
+\begin{equation}
+y = \beta t + \gamma_1 z_1 + \cdots + \gamma_p z_p + \epsilon.
+\end{equation}
+Then, the average treatment effect $\tau$ is identified as the coefficient $\beta$ in the above regression, i.e. $\tau = \beta$. Therefore, the least squares estimate $\widehat \beta_{t|z}$ is an unbiased estimate of the average treatment effect. (Causal inference is beyond the scope of STAT 961; see STAT 921 instead.)
+
+\paragraph{Effects of collinearity.}
+
+Collinearity between a predictor $x_j$ and the other predictors tends to make the estimate $\widehat \beta_{j|\text{-}j}$ unstable. Intuitively, this makes sense because it becomes harder to distinguish between the effects of predictor $x_j$ and those of the other predictors on the response. To find the variance of $\widehat \beta_{j|\text{-}j}$ for a model matrix $\bm X$, we could in principle use the formula~\eqref{eq:var-of-beta-hat}. However, this formula involves the inverse of the matrix $\bm X^T \bm X$, which is hard to reason about. Instead, we can employ the formula~\eqref{eq:orthogonal-univariate} to calculate directly that
+\begin{equation}
+\text{Var}[\widehat \beta_{j|\text{-}j}] = \frac{\sigma^2}{\|\bm x_{*j}^\perp\|^2}.
+\label{eq:conditional-variance}
+\end{equation}
+We see that the variance of $\widehat \beta_{j|\text{-}j}$ is inversely proportional to $\|\bm x_{*j}^\perp\|^2$. This means that the greater the collinearity, the less of $\bm x_{*j}$ is left over after adjusting for $\bm X_{*,\text{-}j}$, and the greater the variance of $\widehat \beta_{j|\text{-}j}$. To quantify the effect of this adjustment, suppose there were no other predictors other than the intercept term. Then, we would have 
+\begin{equation}
+\text{Var}[\widehat \beta_j] = \frac{\sigma^2}{\|\bm x_{*j}-\bar x_j \bm 1_n\|^2}.
+\end{equation}
+Therefore, we can rewrite the variance~\eqref{eq:conditional-variance} as
+\begin{equation}
+\text{Var}[\widehat \beta_{j|\text{-}j}] = \frac{\|\bm x_{*j}-\bar x_j \bm 1_n\|^2}{\|\bm x_{*j}-\bm X_{*,\text{-}j}\bm{\widehat \gamma}\|^2} \cdot \text{Var}[\widehat \beta_j] = \frac{1}{1-R_j^2} \cdot \text{Var}[\widehat \beta_j] \equiv \text{VIF}_j \cdot \text{Var}[\widehat \beta_j],
+\label{eq:vif}
+\end{equation}
+where $R_j^2$ is the $R^2$ value when regressing $\bm x_{*j}$ on $\bm X_{*,\text{-}j}$ and VIF stands for \textit{variance inflation factor}. The higher $R_j^2$, the more of the variance in $\bm x_{*j}$ is explained by other predictors, the higher the variance in $\widehat \beta_{j|\text{-}j}$.
 
 \section{R demo}
 
-TBD.
+Let's go back to the \texttt{ScotsRaces} data from before:
+<<>>=
+scots_races = read_tsv("../data/ScotsRaces.dat", col_types = "cddd")
+scots_races
+@
+\noindent Recall we had run a linear regression of \texttt{time} on \texttt{distance} and \texttt{climb}:
+<<>>=
+lm_fit = lm(time ~ distance + climb, data = scots_races)
+summary(lm_fit)
+@
+\noindent We get a coefficient of 6.35 with standard error 0.347 for \verb|distance|, where the standard error is an estimate of the quantity~\eqref{eq:conditional-variance}.
 
+\paragraph{$R^2$ and sum-of-squared decompositions.}
+\noindent We can extract the $R^2$ from this fit by reading it off from the bottom of the summary, or by typing
+<<>>=
+summary(lm_fit)$r.squared
+@
+
+\noindent We can construct sum-of-squares decompositions~\eqref{eq:pythagorean-theorem} using the \verb|anova| function. This function takes as arguments the partial model and the full model. For example, consider the partial model \texttt{time ~ distance}.
+<<>>=
+lm_fit_partial = lm(time ~ distance, data = scots_races)
+anova(lm_fit_partial, lm_fit)
+@
+\noindent We find that adding the predictor \texttt{climb} reduces the RSS by 7106, from 9547 to 2441. As another example, we can compute the $R^2$ by comparing the full model with the null model:
+<<>>=
+lm_fit_null = lm(time ~ 1, data = scots_races)
+anova(lm_fit_null, lm_fit)
+@
+\noindent Therefore, the $R^2$ is 83899/86340 = 0.972, consistent with the above regression summary. 
+
+\paragraph{Adjustment and collinearity.} We can also test the adjustment formula~\eqref{eq:orthogonal-univariate} numerically. Let's consider the coefficient of \verb|distance| in the regression \verb|time ~ distance + climb|. We can obtain this coefficient by first regressing \verb|climb| out of \verb|distance| and \verb|time|:
+<<>>=
+lm_dist_on_climb = lm(distance ~ climb, data = scots_races)
+lm_time_on_climb = lm(time ~ climb, data = scots_races)
+
+scots_races_resid = 
+  bind_cols(scots_races, 
+            dist_residuals = lm_dist_on_climb$residuals,
+            time_residuals = lm_time_on_climb$residuals)
+
+lm_adjusted = lm(time_residuals ~ dist_residuals-1, 
+                 data = scots_races_resid)
+summary(lm_adjusted)
+@
+\noindent We find a coefficient of 6.35 with standard error 0.347, which matches that obtained in the original regression. Suppose we had not regressed \verb|climb| out of \verb|time|:
+<<>>=
+lm_dist_adjusted = lm(time ~ dist_residuals-1, 
+                 data = scots_races_resid)
+summary(lm_dist_adjusted)
+@
+\noindent The estimate stays the same but the standard error increases. Why is this the case? To obtain the variance inflation factors defined in equation~\eqref{eq:vif}, we can use the \verb|vif| function from the \verb|car| package:
+<<>>=
+car::vif(lm_fit)
+@
+\noindent Why are these two VIF values the same?
 
 \end{document}
