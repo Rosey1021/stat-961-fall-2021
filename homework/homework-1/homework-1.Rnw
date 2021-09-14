@@ -383,6 +383,44 @@ Note that $\widehat{\beta}_0' = -0.450 = 3.007 + (-3.457) = \widehat{\beta}_0 + 
 
 \item[(d)]
 
+<<>>==
+
+y <- anorexia_data_processed$weight_gain
+y_bar <- mean(y)
+y_bar_by_gp <- list(
+              behavioral = lm1$coefficients[1], 
+              family = lm1$coefficients[1] + lm1$coefficients[2],
+              control = lm1$coefficients[1] + lm1$coefficients[3])
+y_bar_ci <- 
+  anorexia_data_processed %>%
+    select(therapy) %>%
+    summarise(gp_mean = lm1$coefficients[1] + 
+                ifelse(therapy == "behavioral", 
+                       0, 
+                       ifelse(therapy == "family", 
+                              lm1$coefficients[2], 
+                              lm1$coefficients[3])))
+
+
+# SST = \sum_{y=1}^n(y_i - \overline{y})^2
+sst <- sum((y - y_bar)^2)
+
+# SSB = \sum_{i=1}^n (\overline{y}_{C(i)} - \overline{y})^2
+ssb <- sum((y_bar_ci - y_bar)^2)
+
+# SSW = \sum_{i=1}^n (y_i - \overline{y}_{C(i)})^2
+ssw <- sum((y - y_bar_ci)^2)  
+
+print(paste("SST:", sst))
+print(paste("SSB:", ssb))
+print(paste("SSW:", ssw))
+@
+
+Note that we indeed have that SST = SSB + SSW. The ratio of SSB to SST is $614.6437 / 4525.386 = 0.1358$. This corresponds to $R^2$ in both regression summaries and can be interpreted as saying that about 13.6\% of the variation in the data can be captured just be accounting for the type of therapy each individual received.
+
+Recall (e.g. from Agresti 2.4.1) that an unbiased estimator of the error variance $\sigma^2$ is \[s^2 = \frac{\sum_{i=1}^n(y_i - \hat{\mu}_i)^2}{n-p}.\]
+In our case, $p = 2$ and $\hat{\mu}_i = \overline{y}_{C(i)}$, so the numerator is the SSW. Thus, an unbiased estimator is $s^2 = \frac{SSW}{n - 2} = \frac{3910.742}{70} = 55.8676$.
+
 \end{sol}
 
 \end{document}
