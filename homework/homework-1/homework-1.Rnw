@@ -194,7 +194,8 @@ Defining $\bm X' \equiv [\bm 1, \bm x'_{*1}, \bm x'_{*2}]$, find the matrix $\bm
   \end{align*}
   
   \item We take 
-    \[\bm{A} = 
+    \[
+      \bm{A} = 
       \begin{pmatrix}
         1 & -\overline{x}_1 & -\overline{x}_2 \\
         0 & 1 & 0 \\
@@ -227,7 +228,38 @@ Defining $\bm X' \equiv [\bm 1, \bm x'_{*1}, \bm x'_{*2}]$, find the matrix $\bm
           &= \begin{pmatrix} 1 & -\overline{x}_1 & -\overline{x}_2 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix} \begin{pmatrix} \hat{\beta}_0 \\ \hat{\beta}_1 \\ \hat{\beta}_2 \end{pmatrix} \\
           &= \begin{pmatrix} \hat{\beta}_0 - \overline{x}_1 \hat{\beta}_1 - \overline{x}_2 \hat{\beta}_2 \\ \hat{\beta}_1 \\ \hat{\beta}_2\end{pmatrix}.
         \end{align*}
-  \item
+  
+  \item We take 
+    \[
+      \bm{A} = 
+      \begin{pmatrix}
+        1 & 1 & 0 \\
+        0 & -1 & 0 \\
+        0 & -1 & 1
+      \end{pmatrix}.
+    \]
+    
+    Note that $x_2 = x_2'$ implies that $x_{i2} = x_{i2}'$ for all $i$. Also, $x_1'$ is $1$ if $w = a$ (and $x_1 = x_2 = 0$) and $0$ otherwise, so $x_1' = 1-x_1-x_2$ and $x_{i1}' = 1-x_{i1}-x_{i2}$.
+    
+    Then 
+      \begin{align*}
+        \bm{XA} &= \begin{pmatrix} 1 & x_{11} & x_{12} \\ \vdots & \vdots & \vdots \\ 1 & x_{n1} & x_{n2} \end{pmatrix} \begin{pmatrix} 1 & 1 & 0 \\ 0 & -1 & 0 \\ 0 & -1 & 1 \end{pmatrix} \\
+        &= \begin{pmatrix} 1 & 1-x_{11}-x_{12} & x_{12} \\ \vdots & \vdots & \vdots \\ 1 & 1-x_{n1}-x_{n2} & x_{n2}  \end{pmatrix} \\
+        &= \begin{pmatrix} 1 & x_{11}' & x_{12}' \\ \vdots & \vdots & \vdots \\ 1 & x_{n1}' & x_{n2}' \end{pmatrix} \\
+        &= \bm{X'}
+      \end{align*}
+    as desired.
+    
+    Note that $\bm{A}^2 = \bm{I}_3$, so $\bm{A} = \bm{A}^{-1}$. As we saw in (b), $\bm{\widehat{\beta}'} = \bm{A}^{-1}\bm{\widehat{\beta}}$, so
+      \begin{align*}
+        \bm{\widehat{\beta}'} &= \bm{A}^{-1}\bm{\widehat{\beta}} \\
+        &= \begin{pmatrix} 1 & 1 & 0 \\ 0 & -1 & 0 \\ 0 & -1 & 1 \end{pmatrix} \begin{pmatrix} \widehat{\beta}_0 \\ \widehat{\beta}_1 \\ \widehat{\beta}_2 \end{pmatrix} \\
+        &= \begin{pmatrix} \widehat{\beta}_0 + \widehat{\beta}_1 \\ -\widehat{\beta}_1 \\ -\widehat{\beta}_1 + \widehat{\beta}_2 \end{pmatrix}.
+      \end{align*}
+      
+      We interpret the coefficients as follows: $\widehat{\beta}_0$ is the mean for the subgroup with $w = a$, while $\widehat{\beta}_1$ and $\widehat{\beta}_2$ are the differences in the means of the subgroups where $w = b$ and $w = a$ or $w = c$ and $w = a$ respectively. Likewise, $\widehat{\beta}_1'$ is the mean for the subgroup with $w = b$, while $\widehat{\beta}_1'$ and $\widehat{\beta}_2'$ are the differences in the means of the subgroups where $w = a$ and $w = b$ or $w = c$ and $w = a$ respectively.
+      
+      Intuitively, the relationships between the coefficients make sense: $\widehat{\beta}_0' = \widehat{\beta}_0 + \widehat{\beta}_1$ is the mean of the subgroup with $w = a$ plus the difference in the subgroups with $w = b$ and $w = a$; i.e. it is $\widehat{\beta}'_0$, the mean of the subgroup with $w = b$. Likewise, $\widehat{\beta}_1' = -\widehat{\beta}_1 = \widehat{\beta}_0 - (\widehat{\beta}_0 + \widehat{\beta}_1)$ is the difference between the means of the subgroups where $w = a$ and $w = b$. Finally, $\widehat{\beta}_2' = -\widehat{\beta}_1 + \widehat{\beta}_2 = (\widehat{\beta}_0 + \widehat{\beta}_2) - (\widehat{\beta}_0 + \widehat{\beta}_1)$ is the difference between the means of the subgroups where $w = c$ and $w = b$.
   
 \end{enumerate}
 
@@ -325,6 +357,29 @@ print(anorexia_data_summary)
 Note that the family therapy seems the most successful as it has the highest average weight gain, highest max weight gain, and highest proportion of individuals who gained weight as compared to the other two treatments. The standard (control) therapy seems quite ineffective, as less than half of the recipients of this therapy gained weight and the average weight gain for this group is negative (i.e. these participants had a tendency to \emph{lose} weight). The greatest weight gain observed in the study was 21.5 pounds, for an individual in the family therapy group. Girls with lower weights prior to the study tended to have higher weight gains following the study than those who had higher initial weights. This is negative correlation is possibly a sort of regression to the mean, where it is easier for individuals who are far from their ``equilibrium'' body weight to move toward that weight than away (i.e. an increase in weight for those below and a decrease/smaller increase for those above).
 
 \item[(c)]
+
+<<>>==
+
+lm1 <- lm(weight_gain ~ therapy, data = anorexia_data_processed)
+print(summary(lm1))
+
+@
+
+The base category chosen by R was behavioral therapy. The intercept of 3.007 means that we expect the average weight gain of the behavioral therapy to be about 3.007 pounds, in agreement with the 3.01 number from (2). The coefficient of 4.258 for the family therapy indicator means that the mean weight gain of the family therapy group should be 4.258 pounds higher than that of the behavioral therapy group (7.265 pounds, again agreeing with the figure from (2)). Finally, the coefficient of -3.457 pounds for the control therapy indicator means that the weight gain of the control therapy group should be -3.457 pounds lower than that of the behavioral therapy group; i.e. the mean weight gain for the group is -0.450 pounds, in agreement with the figure found in (2).
+
+<<>>==
+anorexia_data_processed <-
+  anorexia_data_processed %>% 
+    mutate(therapy = relevel(therapy, ref = "control"))
+
+lm2 <- lm(weight_gain ~ therapy, data = anorexia_data_processed)
+print(summary(lm2))
+
+@
+
+Taking  $a := \text{behavioral}$, $b := \text{control}$, and $c := \text{family}$, we see that we are in a specific case of (1d) where we have changed the baseline value of a three level categorical variable.
+
+Note that $\widehat{\beta}_0' = -0.450 = 3.007 + (-3.457) = \widehat{\beta}_0 + \widehat{\beta}_1$, $\widehat{\beta}_1' = 3.457 = - (-3.457) = -\widehat{\beta}_1$, and $\widehat{\beta}_2' = 7.715 = - (-3.457) + 4.258 = -\widehat{\beta}_1 + \widehat{\beta}_2$, so the coefficients have the same relationship as predicted by (1d).
 
 \item[(d)]
 
