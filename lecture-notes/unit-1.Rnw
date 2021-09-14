@@ -449,7 +449,7 @@ We can interpret this result as follows: The linear regression coefficient $\wid
 
 \paragraph{Aside: Average treatment effect estimation in causal inference.}
 
-Suppose we'd like to study the effect of an exposure or treatment on a response $y$. Letting $y_1$ and $y_0$ denote the responses under treatment and control (Neyman-Rubin causal model), the most basic goal is to estimate the \textit{average treatment effect} $\tau \equiv \mathbb E[y_1 - y_0]$. Usually in observational studies we have \textit{confounding variables} $z_1, \dots, z_p$: variables that influence both the treatment assignment and the response. It is important to control for these confounders in order to get an unbiased estimate of the treatment effect. Suppose all confounders are measured (i.e. $(y_1, y_0) \perp\!\!\!\!\perp t \mid z_1, \dots, z_p$), the treatment effect is constant, and the response is a linear function of the outcome:
+Suppose we'd like to study the effect of an exposure or treatment on a response $y$. Letting $y_1$ and $y_0$ denote the responses under treatment and control (Neyman-Rubin causal model), the most basic goal is to estimate the \textit{average treatment effect} $\tau \equiv \mathbb E[y_1 - y_0]$. Usually in observational studies we have \textit{confounding variables} $z_1, \dots, z_p$: variables that influence both the treatment assignment and the response. It is important to control for these confounders in order to get an unbiased estimate of the treatment effect. Suppose all confounders are measured (i.e. $(y_1, y_0) \perp\!\!\!\!\perp t \mid z_1, \dots, z_p$), the treatment effect is constant, and the response is a linear function of the treatment and confounders:
 \begin{equation}
 y = \beta t + \gamma_1 z_1 + \cdots + \gamma_p z_p + \epsilon.
 \end{equation}
@@ -469,12 +469,66 @@ We see that the variance of $\widehat \beta_{j|\text{-}j}$ is inversely proporti
 Therefore, we can rewrite the variance~\eqref{eq:conditional-variance} as
 \begin{equation}
 \text{Var}[\widehat \beta_{j|\text{-}j}] = \frac{\|\bm x_{*j}-\bar x_j \bm 1_n\|^2}{\|\bm x_{*j}-\bm X_{*,\text{-}j}\bm{\widehat \gamma}\|^2} \cdot \text{Var}[\widehat \beta_j] = \frac{1}{1-R_j^2} \cdot \text{Var}[\widehat \beta_j] \equiv \text{VIF}_j \cdot \text{Var}[\widehat \beta_j],
+\label{eq:vif}
 \end{equation}
 where $R_j^2$ is the $R^2$ value when regressing $\bm x_{*j}$ on $\bm X_{*,\text{-}j}$ and VIF stands for \textit{variance inflation factor}. The higher $R_j^2$, the more of the variance in $\bm x_{*j}$ is explained by other predictors, the higher the variance in $\widehat \beta_{j|\text{-}j}$.
 
 \section{R demo}
 
-TBD.
+Let's go back to the \texttt{ScotsRaces} data from before:
+<<>>=
+scots_races = read_tsv("../data/ScotsRaces.dat", col_types = "cddd")
+scots_races
+@
+\noindent Recall we had run a linear regression of \texttt{time} on \texttt{distance} and \texttt{climb}:
+<<>>=
+lm_fit = lm(time ~ distance + climb, data = scots_races)
+summary(lm_fit)
+@
+\noindent We get a coefficient of 6.35 with standard error 0.347 for \verb|distance|, where the standard error is an estimate of the quantity~\eqref{eq:conditional-variance}.
 
+\paragraph{$R^2$ and sum-of-squared decompositions.}
+\noindent We can extract the $R^2$ from this fit by reading it off from the bottom of the summary, or by typing
+<<>>=
+summary(lm_fit)$r.squared
+@
+
+\noindent We can construct sum-of-squares decompositions~\eqref{eq:pythagorean-theorem} using the \verb|anova| function. This function takes as arguments the partial model and the full model. For example, consider the partial model \texttt{time ~ distance}.
+<<>>=
+lm_fit_partial = lm(time ~ distance, data = scots_races)
+anova(lm_fit_partial, lm_fit)
+@
+\noindent We find that adding the predictor \texttt{climb} reduces the RSS by 7106, from 9547 to 2441. As another example, we can compute the $R^2$ by comparing the full model with the null model:
+<<>>=
+lm_fit_null = lm(time ~ 1, data = scots_races)
+anova(lm_fit_null, lm_fit)
+@
+\noindent Therefore, the $R^2$ is 83899/86340 = 0.972, consistent with the above regression summary. 
+
+\paragraph{Adjustment and collinearity.} We can also test the adjustment formula~\eqref{eq:orthogonal-univariate} numerically. Let's consider the coefficient of \verb|distance| in the regression \verb|time ~ distance + climb|. We can obtain this coefficient by first regressing \verb|climb| out of \verb|distance| and \verb|time|:
+<<>>=
+lm_dist_on_climb = lm(distance ~ climb, data = scots_races)
+lm_time_on_climb = lm(time ~ climb, data = scots_races)
+
+scots_races_resid = 
+  bind_cols(scots_races, 
+            dist_residuals = lm_dist_on_climb$residuals,
+            time_residuals = lm_time_on_climb$residuals)
+
+lm_adjusted = lm(time_residuals ~ dist_residuals-1, 
+                 data = scots_races_resid)
+summary(lm_adjusted)
+@
+\noindent We find a coefficient of 6.35 with standard error 0.347, which matches that obtained in the original regression. Suppose we had not regressed \verb|climb| out of \verb|time|:
+<<>>=
+lm_dist_adjusted = lm(time ~ dist_residuals-1, 
+                 data = scots_races_resid)
+summary(lm_dist_adjusted)
+@
+\noindent The estimate stays the same but the standard error increases. Why is this the case? To obtain the variance inflation factors defined in equation~\eqref{eq:vif}, we can use the \verb|vif| function from the \verb|car| package:
+<<>>=
+car::vif(lm_fit)
+@
+\noindent Why are these two VIF values the same?
 
 \end{document}
