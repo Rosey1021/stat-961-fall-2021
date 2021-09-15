@@ -304,7 +304,7 @@ print(anorexia_data, n = 5)
 
 \item[(c)] Run a linear regression of \texttt{weight\_gain} on \texttt{therapy} and print the regression summary (print in \texttt{R}, without using \texttt{kable}). Identify the base category chosen by \texttt{R} and discuss the interpretations of the fitted coefficients. It makes more sense to choose \texttt{control} as the base category. Recode the factor levels so that \texttt{control} is the first (and therefore will be chosen as the base category), rerun the linear regression, and print the summary again. Do the relationships among the fitted coefficients in these two regressions match what was found in Problem~\ref{prob:change-of-basis}d? 
 
-\item[(d)] Directly compute the between-groups, within-groups, and corrected total sums of squares (without appealing to the \texttt{aov} function or equivalent) and verify that the first two add up to the third. What is the  ratio of the between-groups sum of squares and the corrected total sum of squares? What is the interpretation of this quantity, and what quantity in the regression summaries printed in part (c) is it equivalent to? Finally, compute an unbiased estimate for the error variance in the regression.
+\item[(d)] Directly compute the between-groups, within-groups, and corrected total sums of squares (without appealing to the \texttt{aov} function or equivalent) and verify that the first two add up to the third. What is the  ratio of the between-groups sum of squares and the corrected total sum of squares? What is the interpretation of this quantity, and what quantity in the regression summaries printed in part (c) is it equivalent to?
 
 \end{enumerate}
 
