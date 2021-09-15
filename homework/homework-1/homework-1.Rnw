@@ -418,8 +418,8 @@ print(paste("SSW:", ssw))
 
 Note that we indeed have that SST = SSB + SSW. The ratio of SSB to SST is $614.6437 / 4525.386 = 0.1358$. This corresponds to $R^2$ in both regression summaries and can be interpreted as saying that about 13.6\% of the variation in the data can be captured just by accounting for the type of therapy each individual received.
 
-Recall (e.g. from Agresti 2.4.1) that an unbiased estimator of the error variance $\sigma^2$ is \[s^2 = \frac{\sum_{i=1}^n(y_i - \hat{\mu}_i)^2}{n-p}.\]
-In our case, $p = 2$ and $\hat{\mu}_i = \overline{y}_{C(i)}$, so the numerator is the SSW. Thus, an unbiased estimate is $s^2 = \frac{SSW}{n - 2} = \frac{3910.742}{70} = 55.8676$.
+%Recall (e.g. from Agresti 2.4.1) that an unbiased estimator of the error variance $\sigma^2$ is \[s^2 = \frac{\sum_{i=1}^n(y_i - \hat{\mu}_i)^2}{n-p}.\]
+%In our case, $p = 2$ and $\hat{\mu}_i = \overline{y}_{C(i)}$, so the numerator is the SSW. Thus, an unbiased estimate is $s^2 = \frac{SSW}{n - 2} = \frac{3910.742}{70} = 55.8676$.
 
 \end{sol}
 
