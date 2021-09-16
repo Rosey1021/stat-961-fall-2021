@@ -1,0 +1,200 @@
+% (C) Brett Klamer - MIT - http://opensource.org/licenses/MIT
+% Please contact me if you find any errors or make improvements
+% Contact details at brettklamer.com
+
+\documentclass[11pt,letterpaper,english,oneside]{article} % article class is a standard class
+%==============================================================================
+%Load Packages
+%==============================================================================
+\usepackage[left=1in,right=1in,top=1in,bottom=1in]{geometry} % easy page margins
+\usepackage[utf8]{inputenc} % editor uses utf-8 encoding
+\usepackage[T1]{fontenc} % T1 font pdf output
+\usepackage{lmodern} % Latin modern roman font
+\usepackage{bm, bbm} % bold and blackboard bold math symbols
+\usepackage{amsmath, amsfonts, amssymb, amsthm} % math packages
+\usepackage[final]{microtype} % better microtypography
+\usepackage{graphicx} % for easier grahics handling
+\usepackage[hidelinks, colorlinks=true, linkcolor = blue, urlcolor = blue]{hyperref} % to create hyperlinks
+\usepackage{float} % tells floats to stay [H]ere!
+\usepackage{mdframed} % it's better than framed. knitr uses framed so settings won't conflict
+\usepackage{enumitem} % nice lists
+\usepackage{fancyhdr} % nice headers
+\usepackage{caption}  % to control figure and table captions
+\newtheorem{proposition}{Proposition}[section]
+\newtheorem{lemma}[proposition]{Lemma}
+
+
+
+\captionsetup{width=0.9\textwidth, justification = raggedright}
+
+%==============================================================================
+% Enter name and homework title here
+%==============================================================================
+\title{Unit 2: Linear models: Inference}
+\author{Eugene Katsevich}
+% \date{August 31, 2021}
+
+%==============================================================================
+% Put title and author in PDF properties
+%==============================================================================
+\makeatletter % change interpretation of @
+\hypersetup{pdftitle={\@title},pdfauthor={\@author}}
+
+
+%==============================================================================
+% Header settings
+%==============================================================================
+\pagestyle{fancy} % turns on fancy header styles
+\fancyhf{} % clear all header and footer fields
+\makeatletter
+\lhead{\@author} % left header
+\chead{\@title} % center header
+\makeatother
+\rhead{Page \thepage} % right header
+\setlength{\headheight}{13.6pt} % fixes minor warning
+\makeatother % change back interpretation of @
+
+%==============================================================================
+% List spacing
+%==============================================================================
+\setlist[itemize]{parsep=0em} % fix itemize spacing
+\setlist[enumerate]{parsep=0em} % fix enumerate spacing
+
+%==============================================================================
+% set knitr options
+%==============================================================================
+% latex (change space before and after knitr kframe; based on framed package)
+\setlength{\OuterFrameSep}{0.3em}
+% R
+<<setup, include=FALSE, cache=FALSE>>=
+library(knitr)
+
+# inline hook to process the output of \Sexpr{} statements to just 2 digits
+inline_hook <- function(x) {
+  if(is.numeric(x)) x <- round(x, 2)
+  paste(as.character(x), collapse=", ")
+}
+knit_hooks$set(inline = inline_hook)
+
+# cache all chunks
+opts_chunk$set(cache = TRUE)
+
+@
+
+\begin{document}
+
+\maketitle
+
+We now understand the least squares estimator $\bm{\widehat \beta}$ from geometric and algebraic points of view. In Unit 2, we will switch to a probabilistic perspective to derive inferential statements for linear models, in the form of hypothesis tests and confidence intervals. In order to facilitate this, we will assume that the error terms are normally distributed:
+\begin{equation}
+\bm y = \bm X \bm \beta + \bm \epsilon, \quad \text{where} \ \bm \epsilon \sim N(\bm 0, \sigma^2 \bm I_n).
+\end{equation}
+
+\section{Building blocks for linear model inference}
+
+First we put in place some building blocks: The multivariate normal distribution (Section~\ref{sec:mvrnorm}), the distributions of linear regression estimates and residuals (Section~\ref{sec:lin-reg-dist}), and estimation of the noise variance $\sigma^2$ (Section~\ref{sec:noise-estimation}).
+
+\subsection{The multivariate normal distribution} \label{sec:mvrnorm}
+
+Recall that a random vector $\bm w \in \mathbb R^d$ has a multivariate normal distribution with mean $\bm \mu$ and covariate matrix $\bm \Sigma$ if it has probability density
+\begin{equation*}
+p(\bm w) = \frac{1}{\sqrt{(2\pi)^{d}\text{det}(\bm \Sigma)}}\exp\left(-\frac{1}{2}(\bm w - \bm \mu)^T\Sigma^{-1}(\bm w - \bm \mu)\right).
+\end{equation*}
+These random vectors have lots of special properties, including:
+\begin{itemize}
+\item (Linear transformation) If $\bm w \sim N(\bm \mu, \bm \Sigma)$, then $\bm A \bm w + \bm b \sim N(\bm A \bm \mu + \bm b, \bm A \bm \Sigma \bm A^T)$.
+% \item If $\bm w_1 \sim N(\bm \mu_1, \bm \Sigma_1)$ and $\bm w_2 \sim N(\bm \mu_2, \bm \Sigma_2)$ are independent random vectors of the same dimension, then $\bm w_1 + \bm w_2 \sim N(\bm \mu_1 + \bm \mu_2, \bm \Sigma_1 + \bm \Sigma_2)$.
+\item (Independence) If $\begin{pmatrix}\bm w_1 \\ \bm w_2 \end{pmatrix} \sim N\left(\begin{pmatrix}\bm \mu_1 \\ \bm \mu_2 \end{pmatrix} , \begin{pmatrix}\bm \Sigma_{11} & \bm \Sigma_{12} \\ \bm \Sigma_{12}^T & \Sigma_{22}\end{pmatrix}\right)$, then $\bm w_1 \perp\!\!\!\perp \bm w_2$ if and only if $\bm \Sigma_{12} = \bm 0$.
+\end{itemize}
+
+\noindent An important distribution related to the multivariate normal is the $\chi^2_d$ (chi-squared with $d$ degrees of freedom) distribution, defined as 
+\begin{equation*}
+\chi^2_d \equiv \sum_{j = 1}^d w_j^2 \quad \text{ for } \quad w_1, \dots, w_d \overset{\text{i.i.d.}}\sim N(0, 1).
+\end{equation*}
+
+\subsection{The distributions of linear regression estimates and residuals} \label{sec:lin-reg-dist}
+
+The most important distributional result in linear regression is that 
+\begin{equation}
+\bm{\widehat\beta} \sim N(\bm \beta, \sigma^2 (\bm X^T \bm X)^{-1}).
+\label{eq:beta-hat-dist}
+\end{equation}
+Indeed, by the linear transformation property of the multivariate normal distribution,
+\begin{equation*}
+\begin{split}
+\bm y \sim N(\bm X \bm \beta, \sigma^2 \bm I_n) \Longrightarrow \bm{\widehat \beta} = (\bm X^T \bm X)^{-1}\bm X^T \bm y &\sim N((\bm X^T \bm X)^{-1}\bm X^T \bm X \bm \beta, (\bm X^T \bm X)^{-1}\bm X^T \sigma^2 \bm I_n \bm X(\bm X^T \bm X)^{-1}) \\
+&= N(\bm \beta, \sigma^2 (\bm X^T \bm X)^{-1}).
+\end{split}
+\end{equation*}
+Next, let's consider the joint distribution of $\bm{\widehat \mu} = \bm X \bm{\widehat \beta}$ and $\bm{\widehat \epsilon} = \bm y - \bm X \bm{\widehat \beta}$. We have
+\begin{equation}
+\begin{split}
+\begin{pmatrix} \bm{\widehat \mu} \\ \bm{\widehat \epsilon} \end{pmatrix} = \begin{pmatrix} \bm H \bm y \\ (\bm I - \bm H) \bm y \end{pmatrix} = \begin{pmatrix} \bm H \\ \bm I - \bm H \end{pmatrix}\bm y \sim N\left(\begin{pmatrix} \bm H \\ \bm I - \bm H \end{pmatrix}\bm X \bm \beta, \begin{pmatrix} \bm H \\ \bm I - \bm H \end{pmatrix}\cdot \sigma^2 \bm I \begin{pmatrix} \bm H & \bm I - \bm H \end{pmatrix}\right) \\
+= N\left(\begin{pmatrix} \bm X \bm \beta \\ \bm 0 \end{pmatrix}, \begin{pmatrix} \sigma^2 \bm H & \bm 0 \\ \bm 0 & \sigma^2(\bm I - \bm H) \end{pmatrix} \right).
+\end{split}
+\end{equation}
+In other words,
+\begin{equation}
+\bm{\widehat \mu} \sim N(\bm X \bm \beta, \sigma^2 \bm H) \quad \text{and} \quad \bm{\widehat \epsilon} \sim N(\bm 0, \sigma^2(\bm I - \bm H)), \quad \text{with} \quad \bm{\widehat \mu} \perp\!\!\!\perp \bm{\widehat \epsilon}.
+\label{eq:fit-and-error-dist}
+\end{equation}
+Since $\bm{\widehat \beta}$ is a deterministic function of $\bm{\widehat \mu}$ (in particular, $\bm{\widehat \beta} = (\bm X^T \bm X)^{-1}\bm X^T \bm{\widehat \mu}$), it also follows that
+\begin{equation}
+\bm{\widehat \beta} \perp\!\!\!\perp \bm{\widehat \epsilon}.
+\end{equation}
+
+\subsection{Estimation of the noise variance $\sigma^2$} \label{sec:noise-estimation}
+
+We can't quite do inference for $\bm \beta$ based on the distributional result~\eqref{eq:beta-hat-dist} because the noise variance $\sigma^2$ is unknown to us. Intuitively, since $\sigma^2 = \mathbb E[\epsilon_i^2]$, we can get an estimate of $\sigma^2$ by looking at the quantity $\|\bm{\widehat \epsilon}\|^2$. To get the distribution of this quantity, we need the following lemma:
+\begin{lemma} \label{lem:normal-projection}
+Let $\bm w \sim N(\bm 0, \bm P)$ for some projection matrix $\bm P$. Then, $\|\bm w\|^2 \sim \chi^2_d$, where $d = \textnormal{trace}(\bm P)$ is the dimension of the subspace onto which $\bm P$ projects.
+\end{lemma}
+\begin{proof}
+Let $\bm P = \bm U \bm D \bm U^T$ be an eigenvalue decomposition of $\bm P$, where $\bm U$ is orthogonal and $\bm D$ is a diagonal matrix with $D_{ii} \in \{0,1\}$. We have $\bm w \overset d = \bm U \bm D \bm z$ for $\bm z \sim N(0, \bm I_n)$. Therefore,
+\begin{equation*}
+\|\bm w\|^2 = \|\bm D \bm z\|^2 = \sum_{i: D_{ii} = 1} z_i^2 \sim \chi^2_d, \quad \text{where } d = |\{i: D_{ii} = 1\}| = \text{trace}(D) = \text{trace}(\bm P).
+\end{equation*}
+\end{proof}
+Recall that $\bm I - \bm H$ is a projection onto the $(n-p)$-dimensional space $C(\bm X)^\perp$, so by Lemma~\ref{lem:normal-projection} and equation~\eqref{eq:fit-and-error-dist} we have
+\begin{equation}
+\|\bm{\widehat \epsilon}\|^2 \sim \sigma^2 \chi^2_{n-p}.
+\label{eq:eps-norm-dist}
+\end{equation}
+From this result, it follows that $\mathbb E[\|\bm{\widehat \epsilon}\|^2] = n-p$, so 
+\begin{equation}
+\widehat \sigma^2 \equiv \frac{1}{n-p}\|\bm{\widehat \epsilon}\|^2
+\label{eq:unbiased-noise-estimate}
+\end{equation}
+is an unbiased estimate for $\sigma^2$. Question to ponder: Why does the denominator need to be $n-p$ rather than $n$ for the estimator above to be unbiased?
+
+\section{Hypothesis testing}
+
+Typically two types of null hypotheses are tested in a regression setting: Those involving one-dimensional parameters and those involving multi-dimensional parameters. For example, consider the null hypotheses $H_0: \beta_j = 0$ and $H_0: \beta_S = 0$ for $S \subseteq \{1, \dots, p\}$, respectively. We discuss tests of these two kinds of hypothesis in Sections~\ref{sec:one-dim-testing} and~\ref{sec:multi-dim-testing}, and then discuss the power of these tests in Section~\ref{sec:power}.
+
+\subsection{Testing a one-dimensional parameter} \label{sec:one-dim-testing}
+
+The most common question to ask in a linear regression context is: Is the $j$th predictor associated with the response, when controlling for the other predictors? In the language of hypothesis testing, this corresponds to the null hypothesis
+\begin{equation}
+H_0: \beta_j = 0.
+\label{eq:one-dim-null}
+\end{equation}
+According to~\eqref{eq:beta-hat-dist}, we have $\widehat \beta_j \sim N(0, \sigma^2/s_j^2)$, where, as we learned in Unit 1, 
+\begin{equation}
+s_j^{2} \equiv [(\bm X^T \bm X)^{-1}_{jj}]^{-1} = \|\bm x_{*j}^\perp\|^2  .
+\end{equation}
+Therefore, 
+\begin{equation}
+z_j = \frac{\widehat \beta_j}{\sigma/s_j} \sim N(0,1), 
+\end{equation}
+and we could construct a level $\alpha$ two-sided test of the null hypothesis~\eqref{eq:one-dim-null} via $\phi(\bm X, \bm y) = \mathbbm 1(|z_j| > z_{1-\alpha/2})$. Since we don't know $\sigma^2$, we can substitute in the unbiased estimate~\eqref{eq:unbiased-noise-estimate} derived in Section~\ref{sec:noise-estimation}. This gives us the $t$-statistic
+\begin{equation}
+t_j \equiv \frac{\widehat \beta_j}{\widehat \sigma/s_j} = \frac{z_j}{\widehat \sigma/\sigma}.
+\end{equation}
+
+\subsection{Testing a multi-dimensional parameter} \label{sec:multi-dim-testing}
+
+\subsection{Power} \label{sec:power}
+
+\section{Confidence and prediction intervals}
+
+\end{document}
