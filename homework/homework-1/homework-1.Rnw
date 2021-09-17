@@ -24,6 +24,12 @@
 \captionsetup{width=0.9\textwidth, justification = raggedright}
 
 %==============================================================================
+% Custom commands
+%==============================================================================
+\newcommand{\bigsigma}{\makebox{\huge\ensuremath{\Sigma}}}
+\newcommand{\E}{\mathbb{E}}
+
+%==============================================================================
 % Enter name and homework title here
 %==============================================================================
 \author{Samuel Rosenberg}
@@ -282,6 +288,62 @@ with observed predictor vectors denoted $\bm x_{*1} \equiv (x_{11}, \dots, x_{n1
 \end{prob}
 \begin{sol}
 % Solution goes here
+\item[(a)] Note that the model \[y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \epsilon,\ \epsilon \sim (0, \sigma^2)\] is equivalent to the model \[y = \beta_0' + \beta_1(x_1 - \overline{x}_1) + \beta_2(x_2 - \overline{x}_2),\ \epsilon \sim (0, \sigma^2),\text{ with }\beta_0' = \beta_0 + \beta_1 \overline{x}_1 + \beta_2 \overline{x}_2.\]
+So, the coefficients $\widehat{\beta}_1$, $\widehat{\beta}_2$ are unaffected by mean centering. Note that the regression $y = \beta_1 (x_1 - \overline{x}_1) + \beta_2 (x_2 - \overline{x}_2)$ has the same coefficients of this second model by orthogonality; $\overline{x}_1$ is the projection of $x_1$ onto 1 and $\overline{x}_2$ is the projection of $x_2$ onto 1, so $x_1 - \overline{x}_1, x_2 - \overline{x}_2 \perp 1$.
+
+Thus, the covariance matrix $\bm{\Sigma}$ for the initial model has the following form:
+\[\bm{\Sigma} = \begin{pmatrix} s_{11} & \begin{matrix} s_{12} & s_{13} \end{matrix} \\ \begin{matrix} s_{21} \\ s_{31} \end{matrix} & \begin{matrix} \bm{\bigsigma}' \end{matrix} \end{pmatrix},\]
+where $\bm{\Sigma}'$ is the covariance matrix for $\widehat{\beta}_1$ and $\widehat{\beta}_2$ under the model $y = \beta_1(x_1 - \overline{x}_1) + \beta_2(x_2 - \overline{x}_2)$.
+
+Recall that for an identifiable regression with model matrix $\bm{X}$, the covariance matrix is given by $\sigma^2 (\bm{X}^T \bm{X})^{-1}$. Note that our model matrix for the third (reduced) regression is \[\bm{X} = \begin{pmatrix} x_{11} - \overline{x}_1 & x_{12} - \overline{x}_2 \\ \vdots & \vdots \\ x_{n1} - \overline{x}_1 & x_{n2} - \overline{x}_2 \end{pmatrix}. \]
+Then \[\bm{X}^T\bm{X} = \begin{pmatrix} ||\bm{x}_{*1} - \overline{x}_1\bm{1}||^2 & (\bm{x}_{*1} - \overline{x}_1\bm{1})^T(\bm{x}_{*2} - \overline{x}_2\bm{1}) \\ (\bm{x}_{*1} - \overline{x}_1\bm{1})^T(\bm{x}_{*2} - \overline{x}_2\bm{1}) & ||\bm{x}_{*2} - \overline{x}_2\bm{1}||^2 \end{pmatrix}\]
+and
+\[(\bm{X}^T\bm{X})^{-1} = \frac{1}{\text{det}(\bm{X}^T\bm{X})} \begin{pmatrix} ||\bm{x}_{*2} - \overline{x}_2\bm{1}||^2 & -(\bm{x}_{*1} - \overline{x}_1\bm{1})^T(\bm{x}_{*2} - \overline{x}_2\bm{1}) \\ -(\bm{x}_{*1} - \overline{x}_1\bm{1})^T(\bm{x}_{*2} - \overline{x}_2\bm{1}) & ||\bm{x}_{*1} - \overline{x}_1\bm{1}||^2 \end{pmatrix}.\]
+We have that 
+\[\text{cov}(\widehat{\beta}_1, \widehat{\beta}_2) = \sigma^2 \bm{\Sigma}_{23} = \sigma^2 \bm{\Sigma}'_{12} = -\frac{\sigma^2}{\text{det}(\bm{X}^T\bm{X})} (\bm{x}_{*1} - \overline{x}_1\bm{1})^T (\bm{x}_{*2} - \overline{x}_2\bm{1}),\] 
+\[\sigma_{\widehat{\beta}_1}^2 = \sigma^2 \bm{\Sigma}_{22} = \sigma^2 \bm{\Sigma}_{11}' = \frac{\sigma^2}{\text{det}(\bm{X}^T\bm{X})} ||\bm{x}_{*2} - \overline{x}_2\bm{1}||^2,\] 
+and 
+\[\sigma_{\widehat{\beta}_2}^2 = \sigma^2 \bm{\Sigma}_{33} = \sigma^2 \bm{\Sigma}_{22}' = \frac{\sigma^2}{\text{det}(\bm{X}^T\bm{X})} ||\bm{x}_{*1} - \overline{x}_1\bm{1}||^2.\]
+Define $C := \frac{\sigma^2}{\text{det}(\bm{X}^T \bm{X})}$. Then 
+\begin{align*} \text{corr}(\widehat{\beta}_1, \widehat{\beta}_1) &= \frac{\text{cov}(\widehat{\beta}_1, \widehat{\beta}_2)}{\sigma_{\widehat{\beta}_1} \sigma_{\widehat{\beta}_2}} \\ &= -\frac{C (\bm{x}_{*1} - \overline{x}_1\bm{1})^T (\bm{x}_{*2} - \overline{x}_2\bm{1})}{\sqrt{C}||\bm{x}_{*2} - \overline{x}_2\bm{1}|| \sqrt{C} ||\bm{x}_{*1} - \overline{x}_1\bm{1}||} \\ &= -\rho. \end{align*}
+That is, the correlation between $\widehat{\beta}_1$ and $\widehat{\beta}_2$ is $- \rho$.
+
+\item[(b)] Suppose that we have that $(\beta_0^0, \beta_1^0, \beta_2^0)$ is a parameter vector for the case when $\bm{x}_{*1} = \bm{x}_{*2}$. Consider $\mathcal{S} := \{(\beta_0, \beta_1, \beta_2) \in \mathbb{R}^3 : \beta_0 = \beta_0^0, \beta_1 + \beta_2 = \beta_1^0 + \beta_2^0\}$. Consider the models where $y^0$ and $y$ have the same formula as (1c), with $(\beta_0^0, \beta_1^0, \beta_2^0)$ and $(\beta_0, \beta_1, \beta_2) \in \mathcal{S}$ as their respective parameter vectors. Then 
+\[\E[\bm{y}^0] = \E[\beta_0^0 \bm{1} + \beta_1^0 \bm{x}_{*1} + \beta_2^0 \bm{x}_{*2} + \bm{\epsilon}] = \beta_0^0\bm{1} + \beta_1^0 \bm{x}_{*1} + \beta_2^0 \bm{x}_{*2} = \beta_0^0 \bm{1} + (\beta_1^0 + \beta_2^0) \bm{x}_{*1},\] 
+where the last equality holds since $\bm{x}_{*1} = \bm{x}_{*2}$. But 
+\[\beta_0^0 \bm{1} + (\beta_1^0 + \beta_2^0) \bm{x}_{*1} = \beta_0 \bm{1} + (\beta_1 + \beta_2) \bm{x}_{*1} = \beta_0 \bm{1} + \beta_1 \bm{x}_{*1} + \beta_2 \bm{x}_{*2} = \E[\bm{y}],\] 
+where the first equality holds by construction of $\mathcal{S}$. So, $\E[\bm{y}^0] = \E[\bm{y}]$; i.e. any parameter vector in $\mathcal{S}$ will yield the same expectation $\E[\bm{y}]$ as the original fixed parameter vector. 
+
+Take $c := \beta_1^0 + \beta_2^0$, which is one of the constraints that appears when defining $\mathcal{S}$ (i.e. $\beta_1 + \beta_2 = c$). When we rearrange this expression, we get $\beta_1 = c - \beta_2$. In other words, perfect correlation of the predictors $x_1$ and $x_2$ leads to a constraint of perfect anticorrelation of the coefficients $\beta_1$ and $\beta_2$, where the slope of the linear relationship between $\beta_1$ and $\beta_2$ is determined to be the negative of the slope of the linear relationship between $x_1$ and $x_2$. This corresponds to $\rho = 1$ implying that $\text{cor}(\hat{\beta}_1, \hat{\beta}_2) = -1$, if the result from (a) could be extended to $\rho = \pm 1$.
+
+\item[(c)] Note that $\E[x_1] = \E[z_1 + 0.5 z_2] = \E[z_1] + 0.5 \E[z_2] = 0$; likewise, $\E[x_2] = 0$. Then $\text{cov}(x_1, x_2) = \E[(x_1 - \E[x_1])(x_2 - \E[x_2])] = \E[x_1 x_2] = \E[(z_1 + 0.5 z_2)(z_1 - 0.5 z_2)] = \E[z_1^2] - 0.25 \E[z_2^2]$. But we have that $z_1^2, z_2^2 \sim \chi^2_1$, so $\E[z_1] = \E[z_2] = 1$ and $\text{cov}(x_1, x_2) = 3/4$. Also, $\sigma^2_{x1} = \sigma^2_{x2} = \text{var}(z_1) + 0.25 \text{var}(z_2) = 5/4$. So, the correlation between $x_1$ and $x_2$ as random variables is $\text{corr}(x_1, x_2) = \frac{3/4}{\sqrt{5/4}^2} = 3/5$.
+
+\emph{***TO FINISH***}
+
+We have that the sample correlation between $\bm{x}_{*1}$ and $\bm{x}_{*2}$ is 
+\begin{align*}
+  \rho_{\bm{x}_{*1} \bm{x}_{*2}} &= \frac{\sum_{i=1}^n (x_{i1} - \overline{x}_1)(x_{i2} - \overline{x}_2)}{\sqrt{(\sum_{i=1}^n (x_{i1} - \overline{x}_1)^2)(\sum_{i=1}^n (x_{i2} - \overline{x}_2)^2)}} \\
+  &\approx \frac{\sum_{i=1}^n x_{i1} x_{i2}}{\sqrt{(\sum_{i=1}^n x_{i1}^2) (\sum_{i=1}^n x_{i2}^2)}}
+\end{align*}
+
+\item[(d)]
+
+<<>>==
+
+# Set values of model parameters
+beta_0 <- 0
+beta_1 <- 1
+beta_2 <- 2
+
+# Run loop 250 times
+for(i in 1:250){
+  n <- 100
+  sigma <- 1
+  epsilon <- rnorm(n, mean = 0, sd = sigma)
+}
+
+@
+
 \end{sol}
 
 
