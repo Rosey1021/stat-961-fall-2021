@@ -222,17 +222,17 @@ Defining $\bm X' \equiv [\bm 1, \bm x'_{*1}, \bm x'_{*2}]$, find the matrix $\bm
       
       Note that 
         \[
-          \bm{A} \begin{pmatrix} 1 & -\overline{x}_1 & -\overline{x}_2 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix} = 
+          \bm{A} \begin{pmatrix} 1 & \overline{x}_1 & \overline{x}_2 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix} = 
           \begin{pmatrix} 1 & -\overline{x}_1 & -\overline{x}_2 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix} \begin{pmatrix} 1 & \overline{x}_1 & \overline{x}_2 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix} = \bm{I}_3,
           \]
       so 
-        \[\bm{A}^{-1} = \begin{pmatrix} 1 & -\overline{x}_1 & -\overline{x}_2 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix}.\]
+        \[\bm{A}^{-1} = \begin{pmatrix} 1 & \overline{x}_1 & \overline{x}_2 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix}.\]
       
       As we saw in (b), $\bm{\widehat{\beta}'} = \bm{A}^{-1} \bm{\widehat{\beta}}$, so 
         \begin{align*}
           \bm{\widehat{\beta}'} &=\bm{A}^{-1} \bm{\widehat{\beta}} \\
-          &= \begin{pmatrix} 1 & -\overline{x}_1 & -\overline{x}_2 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix} \begin{pmatrix} \hat{\beta}_0 \\ \hat{\beta}_1 \\ \hat{\beta}_2 \end{pmatrix} \\
-          &= \begin{pmatrix} \hat{\beta}_0 - \overline{x}_1 \hat{\beta}_1 - \overline{x}_2 \hat{\beta}_2 \\ \hat{\beta}_1 \\ \hat{\beta}_2\end{pmatrix}.
+          &= \begin{pmatrix} 1 & \overline{x}_1 & \overline{x}_2 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix} \begin{pmatrix} \hat{\beta}_0 \\ \hat{\beta}_1 \\ \hat{\beta}_2 \end{pmatrix} \\
+          &= \begin{pmatrix} \hat{\beta}_0 + \overline{x}_1 \hat{\beta}_1 + \overline{x}_2 \hat{\beta}_2 \\ \hat{\beta}_1 \\ \hat{\beta}_2\end{pmatrix}.
         \end{align*}
   
   \item We take 
@@ -318,31 +318,86 @@ Take $c := \beta_1^0 + \beta_2^0$, which is one of the constraints that appears 
 
 \item[(c)] Note that $\E[x_1] = \E[z_1 + 0.5 z_2] = \E[z_1] + 0.5 \E[z_2] = 0$; likewise, $\E[x_2] = 0$. Then $\text{cov}(x_1, x_2) = \E[(x_1 - \E[x_1])(x_2 - \E[x_2])] = \E[x_1 x_2] = \E[(z_1 + 0.5 z_2)(z_1 - 0.5 z_2)] = \E[z_1^2] - 0.25 \E[z_2^2]$. But we have that $z_1^2, z_2^2 \sim \chi^2_1$, so $\E[z_1] = \E[z_2] = 1$ and $\text{cov}(x_1, x_2) = 3/4$. Also, $\sigma^2_{x1} = \sigma^2_{x2} = \text{var}(z_1) + 0.25 \text{var}(z_2) = 5/4$. So, the correlation between $x_1$ and $x_2$ as random variables is $\text{corr}(x_1, x_2) = \frac{3/4}{\sqrt{5/4}^2} = 3/5$.
 
-\emph{***TO FINISH***}
-
-We have that the sample correlation between $\bm{x}_{*1}$ and $\bm{x}_{*2}$ is 
-\begin{align*}
-  \rho_{\bm{x}_{*1} \bm{x}_{*2}} &= \frac{\sum_{i=1}^n (x_{i1} - \overline{x}_1)(x_{i2} - \overline{x}_2)}{\sqrt{(\sum_{i=1}^n (x_{i1} - \overline{x}_1)^2)(\sum_{i=1}^n (x_{i2} - \overline{x}_2)^2)}} \\
-  &\approx \frac{\sum_{i=1}^n x_{i1} x_{i2}}{\sqrt{(\sum_{i=1}^n x_{i1}^2) (\sum_{i=1}^n x_{i2}^2)}}
-\end{align*}
+We expect the sample correlation between $\bm{x}_{*1}$ and $\bm{x}_{*2}$ to be roughly equal to the correlation between $x_1$ and $x_2$ as random variables; that is, $3/5$. This is because the sample correlation is an asymptotically unbiased estimator of the correlation between random variables. Using our result from (a), we thus expect the correlation between $\widehat{\beta}_1$ and $\widehat{\beta}_2$ to be approximately $-3/5$.
 
 \item[(d)]
 
 <<>>==
+library(cowplot)
+library(latex2exp)
 
+### Set simulation parameters
 # Set values of model parameters
 beta_0 <- 0
 beta_1 <- 1
 beta_2 <- 2
 
-# Run loop 250 times
-for(i in 1:250){
-  n <- 100
-  sigma <- 1
+n <- 100
+sigma <- 1
+
+num_sim <- 250
+
+
+### Fix one realization of x_{*1}, x_{*2} based on the distribution from (c)
+# Generate n standard normal IID values for z_1, z_2
+z_1 <- rnorm(n, mean = 0, sd = 1)
+z_2 <- rnorm(n, mean = 0, sd = 1)
+
+# Compute x_{*1}, x_{*2}
+x_1 <- z_1 + 0.5 * z_2
+x_2 <- z_1 - 0.5 * z_2
+
+
+### Generate num_sim realizations of the response y and calculate \widehat{\beta}
+# Vectors to store \widehat{\beta} estimates
+beta_1_hat <- c()
+beta_2_hat <- c()
+
+# Run loop num_sim times
+for(i in 1:num_sim){
+  # Get \epsilon and calculate y
   epsilon <- rnorm(n, mean = 0, sd = sigma)
+  
+  y <- beta_0 + beta_1 * x_1 + beta_2 * x_2 + epsilon
+  
+  # Combine data into data frame and run regression
+  sim_data <- data.frame(y = y, x_1 = x_1, x_2 = x_2)
+  sim_lm <- lm(y ~ x_1 + x_2, data = sim_data)
+  
+  # Extract and store \widehat{\beta} estimates
+  beta_hat <- sim_lm$coefficients
+  beta_1_hat <- c(beta_1_hat, beta_hat[2])
+  beta_2_hat <- c(beta_2_hat, beta_hat[3])
 }
 
+x_plt <- 
+  ggplot(data = data.frame(x_1 = x_1, x_2 = x_2), 
+         mapping = aes(x = x_1, y = x_2)) + 
+    geom_point() + 
+    xlab(TeX("$x_{*1}$")) +
+    ylab(TeX("$x_{*2}$")) + 
+    ggtitle(paste("Sample correlation:", 
+                  round(cor(x = x_1, y = x_2), digits = 4)))
+
+beta_plt <-
+  ggplot(data = data.frame(beta_1_hat = c(beta_1_hat, beta_1), 
+                           beta_2_hat = c(beta_2_hat, beta_2), 
+                           labels = c(rep("simulated", times = num_sim), 
+                                      "true value")), 
+         mapping = aes(x = beta_1_hat, 
+                       y = beta_2_hat, 
+                       color = labels)) + 
+    geom_point() +
+    xlab(TeX("$\\widehat{\\beta}_1$")) + 
+    ylab(TeX("$\\widehat{\\beta}_2$")) + 
+    ggtitle(paste("Sample correlation:", 
+                  round(cor(x = beta_1_hat, y = beta_2_hat), digits = 4))) + 
+    scale_color_manual(name = "Legend", values = c("black", "red"))
+
+plot_grid(plotlist = list(x_plt, beta_plt), nrow = 1, ncol = 2)
 @
+
+Note that we have that the sample correlation between $\bm{x}_{*1}$ and $\bm{x}_{*2}$ is roughly $3/5 = 0.60$, the correlation between $x_1$ and $x_2$ calculated in (c). Likewise, the sample correlation between $\widehat{\beta}_1$ and $\widehat{\beta}_2$ is roughly $-3/5 = -0.60$, which was predicted as the correlation between $\widehat{\beta}_1$ and $\widehat{\beta}_2$ in (c).
 
 \end{sol}
 
