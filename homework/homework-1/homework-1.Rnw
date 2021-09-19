@@ -394,10 +394,21 @@ beta_plt <-
                   round(cor(x = beta_1_hat, y = beta_2_hat), digits = 4))) + 
     scale_color_manual(name = "Legend", values = c("black", "red"))
 
-plot_grid(plotlist = list(x_plt, beta_plt), nrow = 1, ncol = 2)
+corr_plts <- 
+  plot_grid(plotlist = list(x_plt, beta_plt), nrow = 1, ncol = 2)
+
+ggsave(plot = corr_plts, filename = "./figures/corr_plts.png",
+       device = "png", width = 6, height = 2)
 @
 
-Note that we have that the sample correlation between $\bm{x}_{*1}$ and $\bm{x}_{*2}$ is roughly $3/5 = 0.60$, the correlation between $x_1$ and $x_2$ calculated in (c). Likewise, the sample correlation between $\widehat{\beta}_1$ and $\widehat{\beta}_2$ is roughly $-3/5 = -0.60$, which was predicted as the correlation between $\widehat{\beta}_1$ and $\widehat{\beta}_2$ in (c).
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width = 0.4\textwidth]{figures/corr_plts.png}
+  \caption{Correlation plots.}
+  \label{fig:corr_plts}
+\end{figure}
+
+Note that we have that the sample correlation between $\bm{x}_{*1}$ and $\bm{x}_{*2}$ is very roughly $3/5 = 0.60$, the correlation between $x_1$ and $x_2$ calculated in (c). Likewise, the sample correlation between $\widehat{\beta}_1$ and $\widehat{\beta}_2$ is close to -1 times the sample correlation between $\bm{x}_{*1}$ and $\bm{x}_{*2}$, as predicted in (a).
 
 \end{sol}
 
@@ -406,7 +417,6 @@ Note that we have that the sample correlation between $\bm{x}_{*1}$ and $\bm{x}_
 
 \noindent For 72 young girls suffering from anorexia, the \texttt{Anorexia.dat} file under \texttt{stat-961-fall-2021/data} shows their weights before and after an experimental period: 
 <<>>=
-setwd("C:/Users/Sam/Documents/School/2021-2022/First Semester/Stat 961/stat-961-fall-2021/homework/homework-1")
 anorexia_data = read_tsv("../../data/Anorexia.dat", col_types = "ifdd")
 print(anorexia_data, n = 5)
 @
@@ -449,27 +459,59 @@ print(anorexia_data_processed, n=5)
 
 \item[(b)]
 <<>>==
+# Create plot objects
+wgt_gain_plt1 <-
+  anorexia_data_processed %>%
+    ggplot() +
+      geom_boxplot(mapping = aes(x = therapy, y = weight_gain))
 
-anorexia_data_processed %>%
-  ggplot() +
-  geom_boxplot(mapping = aes(x = therapy, y = weight_gain)) +
-  ggtitle("1. Weight gain as a function of therapy")
+wgt_gain_plt2 <-
+  anorexia_data_processed %>%
+    ggplot() +
+      geom_point(mapping = aes(x = weight_before, y = weight_gain, color = therapy))
 
-anorexia_data_processed %>%
-  ggplot() +
-  geom_point(mapping = aes(x = weight_before, y = weight_gain, color = therapy)) +
-  ggtitle("2. Weight gain as a function of weight before")
+# Save plots as .png files
+ggsave(plot = wgt_gain_plt1, filename = "./figures/wgt_gain_plt1.png",
+       device = "png", width = 2, height = 2)
 
-anorexia_data_summary <-
+ggsave(plot = wgt_gain_plt2, filename = "./figures/wgt_gain_plt2.png",
+       device = "png", width = 4, height = 2)
+
+# Produce data summary table
+wgt_gain_summary <-
   anorexia_data_processed %>%
     group_by(therapy) %>%
     summarise(mean_weight_gain = mean(weight_gain), 
               max_weight_gain = max(weight_gain), 
               frac_weight_gain = sum(weight_gain > 0)/length(weight_gain))
-  
-print(anorexia_data_summary)
 
+wgt_gain_summary %>%
+  # format = "latex" is not working
+  kableExtra::kable(format = "html", row.names = NA,
+                    booktabs = TRUE, digits = 2) %>%
+  kableExtra::save_kable("./figures/wgt_gain_table.png")
 @
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width = 0.4\textwidth]{figures/wgt_gain_plt1.png}
+  \caption{Weight gain as a function of therapy.}
+  \label{fig:wgt_gain_plt1}
+\end{figure}
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width = 0.4\textwidth]{figures/wgt_gain_plt2.png}
+  \caption{Weight gain as a function of weight before.}
+  \label{fig:wgt_gain_plt2}
+\end{figure}
+
+\begin{table}[h!]
+  \centering
+  \includegraphics[width = 0.6\textwidth]{figures/wgt_gain_table.png}
+  \caption{Summary of weight gain by therapy.}
+  \label{tab:wgt_gain_table}
+\end{table}
 
 Note that the family therapy seems the most successful as it has the highest average weight gain, highest max weight gain, and highest proportion of individuals who gained weight as compared to the other two treatments. The standard (control) therapy seems quite ineffective, as less than half of the recipients of this therapy gained weight and the average weight gain for this group is negative (i.e. these participants had a tendency to \emph{lose} weight). The greatest weight gain observed in the study was 21.5 pounds, for an individual in the family therapy group. Girls with lower weights prior to the study tended to have higher weight gains following the study than those who had higher initial weights. This is negative correlation is possibly a sort of regression to the mean, where it is easier for individuals who are far from their ``equilibrium'' body weight to move toward that weight than away (i.e. an increase in weight for those below and a decrease/smaller increase for those above).
 
