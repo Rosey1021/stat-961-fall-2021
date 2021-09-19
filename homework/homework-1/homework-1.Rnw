@@ -288,12 +288,12 @@ with observed predictor vectors denoted $\bm x_{*1} \equiv (x_{11}, \dots, x_{n1
 \end{prob}
 \begin{sol}
 % Solution goes here
-\item[(a)] Note that the model \[y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \epsilon,\ \epsilon \sim (0, \sigma^2)\] is equivalent to the model \[y = \beta_0' + \beta_1(x_1 - \overline{x}_1) + \beta_2(x_2 - \overline{x}_2),\ \epsilon \sim (0, \sigma^2),\text{ with }\beta_0' = \beta_0 + \beta_1 \overline{x}_1 + \beta_2 \overline{x}_2.\]
-So, the coefficients $\widehat{\beta}_1$, $\widehat{\beta}_2$ are unaffected by mean centering. Note that the regression $y = \beta_1 (x_1 - \overline{x}_1) + \beta_2 (x_2 - \overline{x}_2)$ has the same coefficients of this second model by orthogonality; $\overline{x}_1$ is the projection of $x_1$ onto 1 and $\overline{x}_2$ is the projection of $x_2$ onto 1, so $x_1 - \overline{x}_1, x_2 - \overline{x}_2 \perp 1$.
+\item[(a)] Note that the model \[y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \epsilon,\ \epsilon \sim (0, \sigma^2)\] is equivalent to the model \[y = \beta_0' + \beta_1(x_1 - \overline{x}_1) + \beta_2(x_2 - \overline{x}_2) + \epsilon,\ \epsilon \sim (0, \sigma^2),\text{ with }\beta_0' = \beta_0 + \beta_1 \overline{x}_1 + \beta_2 \overline{x}_2.\]
+So, the coefficients $\widehat{\beta}_1$, $\widehat{\beta}_2$ are unaffected by mean centering. Note that the regression $y = \beta_1 (x_1 - \overline{x}_1) + \beta_2 (x_2 - \overline{x}_2) + \epsilon, \ \epsilon \sim (0, \sigma^2)$ has the same coefficients of this second model by orthogonality; $\overline{x}_1$ is the projection of $x_1$ onto 1 and $\overline{x}_2$ is the projection of $x_2$ onto 1, so $x_1 - \overline{x}_1, x_2 - \overline{x}_2 \perp 1$.
 
 Thus, the covariance matrix $\bm{\Sigma}$ for the initial model has the following form:
 \[\bm{\Sigma} = \begin{pmatrix} s_{11} & \begin{matrix} s_{12} & s_{13} \end{matrix} \\ \begin{matrix} s_{21} \\ s_{31} \end{matrix} & \begin{matrix} \bm{\bigsigma}' \end{matrix} \end{pmatrix},\]
-where $\bm{\Sigma}'$ is the covariance matrix for $\widehat{\beta}_1$ and $\widehat{\beta}_2$ under the model $y = \beta_1(x_1 - \overline{x}_1) + \beta_2(x_2 - \overline{x}_2)$.
+where $\bm{\Sigma}'$ is the covariance matrix for $\widehat{\beta}_1$ and $\widehat{\beta}_2$ under the model $y = \beta_1(x_1 - \overline{x}_1) + \beta_2(x_2 - \overline{x}_2) + \epsilon, \ \epsilon \sim (0, \sigma^2)$.
 
 Recall that for an identifiable regression with model matrix $\bm{X}$, the covariance matrix is given by $\sigma^2 (\bm{X}^T \bm{X})^{-1}$. Note that our model matrix for the third (reduced) regression is \[\bm{X} = \begin{pmatrix} x_{11} - \overline{x}_1 & x_{12} - \overline{x}_2 \\ \vdots & \vdots \\ x_{n1} - \overline{x}_1 & x_{n2} - \overline{x}_2 \end{pmatrix}. \]
 Then \[\bm{X}^T\bm{X} = \begin{pmatrix} ||\bm{x}_{*1} - \overline{x}_1\bm{1}||^2 & (\bm{x}_{*1} - \overline{x}_1\bm{1})^T(\bm{x}_{*2} - \overline{x}_2\bm{1}) \\ (\bm{x}_{*1} - \overline{x}_1\bm{1})^T(\bm{x}_{*2} - \overline{x}_2\bm{1}) & ||\bm{x}_{*2} - \overline{x}_2\bm{1}||^2 \end{pmatrix}\]
