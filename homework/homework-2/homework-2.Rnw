@@ -195,29 +195,18 @@ Under $H_0$, we have the convergence
 \begin{sol}
 \end{sol}
 
-\begin{prob} \label{prob:r-squared}\textbf{Null distribution of $R^2$.} \\
+\begin{prob} \textbf{Relationships among $t$-tests, $F$-tests, and $R^2$.} \\
 
 \noindent Consider the linear regression model~\eqref{eq:linear-model}, such that $\bm x_{*,0} = \bm 1_n$ is an intercept term (note that there are only $p-1$ other predictors, for a total of $p$).
 
 \begin{itemize}
-\item[(a)] Relate the $R^2$ of this linear regression to the $F$-statistic for a certain hypothesis test. What is the corresponding null hypothesis? What is the null distribution of the $F$-statistic? Are $R^2$ and $F$ positively or negative related, and why does this make sense?
+\item[(a)] Relate the $R^2$ of the linear regression to the $F$-statistic for a certain hypothesis test. What is the corresponding null hypothesis? What is the null distribution of the $F$-statistic? Are $R^2$ and $F$ positively or negative related, and why does this make sense?
 
 \item[(b)] Use the relationship found in part (a) to simulate the null distribution of the $R^2$ by repeatedly sampling from an $F$ distribution (via \verb|rf|). Fix $n = 100$ and try $p \in \{2, 25, 50, 75, 99\}$. Comment on these null distributions, how they change as a function of $p$, and why. 
 
-\end{itemize}
+\item[(c)] Consider the null hypothesis $H_0: \beta_j = 0$, which can be tested using either a $t$-test or an $F$-test. Write down the corresponding $t$ and $F$ statistics, and prove that the latter is the square of the former. 
 
-\end{prob}
-\begin{sol}
-\end{sol}
-
-\begin{prob} \label{prob:t-versus-F}\textbf{Relationships between $t$- and $F$-tests.} \\
-
-\noindent Consider the setup~\eqref{eq:linear-model} from Problem~\ref{prob:likelihood}.
-
-\begin{itemize}
-\item[(a)] Consider the null hypothesis $H_0: \beta_j = 0$, which can be tested using either a $t$-test or an $F$-test. Write down the corresponding $t$ and $F$ statistics, and prove that the latter is the square of the former. 
-
-\item[(b)] Now suppose that $\bm x_{*,0} = \bm 1_n$ is an intercept term, and we are interested in testing the null hypothesis $H_0: \bm \beta_{-0} = \bm 0$. One way of going about this is to start with the usual test statistic $t(\bm c)$ for the null hypothesis $H_0: \bm c^T \bm \beta_{-0} = 0$, and then maximize over all $\bm c \in \mathbb R^{p-1}$:
+\item[(d)] Now suppose we are interested in testing the null hypothesis $H_0: \bm \beta_{-0} = \bm 0$. One way of going about this is to start with the usual test statistic $t(\bm c)$ for the null hypothesis $H_0: \bm c^T \bm \beta_{-0} = 0$, and then maximize over all $\bm c \in \mathbb R^{p-1}$:
 \begin{equation}
 t_{\max} \equiv \max_{\bm c \in \mathbb R^{p-1}} t(\bm c).
 \end{equation}
