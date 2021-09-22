@@ -40,6 +40,19 @@ if(!file.exists(destination)){
   cat(sprintf("%s already exists.\n", filename))
 }
 
+# download Houses data
+filename = "Houses.dat"
+destination = sprintf("data/%s", filename)
+if(!file.exists(destination)){
+  cat(sprintf("Downloading %s...\n", filename))
+  source = sprintf("%s/%s", textbook_site, filename)
+  houses_data = suppressWarnings(read_table(source)) %>%
+    select(-X8)
+  write_tsv(houses_data, file = destination)
+} else{
+  cat(sprintf("%s already exists.\n", filename))
+}
+
 # data from R4DS book
 r4ds_data_site = "https://raw.githubusercontent.com/hadley/r4ds/master/data/"
 
