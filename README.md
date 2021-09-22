@@ -21,10 +21,10 @@ Wed, Sep 1 | -- | STAT 471 computing tutorial (5:15-6:45pm in JMHH 360) | R4DS C
 Thu, Sep 2 | 1. Linear model: Estimation | Model matrices, identifiability, least squares estimation | Agresti 1.3, 1.4, 2.1.1, 2.7.1 | [Class canceled] | --
 Tue, Sep 7 | 1. Linear model: Estimation | Least squares as orthogonal projection | Agresti 2.6, 2.2, 2.3 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=8115c14f-b358-4dd2-a5f9-ad980150155a) | --
 Thu, Sep 9 | 1. Linear model: Estimation | Correlation, multiple correlation, and R<sup>2</sup> | Agresti 2.1.3, 2.4.6 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=ad767311-657e-4caa-a384-ad9d00e251a6) | --
-Tue, Sep 14 | 1. Linear model: Estimation | Collinearity, adjustment, partial correlation | Agresti 2.2.4, 2.5.6, 2.5.7, 4.6.5 | TBA | --
-Thu, Sep 16 | 2. Linear model: Inference | Inferential preliminaries| Agresti 3.1.1, 3.1.2, 3.1.4 | TBA | --
+Tue, Sep 14 | 1. Linear model: Estimation | Collinearity, adjustment, partial correlation | Agresti 2.2.4, 2.5.6, 2.5.7, 4.6.5 | [Link] (https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=e93f7d88-0ea9-4d9d-9efc-ad9f0111ecc4) | --
+Thu, Sep 16 | 2. Linear model: Inference | Inferential preliminaries| Agresti 3.1.1, 3.1.2, 3.1.4 | [Link] (https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=eea54201-8df6-40cd-83ae-ada20144460c) | --
 Sun, Sep 19 | -- | -- | -- | -- | [Homework 1](https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/homework/homework-1/homework-1.pdf) due at 11:59pm
-Tue, Sep 21 | 2. Linear model: Inference | Hypothesis testing I | Agresti 3.2.1, 3.2.2, 3.2.4, 3.2.8 | TBA | --
+Tue, Sep 21 | 2. Linear model: Inference | Hypothesis testing I | Agresti 3.2.1, 3.2.2, 3.2.4, 3.2.8 | [Link] (https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=6ef17054-e5b9-40f4-967a-ada20118b1c6) | --
 Thu, Sep 23 | 2. Linear model: Inference | Hypothesis testing II | Agresti 3.2.5-3.2.6 | TBA | --
 Tue, Sep 28 | 2. Linear model: Inference | Confidence intervals | Agresti 3.3 | TBA | --
 Thu, Sep 30 | 2. Linear model: Inference | Practical considerations and R demo | TBA | TBA | --
