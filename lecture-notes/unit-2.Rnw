@@ -22,6 +22,7 @@
 \usepackage{caption}  % to control figure and table captions
 \newtheorem{proposition}{Proposition}[section]
 \newtheorem{lemma}[proposition]{Lemma}
+\newtheorem{definition}[proposition]{Definition}
 
 
 
@@ -141,6 +142,7 @@ In other words,
 Since $\bm{\widehat \beta}$ is a deterministic function of $\bm{\widehat \mu}$ (in particular, $\bm{\widehat \beta} = (\bm X^T \bm X)^{-1}\bm X^T \bm{\widehat \mu}$), it also follows that
 \begin{equation}
 \bm{\widehat \beta} \perp\!\!\!\perp \bm{\widehat \epsilon}.
+\label{eq:beta-ind-eps}
 \end{equation}
 
 \subsection{Estimation of the noise variance $\sigma^2$} \label{sec:noise-estimation}
@@ -165,15 +167,19 @@ From this result, it follows that $\mathbb E[\|\bm{\widehat \epsilon}\|^2] = n-p
 \widehat \sigma^2 \equiv \frac{1}{n-p}\|\bm{\widehat \epsilon}\|^2
 \label{eq:unbiased-noise-estimate}
 \end{equation}
-is an unbiased estimate for $\sigma^2$. Question to ponder: Why does the denominator need to be $n-p$ rather than $n$ for the estimator above to be unbiased?
+is an unbiased estimate for $\sigma^2$. Why does the denominator need to be $n-p$ rather than $n$ for the estimator above to be unbiased? The reason for this is that the residuals $\bm{\widehat \epsilon}$ are the projection of the true noise vector $\bm \epsilon$ onto the lower-dimensional subspace $C(\bm X)^\perp$. To see this, note that
+\begin{equation}
+\bm{\widehat \epsilon} = (\bm I - \bm H)\bm y = (\bm I - \bm H)(\bm X \bm \beta + \bm \epsilon) = (\bm I - \bm H)\bm \epsilon.
+\end{equation}
+
 
 \section{Hypothesis testing}
 
-Typically two types of null hypotheses are tested in a regression setting: Those involving one-dimensional parameters and those involving multi-dimensional parameters. For example, consider the null hypotheses $H_0: \beta_j = 0$ and $H_0: \beta_S = 0$ for $S \subseteq \{1, \dots, p\}$, respectively. We discuss tests of these two kinds of hypothesis in Sections~\ref{sec:one-dim-testing} and~\ref{sec:multi-dim-testing}, and then discuss the power of these tests in Section~\ref{sec:power}.
+Typically two types of null hypotheses are tested in a regression setting: Those involving one-dimensional parameters and those involving multi-dimensional parameters. For example, consider the null hypotheses $H_0: \beta_j = 0$ and $H_0: \bm \beta_S = \bm 0$ for $S \subseteq \{0, 1, \dots, p-1\}$, respectively. We discuss tests of these two kinds of hypothesis in Sections~\ref{sec:one-dim-testing} and~\ref{sec:multi-dim-testing}, and then discuss the power of these tests in Section~\ref{sec:power}.
 
 \subsection{Testing a one-dimensional parameter} \label{sec:one-dim-testing}
 
-The most common question to ask in a linear regression context is: Is the $j$th predictor associated with the response, when controlling for the other predictors? In the language of hypothesis testing, this corresponds to the null hypothesis
+\paragraph{$t$-test for a single coefficient.} The most common question to ask in a linear regression context is: Is the $j$th predictor associated with the response, when controlling for the other predictors? In the language of hypothesis testing, this corresponds to the null hypothesis
 \begin{equation}
 H_0: \beta_j = 0.
 \label{eq:one-dim-null}
@@ -184,17 +190,309 @@ s_j^{2} \equiv [(\bm X^T \bm X)^{-1}_{jj}]^{-1} = \|\bm x_{*j}^\perp\|^2  .
 \end{equation}
 Therefore, 
 \begin{equation}
-z_j = \frac{\widehat \beta_j}{\sigma/s_j} \sim N(0,1), 
+\frac{\widehat \beta_j}{\sigma/s_j} \sim N(0,1), 
+\label{eq:oracle-z-stat}
 \end{equation}
-and we could construct a level $\alpha$ two-sided test of the null hypothesis~\eqref{eq:one-dim-null} via $\phi(\bm X, \bm y) = \mathbbm 1(|z_j| > z_{1-\alpha/2})$. Since we don't know $\sigma^2$, we can substitute in the unbiased estimate~\eqref{eq:unbiased-noise-estimate} derived in Section~\ref{sec:noise-estimation}. This gives us the $t$-statistic
+and we are tempted to define a level $\alpha$ test of the null hypothesis~\eqref{eq:one-dim-null} based on this normal distribution. While this is infeasible since we don't know $\sigma^2$, we can substitute in the unbiased estimate~\eqref{eq:unbiased-noise-estimate} derived in Section~\ref{sec:noise-estimation}. Then, 
 \begin{equation}
-t_j \equiv \frac{\widehat \beta_j}{\widehat \sigma/s_j} = \frac{z_j}{\widehat \sigma/\sigma}.
+\text{SE}_j \equiv \frac{\widehat \sigma}{s_j} \quad \text{is the standard error of } \widehat \beta_j,
 \end{equation}
+which is an approximation to the standard deviation of $\widehat \beta_j$. Dividing $\widehat \beta_j$ by its standard error gives us the $t$-statistic
+\begin{equation}
+t_j \equiv \frac{\widehat \beta_j}{\text{SE}_j} = \frac{\widehat \beta_j}{\sqrt{\frac{1}{n-p}\|\bm{\widehat \epsilon}\|^2}/s_j}.
+\end{equation}
+This statistic is \textit{pivotal}, in the sense that it has the same distribution for any $\bm \beta$ such that $\beta_j = 0$. Indeed, we can rewrite it as
+\begin{equation}
+t_j = \frac{\frac{\widehat \beta}{\sigma/s_j}}{\sqrt{\frac{\sigma^{-2}\|\bm{\widehat \epsilon}\|^2}{n-p}}}.
+\end{equation}
+Recalling the independence of $\bm{\widehat \beta}$ and $\bm{\widehat \epsilon}$~\eqref{eq:beta-ind-eps}, the scaled chi square distribution of $\|\bm{\widehat \epsilon}\|^2$~\eqref{eq:eps-norm-dist}, the standard normal distribution of $\frac{\widehat \beta}{\sigma/s_j}$~\eqref{eq:oracle-z-stat}, we find that
+\begin{equation}
+\text{under } H_0:\beta_j = 0, \quad t_j \sim \frac{N(0,1)}{\sqrt{\frac{1}{n-p}\chi^2_{n-p}}}, \quad \text{with numerator and denominator independent.}
+\end{equation}
+The latter distribution is called the \textit{$t$ distribution with $n-p$ degrees of freedom} and denoted $t_{n-p}$. This paves the way for the two-sided $t$-test:
+\begin{equation}
+\phi_t(\bm X, \bm y) = \mathbbm 1(|t_j| >t_{n-p}(1-\alpha/2)),
+\end{equation}
+where $t_{n-p}(1-\alpha/2)$ denotes the $1-\alpha/2$ quantile of $t_{n-p}$. Note that, by the law of large numbers,
+\begin{equation}
+\frac{1}{n-p}\chi^2_{n-p} \overset{P}\rightarrow 1 \quad \text{as} \quad n - p \rightarrow \infty,
+\end{equation}
+so for large $n-p$ we have $t_{j} \sim t_{n-p} \approx N(0,1)$. Hence, the $t$-test is approximately equal to the following $z$-test:
+\begin{equation}
+\phi_t(\bm X, \bm y) \approx \phi_z(\bm X, \bm y) \equiv  \mathbbm 1(|t_j| >z(1-\alpha/2)),
+\end{equation}
+where $z(1-\alpha/2)$ is the $1-\alpha/2$ quantile of $N(0,1)$. The $t$-test can also be defined in a one-sided fashion, if power against one-sided alternatives is desired.
+
+\paragraph{Example: One-sample model.}
+
+Consider the intercept-only linear regression model $y = \beta_0 + \epsilon$, and let's apply the $t$-test derived above to test the null hypothesis $H_0: \beta_0 = 0$. We have $\widehat \beta_0 = \bar y$. Furthermore, we have
+\begin{equation}
+\text{SE}^2_0 = \frac{\widehat \sigma^2}{n}, \quad \text{where} \quad \widehat \sigma^2 = \frac{1}{n-1}\|\bm y - \bar y \bm 1_n\|^2. 
+\end{equation}
+Hence, we obtain the $t$ statistic
+\begin{equation}
+t = \frac{\widehat \beta_0}{\text{SE}_0} = \frac{\sqrt n \bar y }{\sqrt{\frac{1}{n-1}\|\bm y - \bar y \bm 1_n\|^2}}.
+\end{equation}
+According to the theory above, this test statistic has a null distribution of $t_{n-1}$.
+
+\paragraph{Example: Two-sample model.} 
+
+Suppose we have $x_1 \in \{0,1\}$, in which case the linear regression $y = \beta_0 + \beta_1 x_1 + \epsilon$ becomes a two-sample model. We can rewrite this model as 
+\begin{equation}
+y_i \sim \begin{cases}N(\beta_0, \sigma^2) \quad &\text{for } x_i = 0; \\ N(\beta_0 + \beta_1, \sigma^2) \quad &\text{for } x_i = 1.\end{cases}
+\end{equation}
+It is often of interest to test the null hypothesis $H_0: \beta_1 = 0$, i.e. that the two groups have equal means. Let's define 
+\begin{equation}
+\bar y_0 \equiv \frac{1}{n_0}\sum_{i: x_i = 0} y_i, \quad \bar y_1 \equiv \frac{1}{n_1}\sum_{i: x_i = 1} y_i, \quad \text{where} \quad n_0 = |\{i: x_i = 0\}| \text{ and } n_1 = |\{i: x_i = 1\}|.
+\end{equation}
+Then, we have seen before that $\widehat \beta_0 = \bar y_0$ and $\widehat \beta_1 = \bar y_1 - \bar y_0$. We can compute that
+\begin{equation}
+s_1^2 \equiv \|\bm x_{*1}^{\perp}\|^2 = \|\bm x_{*1} - \frac{n_1}{n}\bm 1\|^2 = n_1\frac{n^2_0}{n^2} + n_0\frac{n_1^2}{n^2} = \frac{n_0 n_1}{n} = \frac{1}{\frac1{n_0} + \frac1{n_1}}
+\end{equation}
+and
+\begin{equation}
+\widehat \sigma^2 = \frac{1}{n-2}\left(\sum_{i: x_i = 0}(y_i - \bar y_0)^2 + \sum_{i: x_i = 1}(y_i - \bar y_1)^2\right).
+\end{equation}
+Therefore, we arrive at a $t$-statistic of
+\begin{equation}
+t = \frac{\sqrt{\frac{1}{\frac1{n_0} + \frac1{n_1}}}(\bar y_1 - \bar y_0)}{\sqrt{\frac{1}{n-2}\left(\sum_{i: x_i = 0}(y_i - \bar y_0)^2 + \sum_{i: x_i = 1}(y_i - \bar y_1)^2\right)}}.
+\end{equation}
+Under the null hypothesis, this statistic has a distribution of $t_{n-2}$.
+
+\paragraph{$t$-test for a contrast among coefficients.}
+
+Given a vector $\bm c \in \mathbb R^{p}$, the quantity $\bm c^T \bm \beta$ is sometimes called a \textit{contrast}. For example, suppose $\bm c = (1,-1, 0, \dots, 0)$. Then, $\bm c^T \bm \beta = \beta_1 - \beta_2$ is the difference in effects of the first and second predictors. We are sometimes interested in testing whether such a contrast is equal to zero, i.e. $H_0: \bm c^T \bm \beta = 0$. While this hypothesis can involve two or more of the predictors, the parameter $\bm c^T \bm \beta$ is still one-dimensional and therefore we can still apply a $t$-test. Going back to the distribution $\bm{\widehat \beta} \sim N(\bm \beta, \sigma^2(\bm X^T \bm X)^{-1})$, we find that 
+\begin{equation*}
+\bm c^T\bm{\widehat \beta} \sim N(\bm c^T\bm \beta, \sigma^2\bm c^T (\bm X^T \bm X)^{-1} \bm c).
+\end{equation*}
+Therefore, under the null hypothesis that $\bm c^T \bm \beta = 0$, we can derive that
+\begin{equation}
+\frac{\bm c^T \bm{\widehat \beta}}{\widehat \sigma \sqrt{\bm c^T (\bm X^T \bm X)^{-1} \bm c}} \sim t_{n-p},
+\label{eq:contrasts-t-dist}
+\end{equation}
+giving us another $t$-test. Note that the $t$-tests described above can be recovered from this more general formulation by setting $\bm c = \bm e_j$, the indicator vector with $j$th coordinate equal to 1 and all others equal to zero.
 
 \subsection{Testing a multi-dimensional parameter} \label{sec:multi-dim-testing}
 
+\paragraph{$F$-test for a group of coefficients.} Now we move on to the case of testing a multi-dimensional parameter: $H_0: \bm \beta_S = \bm 0$ for some $S \subseteq \{0, 1, \dots, p-1\}$. In other words, we would like to test
+\begin{equation}
+H_0: \bm y = \bm X_{*, \text{-}S}\bm \beta_{-S} + \bm \epsilon \quad \text{versus} \quad H_1: \bm X \bm \beta + \bm \epsilon.
+\end{equation}
+To test this hypothesis, let us fit least squares coefficients $\bm{\widehat \beta}_{-S}$ and $\bm{\widehat \beta}$ for the partial model as well as the full model. If the partial model fits well, then the residuals $\bm y - \bm X_{*, \text{-}S}\bm{\widehat \beta_{-S}}$ from this model will not be much larger than the residuals $\bm y - \bm X\bm{\widehat \beta}$ from the full model. To quantify this intuition, let us recall our analysis of variance decomposition from Unit 1:
+\begin{equation}
+\|\bm y - \bm X_{*, \text{-}S}\bm{\widehat \beta_{-S}}\|^2 = \|\bm X\bm{\widehat \beta} - \bm X_{*, \text{-}S}\bm{\widehat \beta_{-S}}\|^2 + \|\bm y - \bm X\bm{\widehat \beta}\|^2.
+\end{equation}
+Let's consider the ratio
+\begin{equation}
+\frac{\|\bm y - \bm X_{*, \text{-}S}\bm{\widehat \beta_{-S}}\|^2 - \|\bm y - \bm X\bm{\widehat \beta}\|^2}{\|\bm y - \bm X\bm{\widehat \beta}\|^2} = \frac{\|\bm X\bm{\widehat \beta} - \bm X_{*, \text{-}S}\bm{\widehat \beta}_{-S}\|^2}{\|\bm y - \bm X\bm{\widehat \beta}\|^2},
+\end{equation}
+which is the relative increase in the residual sum of squares when going from the full model to the partial model. Let us rewrite this ratio in terms of projection matrices. Let $\bm H$ be the projection matrix for the full model, and let $\bm H_{\text{-}S}$ be the projection matrix for the partial model. Note that $\bm H - \bm H_{\text{-}S}$ is the projection matrix onto the $|S|$-dimensional space $C(\bm X) \cap C(\bm X_{\text{-}S})^T$. We have
+\begin{equation}
+\frac{\|\bm X\bm{\widehat \beta} - \bm X_{*, \text{-}S}\bm{\widehat \beta}_{\text{-}S}\|^2}{\|\bm y - \bm X\bm{\widehat \beta}\|^2} = \frac{\|(\bm H - \bm H_{\text{-}S})\bm y\|^2}{\|(\bm I - \bm H)\bm y\|^2}.
+\end{equation}
+Under the null hypothesis, we have
+\begin{equation}
+\frac{\|(\bm H - \bm H_{\text{-}S})\bm y\|^2}{\|(\bm I - \bm H)\bm y\|^2} = \frac{\|(\bm H - \bm H_{\text{-}S})\bm \epsilon\|^2}{\|(\bm I - \bm H)\bm \epsilon\|^2}.
+\end{equation}
+Since the projection matrices in the numerator and denominator project onto orthogonal subspaces, we have $(\bm H - \bm H_{\text{-}S})\bm \epsilon \perp\!\!\!\perp (\bm I - \bm H)\bm \epsilon$, with $\|(\bm H - \bm H_{\text{-}S})\bm \epsilon\|^2 \sim \sigma^2 \chi^2_{|S|}$ and $\|(\bm I - \bm H)\bm \epsilon\|^2 \sim \sigma^2\chi^2_{n-p}$. Renormalizing numerator and denominator to have expectation 1 under the null, we arrive at the $F$-statistic
+\begin{equation}
+F \equiv \frac{(\|\bm y - \bm X_{*, \text{-}S}\bm{\widehat \beta_{-S}}\|^2 - \|\bm y - \bm X\bm{\widehat \beta}\|^2)/|S|}{\|\bm y - \bm X\bm{\widehat \beta}\|^2/(n-p)}.
+\end{equation}
+We have derived that under the null hypothesis,
+\begin{equation}
+F \sim \frac{\chi^2_{|S|}/|S|}{\chi^2_{n-p}/(n-p)}, \quad \text{with numerator and denominator independent.}
+\end{equation}
+This distribution is called the $F$-distribution with $|S|$ and $n-p$ degrees of freedom, and denoted $F_{|S|, n-p}$. Denoting by $F_{|S|, n-p}(1-\alpha)$ the $1-\alpha$ quantile of this distribution, we arrive at the $F$-test
+\begin{equation}
+\phi_F(\bm X, \bm y) \equiv \mathbbm 1(F > F_{|S|, n-p}(1-\alpha)).
+\end{equation}
+
+\paragraph{Example: Testing for any significant coefficients except the intercept.}
+
+Suppose $\bm x_{*,0} = \bm 1_n$ is an intercept term. Then, consider the null hypothesis $H_0: \beta_1 = \cdots = \beta_{p-1} = 0$. In other words, the null hypothesis is the intercept-only model and the alternative hypothesis is the regression model with an intercept and $p-1$ additional predictors. In this case, $S = \{1, \dots, p-1\}$ and -$S = \{0\}$. The corresponding $F$ statistic is
+\begin{equation}
+F \equiv \frac{(\|\bm y - \bar y \bm 1\|^2 - \|\bm y - \bm X\bm{\widehat \beta}\|^2)/(p-1)}{\|\bm y - \bm X\bm{\widehat \beta}\|^2/(n-p)},
+\end{equation}
+with null distribution $F_{p-1, n-p}$.
+
+\paragraph{Example: Testing for equality of group means in $C$-groups model.}
+
+As a further special case, consider the $C$-groups model from Unit 1. Recall the ANOVA decomposition
+\begin{equation}
+\sum_{i = 1}^n (y_i - \bar y)^2 = \sum_{i = 1}^n (\bar y_{c(i)} - \bar y)^2 + \sum_{i = 1}^n (y_i - \bar y_{c(i)})^2 = \text{SSB} + \text{SSW}.
+\end{equation}
+The $F$-statistic in this case becomes
+\begin{equation}
+F = \frac{\sum_{i = 1}^n (\bar y_{c(i)} - \bar y)^2/(C-1)}{\sum_{i = 1}^n (y_i - \bar y_{c(i)})^2/(n-C)} = \frac{\text{SSB}/(C-1)}{\text{SSW}/(n-C)},
+\end{equation}
+with null distribution $F_{C-1,n-C}$.
+
 \subsection{Power} \label{sec:power}
 
+So far we've been focused on finding the null distributions of various test statistics in order to construct tests with Type-I error control. Now let's shift our attention to examining the power of these tests. 
+
+\paragraph{The power of a $t$-test.}
+
+Consider the $t$-test of the null hypothesis $H_0: \beta_j = 0$. Suppose that, in reality, $\beta_j \neq 0$. What is the probability the $t$-test will reject the null hypothesis? To answer this question, recall that $\widehat \beta_j \sim N(\beta_j, \sigma^2/s_j^2)$. Therefore,
+\begin{equation}
+t = \frac{\widehat \beta_j}{\text{SE}_j} = \frac{\beta_j}{\text{SE}_j} + \frac{\widehat \beta_j - \beta_j}{\text{SE}_j} \overset \cdot \sim N\left(\frac{\beta_j s_j}{\sigma}, 1\right).
+\label{eq:t-alt-dist-1}
+\end{equation}
+Here we have made the approximation $\text{SE}_j \approx \frac{\sigma}{s_j}$, which is pretty good when $n-p$ is large. Therefore, the power of the two-sided $t$-test is
+\begin{equation}
+\mathbb E[\phi_t] = \mathbb P[\phi_t = 1] \approx \mathbb P[|t| > z_{1-\alpha/2}] \approx \mathbb P\left[\left|N\left(\frac{\beta_j s_j}{\sigma}, 1\right)\right| > z_{1-\alpha/2}\right].
+\end{equation}
+Therefore, the quantity $\frac{\beta_j s_j}{\sigma}$ determines the power of the $t$-test. To understand $s_j$ a little better, let's assume that the rows $\bm x_{i*}$ of the model matrix are drawn i.i.d. from some distribution $(x_0, \dots, x_{p-1})$. Then we have roughly
+\begin{equation}
+\bm x_{*j}^\perp \approx \bm x_{*j} - \mathbb E[\bm x_{*j}|\bm X_{*, \text{-}j}],
+\end{equation}
+so $x_{ij}^\perp \approx x_{ij} - \mathbb E[x_{ij}|\bm x_{i,\text{-}j}]$. Hence,
+\begin{equation}
+s_j^2 \equiv \|\bm x_{*j}^\perp\|^2 \approx n\mathbb E[(x_j-\mathbb E[x_j|\bm x_{\text{-}j}])^2] = n\mathbb E[\text{Var}[x_j|\bm x_{\text{-}j}]].
+\end{equation}
+Hence, we can rewrite the alternative distribution~\eqref{eq:t-alt-dist-1} as 
+\begin{equation}
+t \overset \cdot \sim N\left(\frac{\beta_j \cdot \sqrt{n} \cdot \sqrt{\mathbb E[\text{Var}[x_j|\bm x_{\text{-}j}]]}}{\sigma}, 1\right).
+\label{eq:t-alt-dist-2}
+\end{equation}
+We can see clearly now how the power of the $t$-test varies with the effect size $\beta_j$, the sample size $n$, the degree of collinearity $\mathbb E[\text{Var}[x_j|\bm x_{\text{-}j}]]$, and the noise standard deviation $\sigma$. 
+
+\paragraph{The power of an $F$-test.}
+
+Now let's turn our attention to computing the power of the $F$-test. We have
+\begin{equation}
+F = \frac{\|\bm X\bm{\widehat \beta} - \bm X_{*, \text{-}S}\bm{\widehat \beta}_{-S}\|^2/|S|}{\|\bm y - \bm X\bm{\widehat \beta}\|^2/|n-p|} = \frac{\|(\bm H-\bm H_{\text{-}S}) \bm y\|^2/|S|}{\|(\bm I - \bm H)\bm y\|^2/|n-p|} \approx \frac{\|(\bm H-\bm H_{\text{-}S}) \bm y\|^2/|S|}{\sigma^2}.
+\end{equation}
+To calculate the distribution of the numerator, we need to introduce the notion of a non-central chi-squared random variable.
+\begin{definition}
+For some vector $\bm \mu \in \mathbb R^d$, suppose $\bm z \sim N(\bm \mu, \bm I_d)$. Then, we define the distribution of $\|\bm z\|^2$ as the non-central chi-square random variable with $d$ degrees of freedom and noncentrality parameter $\|\bm \mu\|^2$ and denote this distribution by $\chi^2_d(\|\bm \mu\|^2)$.
+\end{definition}
+\noindent It can be shown that if $\bm P$ is a projection matrix and $\bm y = \bm \mu + \bm \epsilon$, then $\frac{1}{\sigma^2}\|\bm P \bm y\|^2 \sim \chi^2_{\text{tr}(\bm P)}(\frac{1}{\sigma^2}\|\bm P \bm \mu\|^2)$.
+It therefore follows that
+\begin{equation}
+F \approx \frac{\|(\bm H-\bm H_{\text{-}S}) \bm y\|^2/|S|}{\sigma^2} \sim \frac{1}{|S|}\chi^2_{|S|}(\|(\bm H-\bm H_{\text{-}S})\bm X \bm \beta\|^2) = \frac{1}{|S|}\chi^2_{|S|}\left(\frac{1}{\sigma^2}\|\bm X^\perp_{*, S}\bm \beta_S\|^2\right).
+\end{equation}
+Assuming as before that the rows of $\bm X$ are samples from a joint distribution, we can write
+\begin{equation}
+\|\bm X^\perp_{*, S}\bm \beta_S\|^2 \approx n\bm \beta_S^T \mathbb E[\text{Var}[\bm x_{S}|\bm x_{\text{-}S}]] \bm \beta_S.
+\end{equation}
+Therefore,
+\begin{equation}
+F \overset \cdot \sim \frac{1}{|S|}\chi^2_{|S|}\left(\frac{n\beta_S^T \mathbb E[\text{Var}[\bm x_{S}|\bm x_{\text{-}S}]] \bm \beta_S}{\sigma^2}\right),
+\end{equation}
+which is similar in spirit to equation~\eqref{eq:t-alt-dist-2}.
+
+\paragraph{Power when predictors are added to the model.}
+
+As we know, the outcome of a regression is a function of the predictors that are used. What happens to the $t$-test $p$-value for $H_0: \beta_j = 0$ when a predictor is added to the model? To keep things simple, let's consider the
+\begin{equation}
+\text{true underlying model:}\ y = \beta_0 x_0 + \beta_1 x_1 + \epsilon.
+\end{equation}
+Let's consider the power of testing $H_0: \beta_0 = 0$ in the regression models 
+\begin{equation}
+\text{model 0:}\ y = \beta_0 x_0 + \epsilon \quad \text{versus} \quad \text{model 1:}\ y = \beta_0 x_0 + \beta_1 x_1 + \epsilon.
+\end{equation}
+
+\noindent There are four cases based on $\text{cor}[\bm x_{*0}, \bm x_{*1}]$ and the value of $\beta_1$ in the true model:
+\begin{enumerate}
+\item $\text{cor}[\bm x_{*0}, \bm x_{*1}] \neq 0$ and $\beta_1 \neq 0$. In this case, in model 0 we have omitted an important variable that is correlated with $\bm x_{*0}$. Therefore, the meaning of $\beta_0$ differs between model 0 and model 1, so it may not be meaningful to compare the $p$-values arising from these two models.
+\item $\text{cor}[\bm x_{*0}, \bm x_{*1}] \neq 0$ and $\beta_1 = 0$. In this case, we are adding a null predictor that is correlated with $x_{*0}$. Recall that the power of the $t$-test hinges on the quantity $\frac{\beta_j \cdot \sqrt{n} \cdot \sqrt{\mathbb E[\text{Var}[x_j|\bm x_{\text{-}j}]]}}{\sigma}$. Adding the predictor $x_1$ has the effect of reducing the conditional predictor variance $\mathbb E[\text{Var}[x_j|\bm x_{\text{-}j}]]$, therefore reducing the power. This is a case of \textit{predictor competition}. 
+\item $\text{cor}[\bm x_{*0}, \bm x_{*1}] = 0$ and $\beta_1 \neq 0$. In this case, we are adding a non-null predictor that is orthogonal to $\bm x_{*0}$. While the conditional predictor variance $\mathbb E[\text{Var}[x_j|\bm x_{\text{-}j}]]$ remains the same due to orthogonality, the residual variance $\sigma^2$ is reduced when going from model 0 to model 1. Therefore, in this case adding $x_1$ to the model increases the power for testing $H_0: \beta_0 = 0$. This is a case of \textit{predictor collaboration}.
+\item $\text{cor}[\bm x_{*0}, \bm x_{*1}] = 0$ and $\beta_1 = 0$. In this case, we are adding an orthogonal null variable, which does not change the conditional predictor variance or the residual variance, and therefore keeps the power of the test the same.
+\end{enumerate}
+In conclusion, adding a predictor can either increase or decrease the power of a $t$-test. Similar reasoning can be applied to the $F$-test.
+
+
 \section{Confidence and prediction intervals}
+
+In addition to hypothesis testing, we often want to construct confidence intervals for the coefficients. 
+
+\paragraph{Confidence interval for a coefficient.}
+
+Under $H_0: \beta_j = 0$, we showed that $\frac{\widehat \beta_j}{\widehat \sigma/s_j} \sim t_{n-p}$. The same argument shows that for arbitrary $\beta_j$, we have
+\begin{equation}
+\frac{\widehat \beta_j - \beta_j}{\widehat \sigma/s_j} \sim t_{n-p}.
+\end{equation}
+We can use this relationship to construct a confidence interval for $\beta_j$ as follows:
+\begin{equation}
+\begin{split}
+1-\alpha = \mathbb P[|t_{n-p}| \leq t_{n-p}(1-\alpha/2)] &= \mathbb P\left[\left|\frac{\widehat \beta_j - \beta_j}{\widehat \sigma/s_j}\right| \leq t_{n-p}(1-\alpha/2) \right] \\
+&= \mathbb P\left[\beta_j \in \left[\widehat \beta_j - \frac{\widehat \sigma}{s_j}t_{n-p}(1-\alpha/2), \widehat \beta_j + \frac{\widehat \sigma}{s_j}t_{n-p}(1-\alpha/2) \right]\right] \\
+&\equiv \mathbb P[\beta_j \in I_j].
+\end{split}
+\end{equation}
+The confidence interval $I_j$ defined above therefore has $1-\alpha$ coverage. 
+
+\paragraph{Confidence interval for $\mathbb E[y|\bm x_0]$.}
+
+Suppose now that we have a new predictor vector $\bm x_0 \in \mathbb R^p$. The mean of the response for this predictor vector is $\mathbb E[y|\bm x_0] = \bm x_0^T \bm \beta$. Plugging in $\bm x_0$ for $\bm c$ in the relation~\eqref{eq:contrasts-t-dist}, we obtain
+\begin{equation*}
+\frac{\bm x_0^T \bm{\widehat \beta} - \bm x_0^T \bm \beta}{\widehat \sigma \sqrt{\bm x_0^T (\bm X^T \bm X)^{-1} \bm x_0}} \sim t_{n-p}.
+\end{equation*}
+From this we can derive that
+\begin{equation}
+\bm x_0^T \widehat \beta_j \pm \widehat \sigma \sqrt{\bm x_0^T (\bm X^T \bm X)^{-1} \bm x_0} \cdot t_{n-p}(1-\alpha/2)
+\end{equation}
+is a $1-\alpha$ confidence interval for $\bm x_0^T \bm \beta$.
+
+\paragraph{Prediction interval for $y|\bm x_0$.}
+
+Instead of creating a confidence interval for a point on the regression line, we may want to create a confidence interval for a new draw $y_0$ of $y$ for $\bm x = \bm x_0$, i.e. a \textit{prediction interval}. Note that
+\begin{equation}
+y_0 - \bm x_0^T \widehat \beta = \bm x_0^T \beta + \epsilon_0 - \bm x_0^T \widehat \beta = \epsilon_0 + \bm x_0^T (\beta-\widehat \beta) \sim N(0, \sigma^2 + \sigma^2 \bm x_0^T (\bm X^T \bm X)^{-1} \bm x_0).
+\end{equation}
+Therefore, we have
+\begin{equation}
+\frac{y_0 - \bm x_0^T \widehat \beta}{\widehat \sigma\sqrt{1 + \bm x_0^T (\bm X^T \bm X)^{-1} \bm x_0}} \sim t_{n-p},
+\end{equation}
+which leads to the $1-\alpha$ prediction interval
+\begin{equation}
+\bm x_0^T \widehat \beta_j \pm \widehat \sigma \sqrt{1+\bm x_0^T (\bm X^T \bm X)^{-1} \bm x_0} \cdot t_{n-p}(1-\alpha/2).
+\end{equation}
+
+\section{Practical considerations}
+
+\paragraph{Practical versus statistical significance.}
+
+You can have a statistically significant effect that is not practically significant. The hypothesis testing framework is most useful in the case when the signal to noise ratio is relatively small. Otherwise, constructing a confidence interval for the effect size is a more meaningful approach.
+
+\paragraph{Correlation versus causation, and Simpson's paradox.}
+
+We need to be very careful when interpreting linear regression coefficients, which can be sensitive to the choice of other predictors to include. You can get misleading conclusions if you omit important variables from the regression. A special case of this is \textit{Simpson's paradox}, where an important discrete variable is omitted. Consider the example in Figure~\ref{fig:simpson-paradox}.
+\begin{figure}[ht!]
+\includegraphics[width = \textwidth]{figures/kidney-stones.png}
+\caption{An example of Simpson's paradox (source: Wikipedia).}
+\label{fig:simpson-paradox}
+\end{figure}
+
+\paragraph{Dealing with correlated predictors.}
+
+It depends on the goal. If we're trying to tease apart effects of correlated predictors, then we have no choice but to proceed as usual despite lower power. Otherwise, we can test predictors in groups via the $F$-test to get higher power at the cost of lower ``resolution.''
+
+\paragraph{Model selection.}
+
+We need to ask ourselves: Why do we want to do model selection? It can either be for prediction purposes or for inferential purposes. If it is for prediction purposes, then we can apply cross-validation to select a model and we don't need to think very hard about statistical significance. If it is for inference, then we need to be more careful. There are various classical model selection criteria (e.g. AIC, BIC), but it is not entirely clear what statistical guarantee we are getting for the resulting models. A simpler approach is to apply a $t$-test for each variable in the model, apply a multiple testing correction to the resulting $p$-values, and report the set of significant variables and the associated guarantee. Re-fitting the linear regression after model selection leads us into some dicey inferential territory due to selection bias. This is the subject of ongoing research and the jury is still out on the best way of doing this.
+
+\section{R demo}
+
+Let's put into practice what we've learned in Units 1 and 2. 
+
+<<message = FALSE>>=
+houses_data = read_tsv("../data/Houses.dat")
+houses_data
+
+# explore the variables
+
+# should we model beds/baths as categorical or continuous?
+
+# running a regression and interpreting the summary
+
+# hypothesis tests, confidence intervals
+
+# interactions
+
+# confidence bands
+
+@
 
 \end{document}
