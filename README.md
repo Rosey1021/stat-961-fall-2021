@@ -25,7 +25,7 @@ Tue, Sep 14 | 1. Linear model: Estimation | Collinearity, adjustment, partial co
 Thu, Sep 16 | 2. Linear model: Inference | Inferential preliminaries| Agresti 3.1.1, 3.1.2, 3.1.4 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=eea54201-8df6-40cd-83ae-ada20144460c) | --
 Sun, Sep 19 | -- | -- | -- | -- | [Homework 1](https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/homework/homework-1/homework-1.pdf) due at 11:59pm
 Tue, Sep 21 | 2. Linear model: Inference | Hypothesis testing I | Agresti 3.2.1, 3.2.2, 3.2.4, 3.2.8 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=6ef17054-e5b9-40f4-967a-ada20118b1c6) | --
-Thu, Sep 23 | 2. Linear model: Inference | Hypothesis testing II | Agresti 3.2.5 | TBA | --
-Tue, Sep 28 | 2. Linear model: Inference | Confidence intervals | Agresti 3.3 | TBA | --
+Thu, Sep 23 | 2. Linear model: Inference | Hypothesis testing II | Agresti 3.2.5 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=392d4021-ac55-4543-a15d-adab017f5dde) | --
+Tue, Sep 28 | 2. Linear model: Inference | Confidence intervals | Agresti 3.3 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=7fa587eb-95b6-466b-96bd-adb0013fbdd8) | --
 Thu, Sep 30 | 2. Linear model: Inference | Practical considerations and R demo | Agresti 3.4.1, 3.4.3 | TBA | --
 Mon, Oct 4 | -- | -- | -- | -- | [Homework 2](https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/homework/homework-2/homework-2.pdf) due at 11:59pm
