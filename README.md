@@ -27,5 +27,6 @@ Sun, Sep 19 | -- | -- | -- | -- | [Homework 1](https://github.com/Katsevich-Teac
 Tue, Sep 21 | 2. Linear model: Inference | Hypothesis testing I | Agresti 3.2.1, 3.2.2, 3.2.4, 3.2.8 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=6ef17054-e5b9-40f4-967a-ada20118b1c6) | --
 Thu, Sep 23 | 2. Linear model: Inference | Hypothesis testing II | Agresti 3.2.5 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=392d4021-ac55-4543-a15d-adab017f5dde) | --
 Tue, Sep 28 | 2. Linear model: Inference | Confidence intervals | Agresti 3.3 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=7fa587eb-95b6-466b-96bd-adb0013fbdd8) | --
-Thu, Sep 30 | 2. Linear model: Inference | Practical considerations and R demo | Agresti 3.4.1, 3.4.3 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=84084a14-0725-4ee7-8178-adb300c40e37) | --
-Mon, Oct 4 | -- | -- | -- | -- | [Homework 2](https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/homework/homework-2/homework-2.pdf) due at 11:59pm
+Thu, Sep 30 | 2. Linear model: Inference | Confidence intervals and practical considerations | Agresti 3.4.1 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=84084a14-0725-4ee7-8178-adb300c40e37) | --
+Tue, Oct 5 | 3. Linear model: Misspecification | TBA | TBA | TBA | --
+Wed, Oct 6 | -- | -- | -- | -- | [Homework 2](https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/homework/homework-2/homework-2.pdf) due at 11:59pm
