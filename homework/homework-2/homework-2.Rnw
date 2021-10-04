@@ -26,7 +26,7 @@
 %==============================================================================
 % Enter name and homework title here
 %==============================================================================
-\author{Name}
+\author{Sam Rosenberg}
 \title{Homework 2}
 \date{Due October 4 at 11:59pm}
 
@@ -76,6 +76,12 @@ innerbottommargin=4pt}
 % \newenvironment{prob}{\begin{mdframed}\begin{problem}\hspace{0pt}}{\end{problem}\end{mdframed}}
 \newenvironment{prob}{\clearpage \begin{problem}\hspace{0pt}}{\end{problem}}
 \newenvironment{sol}{\begin{solution}\hspace{0pt}}{\end{solution}}
+
+%==============================================================================
+% Custom commands
+%==============================================================================
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
 
 %==============================================================================
 % set knitr options
@@ -191,8 +197,80 @@ Under $H_0$, we have the convergence
 }
 
 \end{prob}
-
+  
 \begin{sol}
+\begin{enumerate}
+  \item[(a)] We can rewrite~\eqref{eq:linear-model} as follows: 
+    \begin{align*}
+      \begin{pmatrix} y_1 \\ \vdots \\ y_n \end{pmatrix} &= \begin{pmatrix} x_{11} & \dots & x_{1p} \\ \vdots & \ddots & \vdots \\ x_{n1} & \hdots & x_{np} \end{pmatrix} \begin{pmatrix} \beta_1 \\ \vdots \\ \beta_p \end{pmatrix} + \begin{pmatrix} \epsilon_1 \\ \vdots \\ \epsilon_n \end{pmatrix} \\
+      &= \begin{pmatrix} \bm{x_1} \cdot \bm{\beta} + \epsilon_1 \\ \vdots \\ \bm{x_n} \cdot \bm{\beta} + \epsilon_n \end{pmatrix},
+    \end{align*}
+    where the covariance matrix of $\bm{\epsilon}$ is $\sigma^2 \bm{I}_n$. Note that this means the $\epsilon_i$ are all uncorrelated, but the fact that they are multivariate normal and uncorrelated implies that the $\epsilon_i$ are independent standard normal random variables. So, $y_i \sim \bm{x}_i \cdot \bm{\beta} + \epsilon_i$, where $\epsilon_i \stackrel{\text{i.i.d.}}{\sim} N(0, \sigma^2)$.
+    
+    Though each $y_i$ is parametrized by $\bm{\beta} \in \mathbb{R}^p$, it is also a function of $\bm{x}_i$, which is not necessarily the same for each $i$ since the $\bm{x}_i$ are regarded as fixed. As a result, the fixed-design model does not fit into the classical inferential setup, since the $y_i$ need not be identically distributed. 
+  
+  \item[(b)] The Fisher information doe not make sense in this context because the $y_i$ each have different PDFs, since they are not i.i.d. as noted in (a). We have previously seen that $\widehat{\beta}_j \sim N(\beta_j, \sigma^2/s_j^2)$, so $\sqrt{n}(\widehat{\beta}_j - \beta_j) \sim N(0, \sigma^2/(s_j/n)^2$. So, an analog for the Fisher information would be $(s_j/n)^2/\sigma^2$.
+  
+  %We know from Unit 1 that when $\sigma^2$ is assumed to be known, the maximum likelihood estimator for $\bm{\beta}$ is the same as the least squares estimate $\widehat{\bm{\beta}} = (\bm{X}^T \bm{X})^{-1} \bm{X}^T \bm{y} = (\bm{X}^T \bm{X})^{-1} \bm{X}^T (\bm{X} \bm{\beta} + \bm{\epsilon}) = \bm{\beta} + (\bm{X}^T \bm{X})^{-1} \bm{X}^T \bm{\epsilon}$. So, $\widehat{\bm{\beta}} - \bm{\beta} = (\bm{X}^T \bm{X})^{-1} \bm{X}^T \bm{\epsilon}$ and $\sqrt{n}(\widehat{\bm{\beta}} - \bm{\beta}) = (\frac{\bm{X}^T \bm{X}}{n})^{-1} \frac{1}{\sqrt{n}} \bm{X}^T \bm{\epsilon}$. Note that since $\bm{\epsilon} \sim N(0, \sigma^2 \bm{I}_n), \frac{1}{\sqrt{n}} \bm{X}^T \epsilon \sim N(0, \sigma^2 \frac{\bm{X}^T \bm{X}}{n})$.
+  % Q := (X^T X / n)^{-1} exist?
+  
+  %We have also seen in this unit that $\widehat{\bm{\beta}} \sim N(\bm{\beta}, \sigma^2(\bm{X}^T \bm{X})^{-1})$. So, $\widehat{\bm{\beta}} - \bm{\beta} \sim N(0, \sigma^2(\bm{X}^T \bm{X})^{-1})$.
+  
+  \item[(c)] % NOTE: FINISH
+  Define our parameter vector of interest to be $\bm{\theta} := (\bm{\beta}, \sigma^2)$. We saw in Unit 2 that $\bm{y} \sim N(\bm{X \beta}, \sigma^2 \bm{I}_n)$. So, we know that the joint density (equivalent to the likelihood function) for the fixed-design model is 
+  \begin{align*}
+    p_{\bm{\theta}}(\bm{y}) &= \frac{1}{\sqrt{(2 \pi)^n |\sigma^2 \bm{I}_n|}} \exp[-\frac{1}{2} (\bm{y} - \bm{X \beta})^T (\sigma^2 \bm{I}_n)^{-1} (\bm{y} - \bm{X \beta})] \\
+    &= \frac{1}{(2 \pi \sigma^2)^{n/2}} \exp[-\frac{1}{2 \sigma^2} ||y - \bm{X \beta}||^2].
+  \end{align*}
+    Because $\log(x)$ is a monotone increasing function, any maximum of $p_{\bm{\theta}}(\bm{y})$ is also a maximum of $\ell_{\bm{\theta}}(\bm{y}) := \log[p_{\bm{\theta}}(\bm{y})]$ and vice versa.
+   
+    We can simplify as follows: 
+    \begin{align*}
+      \ell_{\bm{\theta}}(\bm(y)) &= \log[p_{\bm{\theta}}(\bm{y})] \\
+      &= -\frac{1}{2}[n \log(2 \pi \sigma^2) + \frac{1}{\sigma^2} ||\bm{y} - \bm{X \beta}||^2].
+    \end{align*}
+    
+    So, 
+      \[\frac{\partial}{\partial \bm{\beta}} \ell_{\bm{\theta}}(\bm{y}) = \frac{1}{\sigma^2} \bm{X}^T(\bm{y} - \bm{X \beta}).\]
+    Under the full rank assumption we receive the same maximum likelihood estimator for $\bm{\beta}$ by setting the partials equal to 0 and solving for $\bm{\beta}$; that is, $\widehat{\bm{\beta}} = (\bm{X}^T \bm{X})^{-1} \bm{X}^T \bm{y}$. 
+    
+    We also have that \[\frac{\partial}{\partial \sigma} \ell_{\bm{\theta}}(\bm{y}) = \frac{1}{\sigma^3} ||\bm{y} - \bm{X \beta}||^2 - \frac{n}{\sigma}.\]
+    Again setting the partial equal to 0 and solving for $\sigma^2$ while substituting our estimator $\widehat{\bm{\beta}}$, we see that the maximum likelihood estimator is $\widehat{\sigma}^2 = \frac{1}{n} ||\bm{y} - \bm{X \widehat{\beta}}||^2 = \frac{1}{n} ||(\bm{I}- \bm{H})\bm{y}||^2  = \frac{1}{n} ||\bm{\widehat{\epsilon}}||^2$.
+  
+    Thus, our estimator for $\beta$ remains the same as the least squares estimator, while the estimator for $\epsilon$ differs from our unbiased estimator by a factor of $\frac{n}{n-p}$.
+    
+  \item[(d)] Define $\Theta := (\sigma^2, \beta_1, \dots, \beta_p) \in \mathbb{R}^{p+1}$. We also take $\Theta_1 := \Theta$ and $\Theta_0 := \{\theta = (\sigma^2, \beta_1, \dots, \beta_p) \in \mathbb{R}^{p+1} | \bm{\beta}_S = 0\}$. Then we have that we are testing
+  \[H_0: \bm{\theta} \in \Theta_0 \text{ versus } H_1: \bm{\theta} \in \Theta_1.\]
+  
+  Define $\ell_i(\bm{y}) := \max_{\bm{\theta} \in \Theta_i} p_{\bm{\theta}}(\bm{y})$, where $p_{\bm{\theta}}(\bm{y})$ is the density for the linear model; i.e. 
+  \[p_{\bm{\theta}}(\bm{y}) := \frac{1}{(2 \pi \sigma^2)^{n/2}} \exp[-\frac{1}{2 \sigma^2} ||\bm{y} - \bm{X \beta}||^2].\]
+  We know from (c) that $(\widehat{\sigma}^2_1, \widehat{\beta}^1) := \argmax_{\bm{\theta} \in \Theta} p_{\bm{\theta}}(\bm{y}) = (\frac{1}{n}||\bm{y} - \bm{X} \widehat{\bm{\beta}}^1||^2, (\bm{X}^T \bm{X})^{-1} \bm{X} \bm{y})$. 
+  Also, 
+  \begin{align*}
+    \argmax_{\bm{\theta} \in \Theta_0} p_{\bm{\theta}}(\bm{y}) &= \argmax_{\bm{\theta} \in \Theta : \bm{\beta}_S = 0} \frac{1}{(2 \pi \sigma^2)^{n/2}} \exp[-\frac{1}{2 \sigma^2} ||\bm{y} - \bm{X \beta}||^2] \\
+    &= \argmax_{\bm{\theta} \in \Theta : \bm{\beta}_S = 0} \frac{1}{(2 \pi \sigma^2)^{n/2}} \exp[-\frac{1}{2 \sigma^2} ||\bm{y} - \bm{X}_{-S} \bm{\beta}_{-S}||^2].
+  \end{align*}
+  But this is exactly the MLE for the model given by the partial model matrix $\bm{X}_{-S}$. So, $(\widehat{\sigma}^2_0, \widehat{\bm{\beta}}^0) := \argmax_{\bm{\theta} \in \Theta_0} p_{\bm{\theta}}(\bm{y}) = (\frac{1}{n}||\bm{y} - \bm{X}_{-S} \widehat{\bm{\beta}}_{-S}||^2, (\bm{X}_{-S}^T \bm{X}_{-S})^{-1} \bm{X}_{-S} \bm{y})$.
+  
+  We then have
+  \begin{align*}
+    \Lambda :=& \frac{\ell_1(\bm{y})}{\ell_0(\bm{y})} \\
+    =& \frac{(2 \pi \widehat{\sigma}_1^2)^{-n/2} \exp[-\frac{1}{2 \widehat{\sigma}_1^2} ||\bm{y} - \bm{X}\widehat{\bm{\beta}}^1||^2]}{(2 \pi \widehat{\sigma}_0^2)^{-n/2} \exp[-\frac{1}{2 \widehat{\sigma}_0^2} ||\bm{y} - \bm{X}\widehat{\bm{\beta}}^0||^2]} \\
+    =& (\frac{\widehat{\sigma}_0^2}{\widehat{\sigma}_1^2})^{n/2} \exp[\frac{1}{2}(\frac{1}{\widehat{\sigma}_0^2} ||\bm{y} - \bm{X}\widehat{\bm{\beta}}^0||^2 - \frac{1}{\widehat{\sigma}_1^2} ||\bm{y} - \bm{X}\widehat{\bm{\beta}}^1||^2)].
+  \end{align*}
+  So,
+  \begin{align*}
+    2 \log\Lambda &= n \log(\frac{\widehat{\sigma}_0^2}{\widehat{\sigma}_1^2}) + (\frac{1}{\widehat{\sigma}_0^2} ||\bm{y} - \bm{X}\widehat{\bm{\beta}}^0||^2 - \frac{1}{\widehat{\sigma}_1^2} ||\bm{y} - \bm{X}\widehat{\bm{\beta}}^1||^2) \\
+    &= n \log(\frac{||\bm{y} - \bm{X}_{-S} \widehat{\bm{\beta}}_{-S}||^2}{||\bm{y} - \bm{X} \widehat{\bm{\beta}}||^2}) + n (\frac{||\bm{y} - \bm{X}\widehat{\bm{\beta}}^0||^2}{||\bm{y} - \bm{X}_{-S} \widehat{\bm{\beta}}_{-S}||^2}  - \frac{||\bm{y} - \bm{X}\widehat{\bm{\beta}}^1||^2}{||\bm{y} - \bm{X} \widehat{\bm{\beta}}||^2} ) \\
+    &= n \log(\frac{||\bm{y} - \bm{X}_{-S} \widehat{\bm{\beta}}_{-S}||^2}{||\bm{y} - \bm{X} \widehat{\bm{\beta}}||^2}) \\
+  &= n \log(\frac{||(\bm{I} - \bm{H}_{-S}) \bm{y}||^2}{||(\bm{I} - \bm{H}) \bm{y}||^2}),
+  \end{align*}
+  since $||\bm{y} - \bm{X}\widehat{\bm{\beta}}^0||^2 = ||\bm{y} - \bm{X}_{-S} \widehat{\bm{\beta}}_{-S}||^2$ and $||\bm{y} - \bm{X}\widehat{\bm{\beta}}^1||^2 = ||\bm{y} - \bm{X} \widehat{\bm{\beta}}||^2$.
+  Then \[\Lambda^{2/n} = \frac{||(\bm{I} - \bm{H}_{-S}) \bm{y}||^2}{||(\bm{I} - \bm{H}) \bm{y}||^2},\]
+  so \[\frac{n-p}{|S|}(\Lambda^{2/n} - 1) = \frac{||(\bm{I} - \bm{H}_{-S}) \bm{y}||^2 - ||(\bm{I} - \bm{H}) \bm{y}||^2}{||(\bm{I} - \bm{H}) \bm{y}||^2} = F.\]
+  Thus, we have that
+  
+\end{enumerate}  
 \end{sol}
 
 \begin{prob} \textbf{Relationships among $t$-tests, $F$-tests, and $R^2$.} \\
@@ -215,7 +293,57 @@ What is the null distribution of $t_{\max}^2$? What $F$-statistic is $t_{\max}^2
 \end{itemize}
 
 \end{prob}
+
 \begin{sol}
+\begin{enumerate}
+\item[(a)] Recall that \[R^2 = \frac{\text{SSR}}{\text{SST}} = \frac{||\bm{X} \widehat{\bm{\beta}} - \overline{y} \bm{1}_n||^2}{||\bm{y} - \overline{y} \bm{1}_n||^2} = \frac{||(\bm{H} - \bm{H}_1) \bm{y}||^2}{||(\bm{I} - \bm{H}_1) \bm{y}||^2}.\] Then we also have \[1 - R^2 = \frac{||(\bm{I} - \bm{H}_1) \bm{y}||^2 - ||(\bm{H} - \bm{H}_1) \bm{y}||^2}{||(\bm{I} - \bm{H}_1) \bm{y}||^2} = \frac{||(\bm{I} - \bm{H}) \bm{y}||^2}{||(\bm{I} - \bm{H}_1) \bm{y}||^2}.\]
+
+So, $(\frac{n-p}{p-1}) \frac{R^2}{1-R^2} = \frac{||(\bm{H} - \bm{H}_1) \bm{y}||^2 / (p-1)}{||(\bm{I} - \bm{H}) \bm{y}||^2 / (n - p)} =: F$. But this is exactly the $F$-statistic for the hypothesis test with null hypothesis $H_0:\, \beta_1 = \dots = \beta_{p-1} = 0$. We can also invert this relationship and find that for $c := \frac{p-1}{n-p} F$, $R^2 = \frac{c}{c+1}$.
+
+Under the null distribution, the $F$-statistic is $F$ distributed with $p - 1$ and $n - p$ degrees of freedom. Note that $R^2$ and $F$ are positively related which makes sense - a higher $R^2$ indicates that the full model explains more of the variance in the observed data, which in turn suggests that we do not have $\beta_1 = \dots = \beta_{p-1} = 0$.
+
+\item[(b)] % NOTE: NEED TO FINISH
+<<2b simulation, echo=TRUE, results=TRUE>>=
+# Simulation parameters
+n <- 100
+p_list <- c(2, 25, 50, 75, 99)
+
+# Dataframe for simulation data
+sim_data <- data.frame()
+
+# Run simulation for different values of p
+for(p in p_list){
+  # Sample F-statistics
+  f <- rf(n = n, df1 = p-1, df2 = n-p)
+  
+  # Compute R^2 from F-statistics
+  c <- (p-1)/(n-p)*f
+  R_2 <- c/(c+1)
+  
+  # Add simulated data to dataframe
+  df <- data.frame(p = rep(p, length(R_2)), R_2 = R_2)
+  sim_data <- rbind(sim_data, df)
+}
+
+# Make plot
+R_2_plt <- 
+  sim_data %>%
+    ggplot(aes(x = R_2)) +
+      geom_histogram(bins = 30) +
+      ylab("Count") + 
+      xlab("R^2") +
+      ylim(0, 75)
+      xlim(0, 1) +
+      facet_wrap( ~ p)
+
+print(R_2_plt)
+@
+
+\item[(c)] Recall that $t = \frac{\widehat{\beta}_j}{\widehat{\sigma}/s_j}$, so $t^2 = \frac{\widehat{\beta}_j^2 s_j^2}{\widehat{\sigma}^2}$ and that $F = \frac{(||\bm{X} \widehat{\bm{\beta}} - \bm{X}_{-j} \widehat{\bm{\beta}}_{-j}||^2) / 1}{(||\bm{y} - \bm{X} \widehat{\bm{\beta}}||^2) / (n - p)}$. But, $\widehat{\sigma}^2 = \frac{1}{n-p} ||\bm{y} - \bm{X} \widehat{\bm{\beta}}||^2$, so 
+\[t^2 = \frac{\widehat{\bm{\beta}}^2_j s_j^2}{||\bm{y} - \bm{X} \widehat{\bm{\beta}}||^2 / (n-p)}\] and thus it suffices to show that $\widehat{\bm{\beta}}^2_j s^2_j = ||\bm{X} \widehat{\bm{\beta}} - \bm{X}_{-j} \widehat{\bm{\beta}}_{-j}||^2 = ||(\bm{H} - \bm{H}_{-j}) \bm{y}||^2 = ||\bm{H}_j \bm{y}||^2 = ||\widehat{\beta}_{j | -j} \bm{x}_{*j}^{\bot}||^2$. Note that $s_j^2 = ||\bm{x}_{*j}^{\bot}||^2$, so this equivalent to proving that $||\widehat{\beta}_{j | -j} \bm{x}_{*j}^{\bot}||^2 = \widehat{\bm{\beta}}^2_j s^2_j = \widehat{\bm{\beta}}^2_j ||\bm{x}_{*j}^{\bot}||^2 = ||\widehat{\bm{\beta}}_j \bm{x}_{*j}^{\bot}||^2$.
+
+\item[(d)]
+\end{enumerate}
 \end{sol}
 
 \begin{prob} \label{prob:data}\textbf{Case study: Violent crime.}
