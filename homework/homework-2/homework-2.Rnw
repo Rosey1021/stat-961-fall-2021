@@ -296,14 +296,16 @@ What is the null distribution of $t_{\max}^2$? What $F$-statistic is $t_{\max}^2
 
 \begin{sol}
 \begin{enumerate}
+% DONE
 \item[(a)] Recall that \[R^2 = \frac{\text{SSR}}{\text{SST}} = \frac{||\bm{X} \widehat{\bm{\beta}} - \overline{y} \bm{1}_n||^2}{||\bm{y} - \overline{y} \bm{1}_n||^2} = \frac{||(\bm{H} - \bm{H}_1) \bm{y}||^2}{||(\bm{I} - \bm{H}_1) \bm{y}||^2}.\] Then we also have \[1 - R^2 = \frac{||(\bm{I} - \bm{H}_1) \bm{y}||^2 - ||(\bm{H} - \bm{H}_1) \bm{y}||^2}{||(\bm{I} - \bm{H}_1) \bm{y}||^2} = \frac{||(\bm{I} - \bm{H}) \bm{y}||^2}{||(\bm{I} - \bm{H}_1) \bm{y}||^2}.\]
 
-So, $(\frac{n-p}{p-1}) \frac{R^2}{1-R^2} = \frac{||(\bm{H} - \bm{H}_1) \bm{y}||^2 / (p-1)}{||(\bm{I} - \bm{H}) \bm{y}||^2 / (n - p)} =: F$. But this is exactly the $F$-statistic for the hypothesis test with null hypothesis $H_0:\, \beta_1 = \dots = \beta_{p-1} = 0$. We can also invert this relationship and find that for $c := \frac{p-1}{n-p} F$, $R^2 = \frac{c}{c+1}$.
+So, $(\frac{n-p}{p-1}) \frac{R^2}{1-R^2} = \frac{||(\bm{H} - \bm{H}_1) \bm{y}||^2 / (p-1)}{||(\bm{I} - \bm{H}) \bm{y}||^2 / (n - p)} =: F$. But this is exactly the $F$-statistic for the hypothesis test with null hypothesis $H_0:\, \beta_1 = \dots = \beta_{p-1} = 0$. We can also invert this relationship and find that for $c := \frac{p-1}{n-p} F$, we have $R^2 = \frac{c}{c+1}$.
 
 Under the null distribution, the $F$-statistic is $F$ distributed with $p - 1$ and $n - p$ degrees of freedom. Note that $R^2$ and $F$ are positively related which makes sense - a higher $R^2$ indicates that the full model explains more of the variance in the observed data, which in turn suggests that we do not have $\beta_1 = \dots = \beta_{p-1} = 0$.
 
-\item[(b)] % NOTE: NEED TO FINISH
-<<2b simulation, echo=TRUE, results=TRUE>>=
+% DONE
+\item[(b)]
+<<2b simulation, echo=TRUE, results=TRUE, warning = FALSE>>=
 # Simulation parameters
 n <- 100
 p_list <- c(2, 25, 50, 75, 99)
@@ -325,24 +327,74 @@ for(p in p_list){
   sim_data <- rbind(sim_data, df)
 }
 
-# Make plot
+# Make and save plot
 R_2_plt <- 
   sim_data %>%
     ggplot(aes(x = R_2)) +
       geom_histogram(bins = 30) +
       ylab("Count") + 
       xlab("R^2") +
-      ylim(0, 75)
+      ylim(0, 35) +
       xlim(0, 1) +
       facet_wrap( ~ p)
 
-print(R_2_plt)
+ggsave(plot = R_2_plt, filename = "./figures/R_2_plt.png",
+       device = "png", width = 12, height = 8)
 @
 
-\item[(c)] Recall that $t = \frac{\widehat{\beta}_j}{\widehat{\sigma}/s_j}$, so $t^2 = \frac{\widehat{\beta}_j^2 s_j^2}{\widehat{\sigma}^2}$ and that $F = \frac{(||\bm{X} \widehat{\bm{\beta}} - \bm{X}_{-j} \widehat{\bm{\beta}}_{-j}||^2) / 1}{(||\bm{y} - \bm{X} \widehat{\bm{\beta}}||^2) / (n - p)}$. But, $\widehat{\sigma}^2 = \frac{1}{n-p} ||\bm{y} - \bm{X} \widehat{\bm{\beta}}||^2$, so 
-\[t^2 = \frac{\widehat{\bm{\beta}}^2_j s_j^2}{||\bm{y} - \bm{X} \widehat{\bm{\beta}}||^2 / (n-p)}\] and thus it suffices to show that $\widehat{\bm{\beta}}^2_j s^2_j = ||\bm{X} \widehat{\bm{\beta}} - \bm{X}_{-j} \widehat{\bm{\beta}}_{-j}||^2 = ||(\bm{H} - \bm{H}_{-j}) \bm{y}||^2 = ||\bm{H}_j \bm{y}||^2 = ||\widehat{\beta}_{j | -j} \bm{x}_{*j}^{\bot}||^2$. Note that $s_j^2 = ||\bm{x}_{*j}^{\bot}||^2$, so this equivalent to proving that $||\widehat{\beta}_{j | -j} \bm{x}_{*j}^{\bot}||^2 = \widehat{\bm{\beta}}^2_j s^2_j = \widehat{\bm{\beta}}^2_j ||\bm{x}_{*j}^{\bot}||^2 = ||\widehat{\bm{\beta}}_j \bm{x}_{*j}^{\bot}||^2$.
+\begin{figure}[h!]
+\centering
+\includegraphics[width = 1\textwidth]{figures/R_2_plt.png}
+\caption{Distributions of $R^2$ as a function of $p$.}
+\label{fig:R_2_plt}
+\end{figure}
 
-\item[(d)]
+The plots of the empirical distributions of $R^2$ can be found in Figure~\ref{fig:R_2_plt}. Note that as $p$ increases, the mass of the empirical null distribution of $R^2$ slowly shifts to the right, going from right-skewed, to relatively symmetric, then left-skewed. When $p \approx 1$, we have that $c \approx 0$, so $R^2 \approx 0$, whereas when $p \approx n$, we have $c \approx F$, so $R^2 \approx 1$.
+
+% NOTE: NEED TO FINISH
+\item[(c)] Recall that $t = \frac{\widehat{\beta}_j}{\widehat{\sigma}/s_j}$, so $t^2 = \frac{\widehat{\beta}_j^2 s_j^2}{\widehat{\sigma}^2}$ and that $F = \frac{(||\bm{X} \widehat{\bm{\beta}} - \bm{X}_{-j} \widehat{\bm{\beta}}_{-j}||^2) / 1}{(||\bm{y} - \bm{X} \widehat{\bm{\beta}}||^2) / (n - p)}$. But, $\widehat{\sigma}^2 = \frac{1}{n-p} ||\bm{y} - \bm{X} \widehat{\bm{\beta}}||^2$, so 
+\[t^2 = \frac{\widehat{\bm{\beta}}^2_j s_j^2}{||\bm{y} - \bm{X} \widehat{\bm{\beta}}||^2 / (n-p)}\] and thus it suffices to show that 
+\[\widehat{\bm{\beta}}^2_j s^2_j = ||\bm{X} \widehat{\bm{\beta}} - \bm{X}_{-j} \widehat{\bm{\beta}}_{-j}||^2 = ||(\bm{H} - \bm{H}_{-j}) \bm{y}||^2 = ||\bm{H}_j \bm{y}||^2 = ||\widehat{\beta}_{j | -j} \bm{x}_{*j}^{\bot}||^2.\]
+Note that $s_j^2 = ||\bm{x}_{*j}^{\bot}||^2$, so this equivalent to proving that 
+\[||\widehat{\beta}_{j | -j} \bm{x}_{*j}^{\bot}||^2 = \widehat{\bm{\beta}}^2_j s^2_j = \widehat{\bm{\beta}}^2_j ||\bm{x}_{*j}^{\bot}||^2 = ||\widehat{\bm{\beta}}_j \bm{x}_{*j}^{\bot}||^2.\]
+
+% NOTE: NEED TO FINISH
+\item[(d)] We first recall that \[t(\bm{c}) = \frac{\bm{c}^T \widehat{\bm{\beta}}}{\widehat{\sigma} \sqrt{\bm{c}^T (\bm{X}^T \bm{X})^{-1} \bm{c}}} \sim t_{n - p}\]
+under the null hypothesis $H_0: \bm{c}^T \bm{\beta}_{-0} = 0$. Taking $A := (\bm{X}^T \bm{X})^{-1}$ and recognizing that $\widehat{\sigma}$ is independent of $\bm{c}$, we have that
+\begin{align*}
+  c_{\max} :=& \argmax_{c \in \mathbb{R}^{p-1}} t(\bm{c}) \\
+  =& \argmax_{c \in \mathbb{R}^{p-1}} \frac{\bm{c}^T \widehat{\bm{\beta}}}{\widehat{\sigma} \sqrt{\bm{c}^T (\bm{X}^T \bm{X})^{-1} \bm{c}}} \\
+  =& \argmax_{c \in \mathbb{R}^{p-1}} \frac{\bm{c}^T \widehat{\bm{\beta}}}{\sqrt{\bm{c}^T \bm{A} \bm{c}}}.
+\end{align*}
+Note that this objective function is in fact scale invariant: if $\bm{d} := a \bm{c}$, then \[\frac{\bm{d}^T \widehat{\bm{\beta}}}{\sqrt{\bm{d}^T \bm{A} \bm{d}}} = \frac{(a \bm{c})^T \widehat{\bm{\beta}}}{\sqrt{(a \bm{c})^T \bm{A} (a \bm{c})}} = \frac{\bm{c}^T \widehat{\bm{\beta}}}{\sqrt{\bm{c}^T \bm{A} \bm{c}}}.\]
+So, we have that we can rewrite the optimization problem as follows:
+\[c_{\max} = \argmax_{c \in \mathbb{R}^{p-1}} \frac{\bm{c}^T \widehat{\bm{\beta}}}{\sqrt{\bm{c}^T \bm{A} \bm{c}}} = \argmax_{c \in \mathbb{R}^{p-1} \text{ s.t. } \bm{c}^T \bm{A} \bm{c} = 1} \bm{c}^T \widehat{\bm{\beta}}.\]
+
+We can solve this problem using Lagrange multipliers and end up with a system of equations:
+\begin{equation*}
+  \begin{cases}
+    \bm{0} = \frac{\partial}{\partial \bm{c}}[\bm{c}^T \widehat{\bm{\beta}} - \lambda (\bm{c}^T \bm{A} \bm{c} - 1)] \\
+    1 = \bm{c}^T \bm{A} \bm{c}
+  \end{cases} 
+  = 
+  \begin{cases}
+    \bm{0} = \widehat{\bm{\beta}} - \lambda 2 \bm{A} \bm{c} \\
+    1 = \bm{c}^T \bm{A} \bm{c}.
+  \end{cases}
+\end{equation*}
+
+Solving, we get that $\lambda = \frac{1}{2} ||\bm{X} \widehat{\bm{\beta}}||$ and $\bm{c}_{\max} = \frac{\bm{A}^{-1} \widehat{\bm{\beta}}}{||\bm{X} \widehat{\bm{\beta}}||} = \frac{\bm{X}^T \bm{X} \widehat{\bm{\beta}}}{||\bm{X} \widehat{\bm{\beta}}||}$. 
+
+So,
+\begin{align*} 
+  \bm{c}_{\max}^T \widehat{\bm{\beta}} &= \bigg( \frac{\bm{X}^T \bm{X} \widehat{\bm{\beta}}}{||\bm{X} \widehat{\bm{\beta}}||} \bigg)^T \widehat{\bm{\beta}} \\
+  &= \frac{\widehat{\bm{\beta}}^T \bm{X}^T \bm{X} \widehat{\bm{\beta}}}{||\bm{X} \widehat{\bm{\beta}}||} \\
+  &= \frac{(\bm{X} \widehat{\bm{\beta}})^T \bm{X} \widehat{\bm{\beta}}}{||\bm{X} \widehat{\bm{\beta}}||} \\
+  &= ||\bm{X} \widehat{\bm{\beta}}||.
+\end{align*}
+Likewise, we have $\bm{c}_{\max}^T (\bm{X}^T \bm{X})^{-1} \bm{c}_{\max} = 1$ by construction. So, $t_{\max} = \frac{||\bm{X} \widehat{\bm{\beta}}||}{\widehat{\sigma}} = \frac{||\bm{X} \widehat{\bm{\beta}}|| / \sqrt{1}}{||\bm{y} - \bm{X} \widehat{\bm{\beta}}|| / \sqrt{n-p}}$ and
+\[t_{\max}^2 = \frac{||\bm{X} \widehat{\bm{\beta}}||^2 / 1}{||\bm{y} - \bm{X} \widehat{\bm{\beta}}||^2 / (n-p)}.\]
+
 \end{enumerate}
 \end{sol}
 
@@ -368,7 +420,99 @@ print(crime_data, n = 5)
 \end{itemize}
 
 \end{prob}
+
 \begin{sol}
+\begin{enumerate}
+\item[(a)] 
+<<hw 3a, echo=TRUE, results=TRUE>>=
+# Read in 2019 census data for state population estimates
+pop_data <- 
+  read.csv("http://www2.census.gov/programs-surveys/popest/datasets/2010-2019/national/totals/nst-est2019-alldata.csv") %>%
+  # Filter out rows that aren't actually states
+  filter(! STATE %in% c(0, 72)) %>%
+  # Only take state and 2019 population columns
+  select(NAME, POPESTIMATE2019) %>%
+  # Rename column 
+  rename(Pop = POPESTIMATE2019)
+
+# Mapping from full state name to abbreviation
+state_abbrev_map <-
+  read.csv("https://raw.githubusercontent.com/jasonong/List-of-US-States/master/states.csv")
+
+# Merge pop_data to get abbreviations for merge with crime_data
+pop_data <- 
+  merge(pop_data, state_abbrev_map, 
+        by.x = "NAME", by.y = "State")
+
+# Full dataset with population and 
+crime_data_full <-
+  merge(crime_data, pop_data,
+        by.x = "STATE", by.y = "Abbreviation") %>%
+  select(-NAME) %>%
+  # Create violent crime rate variable
+  mutate(CrimeRate = Violent/Pop)
+
+head(crime_data_full)
+@
+
+\item[(b)]
+<<hw 3b, echo=TRUE, results='hide'>>=
+# For creating correlation plots
+library(corrplot)
+library(viridis)
+
+# Produce and save correlation plot
+png("./figures/corr_plt.png")
+crime_data_full %>%
+  select(CrimeRate, Metro, HighSchool, Poverty) %>%
+  cor() %>%
+  corrplot(type = "upper", tl.cex = 1.4, cl.cex = 1.2,
+           tl.col = "black", col = magma(256))
+dev.off()
+
+# Produce and save summary statistics
+summary_stats <-
+  crime_data_full %>%
+  select(CrimeRate, Metro, HighSchool, Poverty) %>%
+  summary() %>%
+  as.data.frame.matrix()
+
+colnames(summary_stats) <- 
+  c("CrimeRate", "Metro", "HighSchool", "Poverty")
+
+summary_stats <-
+  summary_stats %>%
+  # Get rid of added text from summary()
+  mutate(CrimeRate = str_replace(CrimeRate, pattern = ".*:", replacement = ""),
+         Metro = str_replace(Metro, pattern = ".*:", replacement = ""),
+         HighSchool = str_replace(HighSchool, pattern = ".*:", replacement = ""),
+         Poverty = str_replace(Poverty, pattern = ".*:", replacement = ""))
+
+rownames(summary_stats) <- c("Min.", "Q1", "Median", "Mean", "Q3", "Max.")
+
+summary_stats %>%
+  kableExtra::kable(format = "latex", booktabs = TRUE, digits = 2) %>%
+  kableExtra::save_kable("figures/crime_tbl.png")
+@
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width = .55\textwidth]{figures/corr_plt.png}
+\caption{Correlation plot for crime data.}
+\label{fig:R_2_plt}
+\end{figure}
+
+\begin{table}[h!]
+\centering
+\includegraphics[width = .6\textwidth]{figures/crime_tbl.png}
+\caption{Summary statistics for crime data.}
+\label{tab:crime_tbl}
+\end{table}
+
+\item[(c)]
+
+\item[(d)]
+\end{enumerate}
 \end{sol}
 
 
