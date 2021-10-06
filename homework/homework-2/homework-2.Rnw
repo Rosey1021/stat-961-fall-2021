@@ -209,7 +209,7 @@ Under $H_0$, we have the convergence
     
     Though each $y_i$ is parametrized by $\bm{\beta} \in \mathbb{R}^p$, it is also a function of $\bm{x}_i$, which is not necessarily the same for each $i$ since the $\bm{x}_i$ are regarded as fixed. As a result, the fixed-design model does not fit into the classical inferential setup, since the $y_i$ need not be identically distributed. 
   
-  \item[(b)] The Fisher information doe not make sense in this context because the $y_i$ each have different PDFs, since they are not i.i.d. as noted in (a). We have previously seen that $\widehat{\beta}_j \sim N(\beta_j, \sigma^2/s_j^2)$, so $\sqrt{n}(\widehat{\beta}_j - \beta_j) \sim N(0, \sigma^2/(s_j/n)^2$. So, an analog for the Fisher information would be $(s_j/n)^2/\sigma^2$.
+  \item[(b)] The Fisher information doe not make sense in this context because the $y_i$ each have different PDFs, since they are not i.i.d. as noted in (a). We have previously seen that $\widehat{\beta}_j \sim N(\beta_j, \sigma^2/s_j^2)$, so $\sqrt{n}(\widehat{\beta}_j - \beta_j) \sim N(0, \sigma^2/(s_j/n)^2)$. So, an analog for the Fisher information would be $(s_j/n)^2/\sigma^2$.
   
   %We know from Unit 1 that when $\sigma^2$ is assumed to be known, the maximum likelihood estimator for $\bm{\beta}$ is the same as the least squares estimate $\widehat{\bm{\beta}} = (\bm{X}^T \bm{X})^{-1} \bm{X}^T \bm{y} = (\bm{X}^T \bm{X})^{-1} \bm{X}^T (\bm{X} \bm{\beta} + \bm{\epsilon}) = \bm{\beta} + (\bm{X}^T \bm{X})^{-1} \bm{X}^T \bm{\epsilon}$. So, $\widehat{\bm{\beta}} - \bm{\beta} = (\bm{X}^T \bm{X})^{-1} \bm{X}^T \bm{\epsilon}$ and $\sqrt{n}(\widehat{\bm{\beta}} - \bm{\beta}) = (\frac{\bm{X}^T \bm{X}}{n})^{-1} \frac{1}{\sqrt{n}} \bm{X}^T \bm{\epsilon}$. Note that since $\bm{\epsilon} \sim N(0, \sigma^2 \bm{I}_n), \frac{1}{\sqrt{n}} \bm{X}^T \epsilon \sim N(0, \sigma^2 \frac{\bm{X}^T \bm{X}}{n})$.
   % Q := (X^T X / n)^{-1} exist?
@@ -258,6 +258,7 @@ Under $H_0$, we have the convergence
     =& \frac{(2 \pi \widehat{\sigma}_1^2)^{-n/2} \exp[-\frac{1}{2 \widehat{\sigma}_1^2} ||\bm{y} - \bm{X}\widehat{\bm{\beta}}^1||^2]}{(2 \pi \widehat{\sigma}_0^2)^{-n/2} \exp[-\frac{1}{2 \widehat{\sigma}_0^2} ||\bm{y} - \bm{X}\widehat{\bm{\beta}}^0||^2]} \\
     =& (\frac{\widehat{\sigma}_0^2}{\widehat{\sigma}_1^2})^{n/2} \exp[\frac{1}{2}(\frac{1}{\widehat{\sigma}_0^2} ||\bm{y} - \bm{X}\widehat{\bm{\beta}}^0||^2 - \frac{1}{\widehat{\sigma}_1^2} ||\bm{y} - \bm{X}\widehat{\bm{\beta}}^1||^2)].
   \end{align*}
+  
   So,
   \begin{align*}
     2 \log\Lambda &= n \log(\frac{\widehat{\sigma}_0^2}{\widehat{\sigma}_1^2}) + (\frac{1}{\widehat{\sigma}_0^2} ||\bm{y} - \bm{X}\widehat{\bm{\beta}}^0||^2 - \frac{1}{\widehat{\sigma}_1^2} ||\bm{y} - \bm{X}\widehat{\bm{\beta}}^1||^2) \\
@@ -266,9 +267,22 @@ Under $H_0$, we have the convergence
   &= n \log(\frac{||(\bm{I} - \bm{H}_{-S}) \bm{y}||^2}{||(\bm{I} - \bm{H}) \bm{y}||^2}),
   \end{align*}
   since $||\bm{y} - \bm{X}\widehat{\bm{\beta}}^0||^2 = ||\bm{y} - \bm{X}_{-S} \widehat{\bm{\beta}}_{-S}||^2$ and $||\bm{y} - \bm{X}\widehat{\bm{\beta}}^1||^2 = ||\bm{y} - \bm{X} \widehat{\bm{\beta}}||^2$.
-  Then \[\Lambda^{2/n} = \frac{||(\bm{I} - \bm{H}_{-S}) \bm{y}||^2}{||(\bm{I} - \bm{H}) \bm{y}||^2},\]
-  so \[\frac{n-p}{|S|}(\Lambda^{2/n} - 1) = \frac{||(\bm{I} - \bm{H}_{-S}) \bm{y}||^2 - ||(\bm{I} - \bm{H}) \bm{y}||^2}{||(\bm{I} - \bm{H}) \bm{y}||^2} = F.\]
-  Thus, we have that
+  
+  Then 
+  \begin{align*}
+    2 \log \Lambda &= n \log(\frac{||(\bm{I} - \bm{H}_{-S}) \bm{y}||^2}{||(\bm{I} - \bm{H}) \bm{y}||^2}) \\
+    &= n \log(1 + \frac{||(\bm{I} - \bm{H}_{-S}) \bm{y}||^2 - ||(\bm{I} - \bm{H}) \bm{y}||^2}{||(\bm{I} - \bm{H}) \bm{y}||^2}) \\
+    &= n \log \big(1 + \frac{|S|}{n-p} F \big).
+  \end{align*}
+  
+  Using the Taylor expansion $\log(1 + x) = x + O(x^2)$ , we see that
+  \begin{align*}
+    2 \log\Lambda &= n \log \big(1 + \frac{|S|}{n-p} F \big) \\
+    &= |S| \frac{n}{n-p} F + n O(\big(\frac{|S|}{n-p} F\big)^2) \\
+  &= |S| \frac{n}{n-p} F + O(n^{-1}).  
+  \end{align*}
+  Note that as $n \rightarrow \infty$, this quantity tends toward $|S| F$. That is to say, asymptotically $2 \log\Lambda$ is within a factor $|S|$ of $F$ (and thus, $\frac{2}{|S|} \log\Lambda$ is asymptotically $F$-distributed with $|S|$ and $n-p$ degrees of freedom).
+  
   
 \end{enumerate}  
 \end{sol}
@@ -455,6 +469,7 @@ crime_data_full <-
 head(crime_data_full)
 @
 
+% NOTE: TO FINISH, ADD WORD SUMMARIES
 \item[(b)]
 <<hw 3b, echo=TRUE, results='hide'>>=
 # For creating correlation plots
@@ -470,6 +485,12 @@ crime_data_full %>%
            tl.col = "black", col = magma(256))
 dev.off()
 
+png("./figures/pairs_plt.png") 
+crime_data_full %>%
+  select(CrimeRate, Metro, HighSchool, Poverty) %>%
+  GGally::ggpairs(columnLabels = c("Crime Rate", "Metro", "High School", "Poverty"))
+dev.off()
+
 # Produce and save summary statistics
 summary_stats <-
   crime_data_full %>%
@@ -483,10 +504,14 @@ colnames(summary_stats) <-
 summary_stats <-
   summary_stats %>%
   # Get rid of added text from summary()
-  mutate(CrimeRate = str_replace(CrimeRate, pattern = ".*:", replacement = ""),
-         Metro = str_replace(Metro, pattern = ".*:", replacement = ""),
-         HighSchool = str_replace(HighSchool, pattern = ".*:", replacement = ""),
-         Poverty = str_replace(Poverty, pattern = ".*:", replacement = ""))
+  mutate(CrimeRate = 
+           str_replace(CrimeRate, pattern = ".*:", replacement = ""),
+         Metro = 
+           str_replace(Metro, pattern = ".*:", replacement = ""),
+         HighSchool = 
+           str_replace(HighSchool, pattern = ".*:", replacement = ""),
+         Poverty = 
+           str_replace(Poverty, pattern = ".*:", replacement = ""))
 
 rownames(summary_stats) <- c("Min.", "Q1", "Median", "Mean", "Q3", "Max.")
 
@@ -499,7 +524,14 @@ summary_stats %>%
 \centering
 \includegraphics[width = .55\textwidth]{figures/corr_plt.png}
 \caption{Correlation plot for crime data.}
-\label{fig:R_2_plt}
+\label{fig:corr_plt}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width = .6\textwidth]{figures/pairs_plt.png}
+\caption{Pairwise plots for crime data.}
+\label{fig:pairs_plt}
 \end{figure}
 
 \begin{table}[h!]
@@ -509,8 +541,35 @@ summary_stats %>%
 \label{tab:crime_tbl}
 \end{table}
 
-\item[(c)]
+We plot the correlation between our variables in Figure~\ref{fig:corr_plt}, pairwise scatterplots in Figure~\ref{fig:pairs_plt}, and summary statistics for each variable in Table~\ref{tab:crime_tbl}.
 
+We see little correlation between the Metro and High School variables; some positive correlation between Metro and Crime Rate, as well as High School and Crime Rate; some negative correlation between Metro and Poverty; more positive correlation between Crime Rate and Poverty; and finally strong negative correlation between High School and Poverty (Figures~\ref{fig:corr_plt},~\ref{fig:pairs_plt}). We also see that the distributions of Crime Rate and Poverty are right-skewed, while those of Metro and High School are left-skewed (Figure~\ref{fig:pairs_plt}).
+% NOTE: NEED TO FINISH
+\item[(c)]
+<<hw 3c>>=
+lm_fit <- lm(CrimeRate ~ Metro + HighSchool + Poverty,
+             data = crime_data_full)
+
+summary(lm_fit)
+
+confint(lm_fit) %>%
+  as.data.frame()  %>%
+  kableExtra::kable(format = "latex", booktabs = TRUE, digits = 2) %>%
+  kableExtra::save_kable("figures/conf_int_tbl.png")
+@
+
+\begin{table}[h!]
+\centering
+\includegraphics[width = .3\textwidth]{figures/conf_int_tbl.png}
+\caption{Confidence intervals for linear model coefficients.}
+\label{tab:conf_int_tbl}
+\end{table}
+
+Looking at the estimated linear model, we say that all coefficients are significant at the $\alpha = 0.05$ level. Dually, we see that none of the confidence intervals for the coefficients contain 0 (Table~\ref{tab:conf_int_tbl}). This suggests that each of the socioeconomic variables does in fact have an impact on crime rate. All such coefficients are positive, indicating that an increase in any one of the variables while holding the others fixed is associated with an increase in the crime rate. 
+
+We also see that the model has an $R^2$ of 0.34, indicating that it explains about 34\% of the variation in the observed data. Notably, the $p$-value for the $F$-test is significant at the $\alpha = 0.05$ level, indicating that there is strong evidence that at least one of the non-intercept coefficients is nonzero.
+
+% NOTE: NEED TO FINISH
 \item[(d)]
 \end{enumerate}
 \end{sol}
