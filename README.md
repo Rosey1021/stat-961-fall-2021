@@ -35,4 +35,4 @@ Tue, Oct 12 | 3. Linear model: Misspecification | Robust standard errors | Agres
 Thu, Oct 14 | -- | Fall break | -- | -- | --
 Tue, Oct 19 | 3. Linear model: Misspecification | Robust hypothesis testing | -- | TBA | --
 Thu, Oct 21 | 3. Linear model: Misspecification | R demo | Agresti 3.4 | TBA | --
-Sun, Oct 24 | -- | -- | -- | -- | Homework 3 due at 11:59pm
+Sun, Oct 24 | -- | -- | -- | -- | [Homework 3](https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/homework/homework-3/homework-3.pdf) due at 11:59pm
