@@ -28,9 +28,9 @@ Tue, Sep 21 | 2. Linear model: Inference | Hypothesis testing I | Agresti 3.2.1,
 Thu, Sep 23 | 2. Linear model: Inference | Hypothesis testing II | Agresti 3.2.5 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=392d4021-ac55-4543-a15d-adab017f5dde) | --
 Tue, Sep 28 | 2. Linear model: Inference | Confidence intervals | Agresti 3.3 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=7fa587eb-95b6-466b-96bd-adb0013fbdd8) | --
 Thu, Sep 30 | 2. Linear model: Inference | Confidence intervals and practical considerations | Agresti 3.4.1, 3.4.3 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=84084a14-0725-4ee7-8178-adb300c40e37) | --
-Tue, Oct 5 | 3. Linear model: Misspecification | Non-normality, heteroskedasticity, correlated errors | Agresti 2.5.1-2.5.3 | TBA | --
+Tue, Oct 5 | 3. Linear model: Misspecification | Non-normality, heteroskedasticity, correlated errors | Agresti 2.5.1-2.5.3 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=efdf7361-9ac1-4fa4-8b61-adb701483c21) | --
 Wed, Oct 6 | -- | -- | -- | -- | [Homework 2](https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/homework/homework-2/homework-2.pdf) due at 11:59pm
-Thu, Oct 7 | 3. Linear model: Misspecification | Model bias, outliers, robust estimation | Agresti 2.5.4, 2.5.5, 11.1.1 | TBA | --
+Thu, Oct 7 | 3. Linear model: Misspecification | Model bias, outliers, robust estimation | Agresti 2.5.4, 2.5.5, 11.1.1 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=f70f77d4-1bb5-4590-8179-adb9012604d0) | --
 Tue, Oct 12 | 3. Linear model: Misspecification | Robust standard errors | Agresti 2.7.3 | TBA | --
 Thu, Oct 14 | -- | Fall break | -- | -- | --
 Tue, Oct 19 | 3. Linear model: Misspecification | Robust hypothesis testing | -- | TBA | --
