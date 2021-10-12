@@ -482,16 +482,99 @@ houses_data = read_tsv("../data/Houses.dat")
 houses_data
 
 # explore the variables
+mean_price = 
+  houses_data %>%
+  summarise(mean_price = mean(price)) %>%
+    pull()
 
-# should we model beds/baths as categorical or continuous?
+houses_data %>%
+  ggplot(aes(x = price)) + 
+  geom_histogram() + 
+  geom_vline(xintercept = mean_price, 
+             colour = "red",
+             linetype = "dashed") +
+  theme_bw()
+
+houses_data %>%
+  summarise(mean_price = mean(price),
+            median_price = median(price))
+
+houses_data %>%
+  select(price, size, taxes) %>%
+  GGally::ggpairs()
+
+houses_data %>%
+  ggplot(aes(x = factor(beds), y = price)) + 
+  geom_boxplot() + 
+  theme_bw()
+
+houses_data %>%
+  ggplot(aes(x = factor(baths), y = price)) + 
+  geom_boxplot() + 
+  theme_bw()
+
+houses_data %>%
+  ggplot(aes(x = factor(new), y = price)) + 
+  geom_boxplot() + 
+  theme_bw()
+
+# Q: Should we model beds/baths as categorical or continuous?
+# A: Probably categorical, given potentially nonlinear trend.
 
 # running a regression and interpreting the summary
 
+lm_fit = lm(price ~ 
+              factor(new) + 
+              factor(beds) + 
+              factor(baths) + 
+              size,
+            data = houses_data)
+
+summary(lm_fit)
+
 # hypothesis tests, confidence intervals (including analysis of variance test (aov))
+
+
+lm_fit_partial = lm(price ~ 
+              factor(new) + 
+              factor(baths) + 
+              size,
+            data = houses_data)
+
+anova(lm_fit_partial, lm_fit)
+
+lm_fit_not_factor = lm(price ~ 
+              factor(new) + 
+                beds +
+              factor(baths) + 
+              size,
+            data = houses_data)
+
+anova(lm_fit_partial, lm_fit_not_factor)
+
+confint(lm_fit)
+
+aov_fit = aov(price ~ factor(beds), data = houses_data)
+summary(aov_fit)
 
 # interactions
 
+lm_fit_interaction = 
+  lm(price ~ size*factor(beds),
+     data = houses_data)
+
+summary(lm_fit_interaction)
+
 # confidence bands
+
+houses_data %>%
+  ggplot(aes(x = size, y = price)) +
+  geom_point() + 
+  geom_smooth(method = "lm",
+              formula = "y ~ x") +
+  theme_bw()
+
+# to produce confidence intervals for fits in general, use the predict() function
 
 @
 

@@ -173,7 +173,7 @@ Heteroskedasticity-robust standard errors for hypothesis testing and confidence 
 
 Correlated errors can arise when observations have group, spatial, or temporal structure. Below are examples:
 \begin{itemize}
-\item Group structure: We have 10 samples $(\bm x_{i*}, y_i)$ each from 100 schools. 
+\item Group/clustered structure: We have 10 samples $(\bm x_{i*}, y_i)$ each from 100 schools. 
 \item Spatial structure: We have 100 soil samples from a 10$\times$10 grid on a 1km$\times$1km field. 
 \item Temporal structure: We have 366 COVID positivity rate measurements, one from each day of the year 2020.
 \end{itemize}
@@ -191,8 +191,8 @@ Residual plots once again come in handy to detect correlated errors. Instead of 
 
 There are a few approaches to addressing correlated errors:
 \begin{enumerate}
-\item Augment the regression model with extra terms. For example, we may want to include an indicator for school in the first example from Section~\ref{sec:origin-correlated-errors}. Using a fixed effect for each level of the grouping variable may use up too many degrees of freedom, so we can use \textit{random effects} instead. Hopefully we'll have time to cover random/mixed effects models in Unit 6.
-\item Estimate the covariance matrix $\bm \Sigma$ of the observations, so that $\bm y \sim N(\bm X \bm \beta, \Sigma)$. This is a \textit{generalized least squares} problem for which inference can be carried out. The generalized least squares estimate is $\bm{\widehat \beta} = (\bm X^T \bm \Sigma^{-1}\bm X)^{-1}\bm X^T \bm \Sigma^{-1}\bm y$, which is distributed as $\bm{\widehat \beta} \sim N(\bm \beta, (\bm X^T \bm \Sigma^{-1}\bm X)^{-1})$. We can carry out inference based on the latter distributional result analogously to how we did so in Unit 2.
+\item Estimate the covariance matrix $\bm \Sigma$ of the observations, so that $\bm y \sim N(\bm X \bm \beta, \Sigma)$. This is a \textit{generalized least squares} problem for which inference can be carried out. The generalized least squares estimate is $\bm{\widehat \beta} = (\bm X^T \bm \Sigma^{-1}\bm X)^{-1}\bm X^T \bm \Sigma^{-1}\bm y$, which is distributed as $\bm{\widehat \beta} \sim N(\bm \beta, (\bm X^T \bm \Sigma^{-1}\bm X)^{-1})$. We can carry out inference based on the latter distributional result analogously to how we did so in Unit 2. A special case of this is the \textit{linear mixed effects model}, which hopefully we will have time to discuss in Unit 6.
+\item Use the Liang-Zeger variance estimator; see Section~\ref{sec:huber-white}.
 \item Apply a clustered or block bootstrap; see Section~\ref{sec:bootstrap}.
 \end{enumerate}
 
@@ -244,41 +244,123 @@ An outlier can have the effect of biasing the estimate $\bm{\widehat \beta}$. Th
 
 \subsection{Detection}
 
-% One way to detect outliers is to compute the \textit{influence} of each observation:
-% \begin{equation}
-% \text{influence of observation } i \equiv \frac{|y_i - \bm x_{i*}\bm{\widehat \beta}_{(\text{-}i)}|}{\widehat \sigma^2_{(\text{-}i)}},
-% \end{equation}
-% where $(\bm{\widehat \beta}_{(\text{-}i)}, \widehat \sigma^2_{(\text{-}i)})$ are the estimates obtained from the regression of $\bm y_{\text{-}i}$ on $\bm X_{\text{-}i,*}$.
+There are a few measures associated to an observation that can be used to detect outliers, though none are perfect. The first quantity is called the \textit{leverage}, defined as 
+\begin{equation}
+\text{leverage of observation } i \equiv \text{corr}(y_i, \widehat \mu_i)^2.
+\end{equation}
+This quantity measures the extent to which the fitted value $\widehat \mu_i$ is sensitive to the (noise in the) observation $y_i$. It can be derived that
+\begin{equation}
+\text{leverage of observation } i = h_{ii},
+\end{equation}
+which is the $i$th diagonal element of the hat matrix $\bm H$. This is related to the fact that $\text{Var}[\widehat \epsilon_i] = \sigma^2(1-h_{ii})$. The larger the leverage, the smaller the variance of the residual, so the closer the line passes to the $i$th observation. The leverage of an observation is larger to the extent that $\bm x_{i*}$ is far from $\bm{\bar x}$. For example, in the bivariate linear model $y_i = \beta_0 + \beta_1 x_i + \epsilon_i$, 
+\begin{equation*}
+h_{ii} = \frac{1}{n} + \frac{(x_i - \bar x)^2}{\sum_{i' = 1}^n (x_{i'} - \bar x)^2}.
+\end{equation*}
 
-TBD
+Note that the leverage is not a function of $y_i$, so a high-leverage point might or might not be an outlier in $y_i$ and therefore might or might not have a strong impact on the regression. To assess more directly whether an observation is \textit{influential}, we can compare the least squares fits with and without that observation. To this end, we define the \textit{Cook's distance}
+\begin{equation}
+D_i = \frac{\sum_{i' = 1}^n (\widehat \mu_{i'} - \widehat \mu^{\text{-}i}_{i'})^2}{p\widehat \sigma^2},
+\end{equation}
+where $\widehat \mu^{\text{-}i}_{i'} = \bm x_{i*}^T \bm{\widehat{\beta}}^{\text{-}i}$ and $\bm{\widehat{\beta}}^{\text{-}i}$ is the least squares estimate based on $(\bm X_{\text{-}i,*}, \bm y_{\text{-}i})$. An observation is considered influential if it has Cooks distance greater than one.
+
+There is a connection between Cook's distance and leverage:
+\begin{equation}
+D_i = \left(\frac{y_i - \widehat \mu_i}{\widehat \sigma \sqrt{1-h_{ii}}}\right)^2 \cdot \frac{h_{ii}}{p(1-h_{ii})}.
+\end{equation}
+We recognize the first term as the standardized residual; therefore a point is influential if its residual and leverage are large.
+
+Note that Cook's distance may not successfully identify outliers. For example, if there are groups of outliers, then they will \textit{mask} each other in the calculation of Cook's distance.
 
 \subsection{Fixes}
 
-If outliers can be detected, then the fix is to remove them from the regression. But, we need to be careful. Definitively determining whether observations are outliers can be tricky. Outlier detection can even be used as a way to commit fraud with data, as \href{https://arstechnica.com/tech-policy/2021/09/cherry-picking-data-was-routine-practice-at-theranos-former-lab-worker-says/}{Theranos is alleged to have done}. 
+If outliers can be detected, then the fix is to remove them from the regression. But, we need to be careful. Definitively determining whether observations are outliers can be tricky. Outlier detection can even be used as a way to commit fraud with data, as now-defunct blood testing start-up \href{https://arstechnica.com/tech-policy/2021/09/cherry-picking-data-was-routine-practice-at-theranos-former-lab-worker-says/}{Theranos is alleged to have done}. 
 
 As an alternative to removing outliers, we can fit estimators $\bm{\widehat \beta}$ that are less sensitive to outliers; see Section~\ref{sec:robust-estimation}.
 
 \section{Robust inference}
 
-TBD
+There are a number of strategies designed to address one or more of the misspecification issues listed above. These fall into the categories of robust estimation (to get better estimates of $\bm{\widehat \beta}$ in the presence of outliers; see Section~\ref{sec:robust-estimation}), robust standard error computation (to get more reliable standard errors in the presence of heteroskedasticity or correlated errors; see Section~\ref{sec:robust-standard-errors}), and robust hypothesis testing (to get more reliable hypothesis tests in the presence of heteroskedasticity, correlated errors, and sometimes even model bias; see Section~\ref{sec:robust-tests}).
 
 \subsection{Robust estimation} \label{sec:robust-estimation}
 
-\subsection{Robust standard error computation}
+The squared error loss $\sum_{i = 1}^n (y_i - \bm x_{i*}^T \bm \beta)^2$ is sensitive to outliers in the sense that a large value of $y_i - \bm x_{i*}^T \bm \beta$ can have a significant impact on the loss function. The least squares estimate, as the minimizer of this loss function, is therefore sensitive to outliers. One way of addressing this challenge is to replace the squared error loss by a different loss that does not grow so quickly in $y_i - \bm x_{i*}^T \bm \beta$. A popular choice for such a loss function is the Huber loss:
+\begin{equation}
+L_\delta(y_i - \bm x_{i*}^T \bm \beta) = 
+\begin{cases}
+\frac{1}{2}(y_i - \bm x_{i*}^T \bm \beta)^2, \quad &\text{if } |y_i - \bm x_{i*}^T \bm \beta| \leq \delta; \\
+\delta(|y_i - \bm x_{i*}^T \bm \beta|-\delta), \quad &\text{if } |y_i - \bm x_{i*}^T \bm \beta| > \delta.
+\end{cases}
+\end{equation}
+This function is differentiable, like the squared error loss, but grows linearly as opposed to quadratically. We can then define
+\begin{equation*}
+\bm{\widehat{\beta}}^{\text{Huber}} \equiv \underset{\bm \beta}{\arg \min}\ \sum_{i = 1}^n L_\delta(y_i - \bm x_{i*}^T \bm \beta).
+\end{equation*}
+This is an \textit{M-estimator}; it is consistent and has an asymptotic normal distribution that can be used for inference.
 
-\subsubsection{Huber-White sandwich estimator} \label{sec:huber-white}
+\subsection{Robust standard error computation} \label{sec:robust-standard-errors}
+
+When the error terms in a regression are not homoskedastic and independent, the usual standard errors are invalid. There are several strategies to computing valid standard errors in such situations.
+
+\subsubsection{Huber-White and Liang-Zeger sandwich estimators} \label{sec:huber-white}
+
+Let's say that $\bm y = \bm X \bm \beta + \bm \epsilon$, where $\bm \epsilon \sim N(\bm 0, \bm \Sigma)$. Then, we can compute that the covariance matrix of the least squares estimate $\bm{\widehat \beta}$ is 
+\begin{equation}
+\text{Var}[\bm{\widehat \beta}] = (\bm X^T \bm X)^{-1}(\bm X^T \bm \Sigma \bm X)(\bm X^T \bm X)^{-1}.
+\label{eq:sandwich}
+\end{equation}
+Note that this expression reduces to the usual $\sigma^2(\bm X^T \bm X)^{-1}$ when $\bm \Sigma = \sigma^2 \bm I$. It is called the sandwich variance between we have the $(\bm X^T \bm \Sigma \bm X)$ term sandwiched between two $(\bm X^T \bm X)^{-1}$ terms. If we have some estimate $\bm{\widehat \Sigma}$ of the covariance matrix, we can construct
+\begin{equation}
+\widehat{\text{Var}}[\bm{\widehat \beta}] \equiv (\bm X^T \bm X)^{-1}(\bm X^T \bm{\widehat\Sigma} \bm X)(\bm X^T \bm X)^{-1}.
+\end{equation}
+Different estimates $\bm{\widehat \Sigma}$ are appropriate in different situation. Below we consider two of the most common choices: one for heteroskedasticity (due to Huber-White) and one for correlated errors (due to Liang-Zeger).
+
+\paragraph{Huber-White standard errors.}
+
+Now, suppose $\bm \Sigma = \text{diag}(\sigma_1^2, \dots, \sigma_n^2)$ for some variances $\sigma_1^2, \dots, \sigma_n^2 > 0$. The Huber-White sandwich estimator is defined by~\eqref{eq:sandwich}, with
+\begin{equation}
+\bm{\widehat\Sigma} \equiv \text{diag}(\widehat \sigma_1^2, \dots, \widehat \sigma_n^2), \quad \text{where} \quad \widehat \sigma_i^2 = (y_i - \bm x_{i*}^T \bm{\widehat \beta})^2.
+\end{equation}
+While each estimator $\widehat \sigma_i^2$ is very poor, Huber and White's insight was that the resulting estimate of the (averaged) quantity $\bm X^T \bm{\widehat \Sigma}\bm X$ is not bad.
+
+\paragraph{Liang-Zeger standard errors.}
+
+Next, let's consider the case of correlated errors. Specifically, suppose that the observations are \textit{clustered}, with correlated errors among clusters but not between clusters (recall Section~\ref{sec:origin-correlated-errors}). Suppose there are $C$ clusters of observations, with the $i$th observation belonging to cluster $c(i) \in \{1, \dots, C\}$. Suppose for the sake of simplicity that the observations are ordered so that clusters are contiguous. Let $\bm{\widehat \epsilon}_c$ be the vector of residuals in cluster $c$, so that $\bm{\widehat \epsilon} = (\bm{\widehat \epsilon}_1, \dots, \bm{\widehat \epsilon}_C)$. Then, the true covariance matrix is $\bm \Sigma = \text{block-diag}(\bm \Sigma_1, \dots, \bm \Sigma_C)$ for some positive definite $\bm \Sigma_1, \dots, \bm \Sigma_C$. The Liang-Zeger estimator is then defined by~\eqref{eq:sandwich}, with
+\begin{equation}
+\bm{\widehat\Sigma} \equiv \text{block-diag}(\bm{\widehat\Sigma_1}, \dots, \bm{\widehat \Sigma_C}), \quad \text{where} \quad  \bm{\widehat\Sigma_c} \equiv \bm{\widehat \epsilon}_c \bm{\widehat \epsilon}_c^T.
+\end{equation}
+Note that the Liang-Zeger estimator is a generalization of the Huber-White estimator. Its justification is similar as well: while each $\bm{\widehat\Sigma_c}$ is a poor estimator, the resulting estimate of the (averaged) quantity $\bm X^T \bm{\widehat \Sigma}\bm X$ is not bad as long as the number of clusters is large. Liang-Zeger standard errors are sometimes referred to as ``clustered standard errors.''
 
 \subsubsection{Bootstrap} \label{sec:bootstrap}
 
-\paragraph{Residual bootstrap}
+A completely different approach to constructing robust standard errors is the \textit{bootstrap}. The core idea of the bootstrap is to use the data to construct an approximation to the data-generating distribution, and then to approximate the sampling distribution of any test statistic by simulating from this approximate data-generating distribution. This approach, pioneered by Brad Efron in 1979, replaces mathematical derivations with computation. The bootstrap is extremely flexible, and can be adapted to apply in a variety of settings.
 
-\paragraph{Pairs bootstrap}
+\paragraph{Parametric bootstrap.}
 
-\begin{itemize}
-\item Vanilla
-\item Cluster bootstrap
-\item Block bootstrap
-\end{itemize}
+The parametric bootstrap proceeds by fitting a parametric model, and then by resampling from this model. In the linear regression case, we use the original data to fit $(\bm{\widehat \beta}, \widehat \sigma^2)$. Then, we sample new response vectors 
+\begin{equation}
+y^b_i = \bm x_{i*}^T\bm{\widehat \beta} + \epsilon_i^b, \quad \epsilon_i^b \overset{\text{i.i.d.}}\sim N(0, \widehat \sigma^2) \quad \text{for } b = 1, \dots, B.
+\end{equation}
+We then fit a least squares coefficient vector $\bm{\widehat \beta}^b$ to $(\bm X, \bm y^b)$ for each $b$, and then get variance estimates by treating $\{\bm{\widehat \beta}^b\}_{b = 1}^B$ as though it were the sampling distribution of $\bm{\widehat \beta}$. For example, we could use the sample standard deviation of $\widehat \beta_j^b$ as the standard error for $\beta_j$. 
+
+This the most model-based of the bootstrap variants. It assumes a completely well-specified model, and gives equivalent results to traditional parametric inference. It is typically not applied in regression settings, and presented here mainly for pedagogical purposes.
+
+\paragraph{Residual bootstrap.}
+
+We can weaken the assumptions of the parametric bootstrap by assuming only that $y_i = \bm x_{i*}^T \bm \beta + \epsilon_i$, where $\epsilon_i \overset{\text{i.i.d.}}\sim F$ for some distribution $F$. Then, the data-generating distribution is specified by $(\bm \beta, F)$, which we approximate by substituting $\bm{\widehat \beta}$ for $\bm \beta$ and the empirical distribution of the residuals $\widehat \epsilon_i$ (call it $\widehat F$) for $F$. We can then sample new response vectors based on this approximate data-generating distribution:
+\begin{equation}
+y_i = \bm x_{i*}^T \bm{\widehat \beta} + \epsilon_i^b, \quad \epsilon_i^b \overset{\text{i.i.d.}}\sim \widehat F \quad \text{for } b = 1, \dots, B.
+\end{equation}
+Note that i.i.d. sampling $\epsilon_i^b$ from $\widehat F$ amounts to sampling $(\epsilon_1^b, \dots, \epsilon_n^b)$ with replacement from $(\widehat \epsilon_1, \dots, \widehat \epsilon_n)$. Then, as with the parametric bootstrap, we fit a least squares coefficient vector $\bm{\widehat \beta}^b$ to $(\bm X, \bm y^b)$ for each $b$ and obtain standard errors by treating $\{\bm{\widehat \beta}^b\}_{b = 1}^B$ as though it were the sampling distribution of $\bm{\widehat \beta}$.
+
+The residual bootstrap corrects for non-normality, but not heteroskedasticity or correlated errors, since it assumes that the noise terms are i.i.d. from some distribution.
+
+\paragraph{Pairs bootstrap.}
+
+Weakening the assumptions further, let's assume only that $(\bm x_{i*}, y_i) \overset{\text{i.i.d.}} \sim F$ for some joint distribution $F$. We then resample our observations by sampling with replacement from the original observations. 
+
+Note that, unlike the parametric or residual bootstrap, the pairs bootstrap treats the predictors $\bm X$ as random rather than fixed. The benefit of the pairs bootstrap is that it does not assume homoskedasticity, since the error variance is allowed to depend on $\bm x_{i*}$. Therefore, the pairs bootstrap addresses both non-normality and heteroskedasticity, though it does not address correlated errors (though variants of the pairs bootstrap do; see below). Note that the pairs bootstrap does not even assume that $\mathbb E[y_i] = \bm x_{i*}^T \bm \beta$ for some $\bm \beta$. However, in the presence of model bias, it is unclear for what parameters we are even doing inference. While the pairs bootstrap assumes less than the residual bootstrap, it may be somewhat less efficient in the case when the assumptions of the latter are met.
+
+The pairs bootstrap has several variants that help it overcome correlated errors, in addition to heteroskedasticity. The \textit{cluster bootstrap} is applicable in the case when errors have a clustered/grouped structure. In this case, we sample entire clusters of observations, with replacement, from the original set of clusters. The \textit{moving blocks bootstrap} is applicable in the case of spatially or temporally structured errors. In this variant of the pairs bootstrap, we resample spatially or temporally adjacent blocks of observations together to preserve their joint correlation structure.
 
 
 
