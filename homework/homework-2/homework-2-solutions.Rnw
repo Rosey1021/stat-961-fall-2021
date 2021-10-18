@@ -1,0 +1,773 @@
+% (C) Brett Klamer - MIT - http://opensource.org/licenses/MIT
+% Please contact me if you find any errors or make improvements
+% Contact details at brettklamer.com
+
+\documentclass[11pt,letterpaper,english,oneside]{article} % article class is a standard class
+%==============================================================================
+%Load Packages
+%==============================================================================
+\usepackage[left=1in,right=1in,top=1in,bottom=1in]{geometry} % easy page margins
+\usepackage[utf8]{inputenc} % editor uses utf-8 encoding
+\usepackage[T1]{fontenc} % T1 font pdf output
+\usepackage{lmodern} % Latin modern roman font
+\usepackage{bm, bbm} % bold and blackboard bold math symbols
+\usepackage{amsmath, amsfonts, amssymb, amsthm} % math packages
+\usepackage[final]{microtype} % better microtypography
+\usepackage{graphicx} % for easier grahics handling
+\usepackage[hidelinks, colorlinks=true, linkcolor = blue, urlcolor = blue]{hyperref} % to create hyperlinks
+\usepackage{float} % tells floats to stay [H]ere!
+\usepackage{mdframed} % it's better than framed. knitr uses framed so settings won't conflict
+\usepackage{enumitem} % nice lists
+\usepackage{fancyhdr} % nice headers
+\usepackage{caption}  % to control figure and table captions
+
+\captionsetup{width=0.9\textwidth, justification = raggedright}
+
+%==============================================================================
+% Enter name and homework title here
+%==============================================================================
+\author{Anirban Chatterjee}
+\title{Homework 2}
+\date{Due October 4 at 11:59pm}
+
+%==============================================================================
+% Put title and author in PDF properties
+%==============================================================================
+\makeatletter % change interpretation of @
+\hypersetup{pdftitle={\@title},pdfauthor={\@author}}
+
+
+%==============================================================================
+% Header settings
+%==============================================================================
+\pagestyle{fancy} % turns on fancy header styles
+\fancyhf{} % clear all header and footer fields
+\makeatletter
+\lhead{\@author} % left header
+\chead{\@title} % center header
+\makeatother
+\rhead{Page \thepage} % right header
+\setlength{\headheight}{13.6pt} % fixes minor warning
+\makeatother % change back interpretation of @
+
+%==============================================================================
+% List spacing
+%==============================================================================
+\setlist[itemize]{parsep=0em} % fix itemize spacing
+\setlist[enumerate]{parsep=0em} % fix enumerate spacing
+
+%==============================================================================
+% Float spacing (changes spacing of tables, graphs, etc)
+%==============================================================================
+%\setlength{\textfloatsep}{3pt}
+%\setlength{\intextsep}{3pt}
+
+%==============================================================================
+% Define Problem and Solution Environments
+%==============================================================================
+\theoremstyle{definition} % use definition's look
+\newtheorem{problem}{Problem}
+\newtheorem{solution}{Solution}
+\mdfsetup{ % box margin fix for mdframe and how it plays with parskip and others.
+innerleftmargin=4pt,
+innerrightmargin=4pt,
+innertopmargin=-1pt,
+innerbottommargin=4pt}
+% \newenvironment{prob}{\begin{mdframed}\begin{problem}\hspace{0pt}}{\end{problem}\end{mdframed}}
+\newenvironment{prob}{\clearpage \begin{problem}\hspace{0pt}}{\end{problem}}
+\newenvironment{sol}{\begin{solution}\hspace{0pt}}{\end{solution}}
+
+%==============================================================================
+% set knitr options
+%==============================================================================
+% latex (change space before and after knitr kframe; based on framed package)
+\setlength{\OuterFrameSep}{0.3em}
+% R
+<<setup, include=FALSE, cache=FALSE>>=
+library(knitr)
+# inline hook to process the output of \Sexpr{} statements to just 2 digits
+inline_hook <- function(x) {
+  if(is.numeric(x)) x <- round(x, 2)
+  paste(as.character(x), collapse=", ")
+}
+knit_hooks$set(inline = inline_hook)
+
+# cache all chunks
+opts_chunk$set(cache = TRUE)
+
+# create directory for figures
+if(!dir.exists("figures")){
+  dir.create("figures")
+}
+@
+
+\begin{document}
+
+
+\maketitle
+
+\section{Instructions}
+
+\paragraph{Setup.} Pull the latest version of this assignment from Github and set your working directory to \texttt{stat-961-fall-2021/homework/homework-2}. Consult the \href{https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/getting-started/getting-started.pdf}{getting started guide} if you need to brush up on \texttt{R}, \texttt{LaTeX}, or \texttt{Git}.
+
+\paragraph{Collaboration.} The collaboration policy is as stated on the Syllabus:
+
+\begin{quote}
+``Students are permitted to work together on homework assignments, but solutions must be written up and submitted individually. Students must disclose any sources of assistance they received; furthermore, they are prohibited from verbatim copying from any source and from consulting solutions to problems that may be available online and/or from past iterations of the course.''
+\end{quote}
+
+\noindent In accordance with this policy, \\
+
+\noindent \textit{Please list anyone you discussed this homework with:} \\
+
+\noindent \textit{Please list what external references you consulted (e.g. articles, books, or websites):} 
+
+\paragraph{Writeup.} Use this document as a starting point for your writeup, adding your solutions between \verb|\begin{sol}| and \verb|\end{sol}|. See the \href{https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/getting-started/preparing-reports.pdf}{preparing reports guide} for guidance on compilation, creation of figures and tables, and presentation quality. Show all the code you wrote to produce your numerical results, and include complete derivations typeset in LaTeX for the mathematical questions. 
+
+\paragraph{Programming.}
+
+The \texttt{tidyverse} paradigm for data manipulation (\texttt{dplyr}) and plotting (\texttt{ggplot2}) are strongly encouraged, but points will not be deducted for using base \texttt{R}. 
+<<message=FALSE, cache = FALSE>>=
+library(tidyverse)
+@
+
+\paragraph{Grading.} Each sub-part of each problem will be worth 3 points: 0 points for no solution or completely wrong solution; 1 point for some progress; 2 points for a mostly correct solution; 3 points for a complete and correct solution modulo small flaws. The presentation quality of the solution for each problem (as exemplified by the guidelines in Section 3 of the \href{https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/getting-started/preparing-reports.pdf}{preparing reports guide}) will be evaluated out of an additional 3 points.
+
+\paragraph{Submission.} Compile your writeup to PDF and submit to \href{https://www.gradescope.com/courses/284562}{Gradescope}.
+
+\clearpage
+
+\begin{prob} \label{prob:likelihood}\textbf{Likelihood inference in linear regression.} \\
+
+\noindent Let's consider the usual linear regression setup. Given a full-rank $n \times p$ model matrix $\bm X$, a coefficient vector $\bm \beta \in \mathbb R^p$, and a noise variance $\sigma^2 > 0$, suppose
+\begin{equation}
+\bm y = \bm X \bm \beta + \bm \epsilon, \quad \bm \epsilon \sim N(0, \sigma^2 \bm I_n).
+\label{eq:linear-model}
+\end{equation}
+The goal of this problem is to connect linear regression inference with classical likelihood-based inference (below is a quick refresher).
+
+\begin{enumerate}
+\item[(a)] For the sake of simplicity, let's start by assuming $\sigma^2$ is known. Under the fixed-design model, why does the linear regression model~\eqref{eq:linear-model} not fit into the classical inferential setup~\eqref{eq:iid-sampling}? Write the linear model in as close a form as possible to~\eqref{eq:iid-sampling}.
+
+\item[(b)] Continue assuming that $\sigma^2$ is known. Why does the Fisher information~\eqref{eq:fisher-info} not immediately make sense for the linear regression model? Propose and compute an analog to this quantity, and using this quantity exhibit a result analogous to the asymptotic normality~\eqref{eq:asymptotic-normality}.
+
+\item[(c)] Now assume that neither $\bm{\beta}$ nor $\sigma^2$ is known. Derive the maximum likelihood estimates for $(\bm \beta, \sigma^2)$. How do these compare to the estimates $(\bm{\widehat \beta}, \widehat \sigma^2)$ discussed in class?
+
+\item[(d)] Continuing to assume that neither $\bm{\beta}$ nor $\sigma^2$ is known, consider the null hypothesis $H_0: \bm{\beta}_S = \bm 0$ for some $S \subseteq \{1, \dots, p\}$. Write this hypothesis in the form~\eqref{eq:general-null-hypothesis}, and derive the likelihood ratio test for this hypothesis. Discuss the connection of this test with the $F$-test.
+
+\end{enumerate}
+
+\noindent\fbox{\begin{minipage}{\textwidth}
+\paragraph{Refresher on likelihood inference.} In classical likelihood inference, we have observations 
+\begin{equation}
+y_i \overset{\text{i.i.d.}}\sim p_{\bm \theta}, \quad i = 1, \dots, n
+\label{eq:iid-sampling}
+\end{equation}
+from some model parameterized by a vector $\bm \theta \in \Theta \subseteq \mathbb R^d$. Under regularity conditions, the maximum likelihood estimate $\bm{\widehat \theta}_n$ is known to converge to a normal distribution centered at its true value:
+\begin{equation}
+\sqrt n(\bm{\widehat \theta}_n - \bm \theta) \overset d \rightarrow N(0, \bm I(\bm \theta)^{-1}),
+\label{eq:asymptotic-normality}
+\end{equation}
+where 
+\begin{equation}
+\bm I(\bm \theta) \equiv -\mathbb E_{\bm \theta}\left[\frac{\partial^2}{\partial \bm \theta^2} \log p_{\bm \theta}(y) \right]
+\label{eq:fisher-info}
+\end{equation}
+is the Fisher information matrix.
+Furthermore, an optimal test of the null hypothesis 
+\begin{equation}
+H_0: \bm \theta \in \Theta_0 \quad \text{versus} \quad H_1: \bm \theta \in \Theta_1 
+\label{eq:general-null-hypothesis}
+\end{equation}
+for some $\Theta_0 \subseteq \Theta_1 \subseteq \Theta$ is the likelihood ratio test based on the test statistic
+\begin{equation}
+\Lambda = \frac{\max_{\bm \theta \in \Theta_1}\prod_{i = 1}^n p_{\bm \theta}(y_i)}{\max_{\bm \theta \in \Theta_0}\prod_{i = 1}^n p_{\bm \theta}(y_i)}.
+\end{equation}
+Under $H_0$, we have the convergence 
+\begin{equation}
+2 \log \Lambda \overset d \rightarrow \chi^2_k, \quad \text{where} \quad k \equiv \text{dim}(\Theta_1) - \text{dim}(\Theta_0).
+\end{equation}
+\end{minipage}
+}
+
+\end{prob}
+
+\begin{sol}
+\begin{enumerate}
+\item [(a)] The linear regression in \eqref{eq:linear-model} is equivalent to,
+\begin{align}\label{eq:lm-equiv}
+  y_{i} = \bm{x}_{i}^{T}\bm{\beta} + \epsilon_{i}
+\end{align}
+where $\bm{y}=(y_{1},y_{2},\cdots,y_{n})^{T}$, $\bm{x}_{i}, 1\leq i\leq n$ are the rows of $\bm{X}$ and $\bm{\epsilon}=(\epsilon_{1},\epsilon_{2},\cdots,\epsilon_{n})^{T}$. Under the fixed design set up, \eqref{eq:lm-equiv} is further equivalent to,
+\begin{align}\label{eq:yi-follows}
+  y_{i}\sim \mathrm{N}\left(\bm{x}_{i}^{T}\bm{\beta},\sigma^{2}\right), \quad 1\leq i\leq n
+\end{align}
+where $y_{i},1\leq i\leq n$ are independent. Define
+\begin{align}\label{eq:p-beta}
+  p_{\bm{\beta},i}\equiv \mathrm{N}\left(\bm{x}_{i}^{T}\bm{\beta},\sigma^{2}\right), \quad 1\leq i\leq n
+\end{align}
+Then combining \eqref{eq:yi-follows} and \eqref{eq:p-beta} we can see that the linear regression model \eqref{eq:linear-model} does not fit into the classical inferential set up \eqref{eq:iid-sampling} since it does not have the i.i.d. assumption, instead each $y_{i}$ are drawn independently from the distribution $p_{\bm{\beta},i}$ which (possibly) differs based upon $i$. The closest form that we can get is,
+\begin{align*}
+  y_{i}\overset{\text{\texttt{ind}}}{\sim}p_{\bm{\beta},i},\quad 1\leq i\leq n
+\end{align*}
+where \texttt{ind} implies $\{y_{i}:1\leq i\leq n\}$ are generated independently.
+\item [(b)] The Fisher Information Matrix given in \eqref{eq:fisher-info} is defined for a single random variable $y$ coming from an distribution $p_{\bm{\theta}}$ index by a (multidimensional) parameter $\bm{\theta}$. The definition works well in the classical inferential set up because of the presence of i.i.d. sample, whereby the expectation does not differ from sample to sample. But in the regression set up of \eqref{eq:linear-model}, this defintion will not make sense because each sample comes from (possibly) different distributions. As a result we consider the follwing,
+\begin{align}\label{eq:fisher-def}
+  \widetilde{\bm{I}}(\bm{\theta})=-\frac{1}{n}\sum_{i=1}^{n}\mathbb{E}_{\bm{\theta}}\left[\frac{\partial^{2}}{\partial\bm{\beta}^2}p_{\bm{\beta},i}\left(y_{i}\right)\right]
+\end{align}
+where $p_{\bm{\beta},i}$ is defined in \eqref{eq:p-beta}. It is easy to observe that under i.i.d. set up \eqref{eq:fisher-def} reduces to the usual Fisher Information from \eqref{eq:fisher-info}. Recalling the definition from \eqref{eq:p-beta} it can be easily seen that,
+\begin{align*}
+  \frac{\partial^2}{\partial\bm{\beta}^2}p_{\bm{\beta},i}(y_{i}) = \frac{1}{\sigma^{2}}\bm{x}_{\star i}\bm{x}_{\star i}^{T}, \quad 1\leq i\leq p
+\end{align*}
+where $\bm{x}_{\star i}$ denotes the $i^{th}$ column of $\bm{X}$ for all $1\leq i\leq p$. Therefore,
+\begin{align*}
+  \widetilde{I}\left(\bm{\beta}\right) = \frac{1}{n\sigma^{2}}\bm{X}^{T}\bm{X}
+\end{align*}
+Recall from Unit 1,
+\begin{align*}
+  \widehat{\bm{\beta}}\sim\mathrm{N}\left(\bm{\beta},\sigma^{2}\left(\bm{X}^{T}\bm{X}\right)^{-1}\right)\equiv\mathrm{N}\left(\bm{\beta},\frac{1}{n}\widetilde{I}^{-1}(\bm{\beta})\right)
+\end{align*}
+Implying,
+\begin{align*}
+  \sqrt{n}\left(\widehat{\bm{\beta}}-\bm{\beta}\right)\sim\mathrm{N}\left(\bm{0},\widetilde{\bm{I}}^{-1}\left(\bm{\beta}\right)\right)
+\end{align*}
+which is in the same flavor as \eqref{eq:asymptotic-normality}.\\
+Although the above statement is similar to \eqref{eq:asymptotic-normality}, it does not talk about asymptotics. Consider the following reformulation
+\begin{align*}
+  \sqrt{n}\widetilde{\bm{I}}\left(\bm{\beta}\right)^{-1/2}\left(\widehat{\bm{\beta}}-\bm{\beta}\right)\sim\mathrm{N}(0,\bm{I}).
+\end{align*}
+This statement is valid for all $n\in\mathbb{N}$, in particular for $n\rightarrow\infty$.
+\item [(c)] Under the given model the likelihood is given by,
+\begin{align*}
+  L\left(\bm{\beta},\sigma^{2}\middle|\bm{y},\bm{X}\right)\\
+  &=\frac{1}{(2\pi\sigma^{2})^{n/2}}\exp\left(-\frac{1}{2\sigma^{2}}\left(\bm{y}-\bm{X}\bm{\beta}\right)^{T}\left(\bm{y}-\bm{X\beta}\right)\right)\\
+\end{align*}
+where $\bm{x}_{i}, 1\leq i\leq n$ are the rows of $\bm{X}$. Then the log-likelihood is given by,
+\begin{align*}
+  l\left(\bm{\beta},\sigma^{2}\middle|\bm{y},\bm{X}\right)=\log L\left(\bm{\beta},\sigma^{2}\middle|\bm{y},\bm{X}\right)=-\frac{n}{2}\log\left(2\pi\sigma^{2}\right)-\frac{1}{2\sigma^{2}}\left(\bm{y}-\bm{X\beta}\right)^{T}\left(\bm{y}-\bm{X\beta}\right)
+\end{align*}
+Taking derivatives with respect to $\bm{\beta}$ and $\sigma^{2}$ and equating to $0$ we have,
+\begin{align}
+  &\frac{\partial{l}}{\partial{\bm{\beta}}} = \bm{X}^{T}\left(\bm{y}-\bm{X\beta}\right) = 0\nonumber\\
+  &\frac{\partial{l}}{\partial{\sigma^{2}}} = -\frac{n}{2\sigma^{2}} + \frac{1}{2\sigma^{4}}\left(\bm{y}-\bm{X\beta}\right)^{T}\left(\bm{y}-\bm{X\beta}\right) = 0\label{eq:mle_eq}
+\end{align}
+Solving the system of equations in \eqref{eq:mle_eq} we find the solutions to be,
+\begin{align*}
+  \widehat{\bm{\beta}} = \left(\bm{X}^{T}\bm{X}\right)^{-1}\bm{X}^{T}\bm{y}, \quad \widehat{\sigma}^{2} = \frac{1}{n}\left(\bm{y}-\bm{X}\widehat{\bm{\beta}}\right)^{T}\left(\bm{y}-\bm{X}\widehat{\bm{\beta}}\right)=\frac{1}{n}\sum_{i=1}^{n}\left(y_{i}-\bm{x}_{i}^{T}\widehat{\bm{\beta}}\right)^2
+\end{align*}
+where $\bm{y}=(y_{1},y_{2},\cdots,y_{n})^{T}$ and $\bm{x}_{i},1\leq i\leq n$ are the rows of the matrix $\bm{X}$. Notice that $\widehat{\bm{\beta}}$ equals the estimate derived in class, where as $\widehat{\sigma}^{2}$ is smaller then the corresponding estimate derived in class, and as a result $\widehat{\sigma}^{2}$ is a biased estimate of $\sigma^{2}$. 
+\item[(d)] The given hypothesis can be reformulated in the form of \eqref{eq:general-null-hypothesis} as follows,
+\begin{align*}
+  \bm{H}_{0}:\left(\bm{\beta},\sigma^{2}\right)\in\Theta_{0} \text{ vs }\bm{H}_{1}:\left(\bm{\beta},\sigma^{2}\right)\in\Theta_{1}
+\end{align*}
+where $\Theta_{0}=\left\{\bm{\beta}\in \mathbb{R}^{p}:\bm{\beta}_{S}=0\right\}\times\mathbb{R}^{+}$ and $\Theta_{1}=\mathbb{R}^{p}\times \mathbb{R}^{+}$. Then the likelihood ratio test statistic is given by,
+\begin{align}\label{eq:likelihood-ratio}
+  \Lambda &= \frac{\max_{\left(\bm{\beta},\sigma^{2}\right)\in\Theta_{1}}\prod_{i=1}^{n}\frac{1}{\sqrt{2\pi\sigma^{2}}}\exp\left[-\frac{1}{2\sigma^{2}}\left(y_{i}-\bm{x}_{i}^{T}\bm{\beta}\right)^2\right]}{\max_{\left(\bm{\beta},\sigma^{2}\right)\in\Theta_{0}}\prod_{i=1}^{n}\frac{1}{\sqrt{2\pi\sigma^{2}}}\exp\left[-\frac{1}{2\sigma^{2}}\left(y_{i}-\bm{x}_{i}^{T}\bm{\beta}\right)^2\right]}\nonumber\\
+  & = \frac{\max_{\left(\bm{\beta},\sigma^{2}\right)\in\Theta_{1}}\frac{1}{\left(2\pi\sigma^{2}\right)^{n/2}}\exp\left[-\frac{1}{2\sigma^{2}}\left(\bm{y}-\bm{X}\bm{\beta}\right)^{T}\left(\bm{y}-\bm{X\beta}\right)\right]}{\max_{\left(\bm{\beta},\sigma^{2}\right)\in\Theta_{0}}\frac{1}{\left(2\pi\sigma^{2}\right)^{n/2}}\exp\left[-\frac{1}{2\sigma^{2}}\left(\bm{y}-\bm{X}\bm{\beta}\right)^{T}\left(\bm{y}-\bm{X\beta}\right)\right]}
+\end{align}
+By part (c) we know that for the numerator the optimal values of $\bm{\beta}$ and $\sigma^2$ are given by,
+\begin{align}\label{eq:optimal-vals}
+  \widehat{\bm{\beta}}=\left(\bm{X}^{T}\bm{X}\right)^{-1}\bm{X}^{T}\bm{y},\quad\widehat{\sigma}^{2}=\frac{1}{n}\left(\bm{y}-\bm{X}\widehat{\bm{\beta}}\right)^{T}\left(\bm{y}-\bm{X}\widehat{\bm{\beta}}\right)
+\end{align}
+Considering $\bm{H}$ to be the projection matrix onto $C(\bm{X})$ we have,
+\begin{align*}
+  \widehat{\sigma}^{2} = \frac{1}{n}\bm{y}^{T}\left(\bm{I}-\bm{H}\right)^{T}\left(\bm{I}-\bm{H}\right)\bm{y}=\frac{1}{n}\bm{y}^{T}\left(\bm{I}-\bm{H}\right)\bm{y}
+\end{align*}
+Using the optimal values found in \eqref{eq:optimal-vals} the numerator from \eqref{eq:likelihood-ratio} becomes,
+\begin{align*}
+  \frac{1}{\left(2\pi\widehat{\sigma}^{2}\right)^{n/2}}\exp(-n/2)
+\end{align*}
+Now observe that the denominator is equivalent to,
+\begin{align}\label{eq:denom-equiv}
+  \max_{\left(\bm{\beta}_{-S},\sigma^{2}\right)\in \mathbb{R}^{p-|S|}\times\mathbb{R}^{+}}\frac{1}{\left(2\pi\sigma^{2}\right)^{n/2}}\exp\left[-\frac{1}{2\sigma^{2}}\left(\bm{y}-\bm{X}_{-S}\bm{\beta}_{-S}\right)^{T}\left(\bm{y}-\bm{X_{-S}}\bm{\beta}_{-S}\right)\right]
+\end{align}
+where $\bm{X}_{-S}$ is the matrix that we get by removing the columns $S$ from the matrix $\bm{X}$ and $\bm{\beta}_{S}$ is the vector that we get by removing the coordinates $S$ from the vector $\bm{\beta}$ (This equivalency is because by definition of $\Theta_{0}$, $\bm{\beta}_{S}=\bm{0}$ and thus $\bm{X\beta}=\bm{X}_{-S}\bm{\beta}_{-S})$. Similar computations as in part (c) gives the following optimal values for \eqref{eq:denom-equiv},
+\begin{align}\label{eq:denom-opti}
+  \widehat{\bm{\beta}}_{-S}=\left(\bm{X}_{-S}^{T}\bm{X}_{-S}\right)^{-1}\bm{X}_{-S}^{T}\bm{y},\quad\widehat{\sigma}^{2}_{0}=\frac{1}{n}\left(\bm{y}-\bm{X}_{-S}\widehat{\bm{\beta}}_{-S}\right)^{T}\left(\bm{y}-\bm{X}_{-S}\widehat{\bm{\beta}}_{-S}\right)
+\end{align}
+Using the equivalency of the denominator and \eqref{eq:denom-equiv} and the optimal values obtained in \eqref{eq:denom-opti} the denominator from \eqref{eq:likelihood-ratio} becomes,
+\begin{align*}
+  \frac{1}{\left(2\pi\widehat{\sigma}_{0}^{2}\right)^{n/2}}\exp(-n/2)
+\end{align*}
+Implying,
+\begin{align}\label{eq:likelihood-stat}
+  \Lambda = \left(\frac{\widehat{\sigma}_{0}}{\widehat{\sigma}}\right)^{n/2}=\left(\frac{\|\bm{y}-\bm{X}_{-S}\widehat{\bm{\beta}}_{-S}\|^2}{\|\bm{y}-\bm{X}\widehat{\bm{\beta}}\|^2}\right)^{n/2}
+\end{align}
+Recall the $F$-statistic is given by,
+\begin{align}\label{eq:F-stat-likelihood}
+  F = \frac{\left(\|\bm{y}-\bm{X}_{-S}\widehat{\bm{\beta}}_{-S}\|^2-\|\bm{y}-\bm{X}\widehat{\bm{\beta}}\|^2\right)/|S|}{\|\bm{y}-\bm{X}\widehat{\bm{\beta}}\|^2/(n-p)}
+\end{align}
+Combining \eqref{eq:likelihood-stat} and \eqref{eq:F-stat-likelihood} we conclude that,
+\begin{align*}
+  \Lambda = \left(1+\frac{|S|}{n-p}F\right)^{n/2}
+\end{align*}
+It can be easily seen that $\Lambda$ is an increasing function of $F$ and thus the likelihood ratio test is equivalent to the $F$ test. 
+\end{enumerate}
+\end{sol}
+
+\begin{prob} \textbf{Relationships among $t$-tests, $F$-tests, and $R^2$.} \\
+
+\noindent Consider the linear regression model~\eqref{eq:linear-model}, such that $\bm x_{*,0} = \bm 1_n$ is an intercept term (note that there are only $p-1$ other predictors, for a total of $p$).
+
+\begin{itemize}
+\item[(a)] Relate the $R^2$ of the linear regression to the $F$-statistic for a certain hypothesis test. What is the corresponding null hypothesis? What is the null distribution of the $F$-statistic? Are $R^2$ and $F$ positively or negative related, and why does this make sense?
+
+\item[(b)] Use the relationship found in part (a) to simulate the null distribution of the $R^2$ by repeatedly sampling from an $F$ distribution (via \verb|rf|). Fix $n = 100$ and try $p \in \{2, 25, 50, 75, 99\}$. Comment on these null distributions, how they change as a function of $p$, and why. 
+
+\item[(c)] Consider the null hypothesis $H_0: \beta_j = 0$, which can be tested using either a $t$-test or an $F$-test. Write down the corresponding $t$ and $F$ statistics, and prove that the latter is the square of the former. 
+
+\item[(d)] Now suppose we are interested in testing the null hypothesis $H_0: \bm \beta_{-0} = \bm 0$. One way of going about this is to start with the usual test statistic $t(\bm c)$ for the null hypothesis $H_0: \bm c^T \bm \beta_{-0} = 0$, and then maximize over all $\bm c \in \mathbb R^{p-1}$:
+\begin{equation}
+t_{\max} \equiv \max_{\bm c \in \mathbb R^{p-1}} t(\bm c).
+\end{equation}
+What is the null distribution of $t_{\max}^2$? What $F$-statistic is $t_{\max}^2$ equivalent to? How does the null distribution of $t_{\max}^2$ compare to that of $t(\bm c)^2$?
+
+\end{itemize}
+
+\end{prob}
+\begin{sol}
+\begin{enumerate}
+  \item [(a)] For the linear regression in~\eqref{eq:linear-model} recall the $R^{2}$ is given by,
+  \begin{align}\label{eq:R2}
+    R^2 = \frac{\text{SSR}}{\text{SST}} = \frac{\|\bm{X}\widehat{\bm{\beta}}-\bar{y}\bm{1}_{n}\|^2}{\|\bm{y}-\bar{y}\bm{1}_{n}\|^2}
+  \end{align}
+  Consider testing for any significant coefficients except the intercept. Then the null hypothesis is given by $H_{0}:\beta_{1}=\cdots=\beta_{p-1}=0$ and the corresponding $F$-statistic is given by,
+  \begin{align}\label{eq:F}
+    F\equiv \frac{\left(\|\bm{y}-\bar{y}\bm{1}_{n}\|^2-\|\bm{y}-\bm{X}\widehat{\bm{\beta}}\|^2\right)/(p-1)}{\|\bm{y}-\bm{X}\widehat{\bm{\beta}}\|^2/(n-p)}
+  \end{align}
+  Recall the ANOVA decomposition of the variation in $\bm{y}$,
+  \begin{align}\label{eq:ANOVA}
+    \|\bm{y}-\bar{y}\bm{1}_{n}\|^2 = \|\bm{y}-\bm{X}\widehat{\bm{\beta}}\|^2 + \|\bm{X}\widehat{\bm{\beta}}-\bar{y}\bm{1}_{n}\|^2
+  \end{align}
+  Combining \eqref{eq:R2},\eqref{eq:F} and \eqref{eq:ANOVA} it is easy to see that,
+  \begin{align}\label{eq:FR2}
+    R^{2}=\frac{F}{F+\frac{n-p}{p-1}}
+  \end{align}
+  Under $H_{0}$ the $F$-statistic defined in \eqref{eq:F} has a $F_{p-1,n-p}$ distribution. From the relation \eqref{eq:FR2} it can be easily seen that $F$ and $R^{2}$ are positively related (this follows since $x/(x+c)$ is an increasing function of $x$ when $c>0$).\\
+  This relation does make sense. Notice that large values of $F$-statistic gives enough evidence to reject the null hypothesis, thereby showing that other $p-1$ covariates have significant contribution towards explaining the variation of $y$, which is exactly what large values of $R^{2}$ indicates.
+
+\item [(b)]
+Recall that under null $F\sim F_{p-1,n-p}$. For the given values of $p\in\{2,25,50,75,99\}$ the chunk below simulates the null distribution of $R^{2}$ using the relation \eqref{eq:FR2}.
+<<>>=
+# Setting seed for reproducibility
+set.seed(961)
+
+# Choosing n and number of covariates (p)
+n <- 100; p <- c(2,25,50,75,99)
+
+# Function for generating R^2 from F
+gen.R2 <- function(x,n,p){return (x/(x+(n-p)/(p-1)))}
+
+# Sampling R^2
+R2.samp <- c()
+for (i in 1:length(p)){
+  F.samp <- rf(n,p[i]-1,n-p[i])
+  R2.samp <- cbind(R2.samp,gen.R2(F.samp,n,p[i]))
+}
+R2.samp <- as.data.frame(R2.samp)
+colnames(R2.samp) <- c("p = 2", "p = 25","p = 50", "p = 75", "p = 99")
+
+# Histograms of R^2 for each value of p
+R2.hist <- reshape2::melt(as.data.frame(R2.samp),id.vars = NULL) %>% 
+  mutate(variable = factor(variable)) %>% 
+  ggplot(aes(x=value, fill=variable)) +
+      geom_histogram(binwidth=0.03)+
+      labs(x = expression(R^2))+
+      facet_grid(variable~.)
+
+# Saving the histogram
+ggsave(R2.hist, file = paste0("R2hist.png"), width = 5, height = 5)
+@
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width = \textwidth]{R2hist.png}
+  \caption{Histogram of $R^{2}$ for $p\in\{2,25,50,75,99\}$.}
+  \label{fig:R2}
+\end{figure}
+
+From Fig \ref{fig:R2} it is clear that the distribution of $R^{2}$ shifts towards $1$ as $p$ increases to $n$. Notice that as $p$ increases to $n$ we are producing better and better fits of the data (Think about the extreme case $p=n$, assuming the covariates are linearly independent we can have exact fit for the data, and in this case we would have explained all the variation in the data using our model). As a result, by definition, increasing $p$ would increase the value of $R^{2}$. 
+\item [(c)] The $t$-statistics for the test is given by,
+\begin{align}\label{eq:t-stat}
+  t_{j}=\frac{\widehat{\beta}_{j}}{\sqrt{\frac{1}{n-p}\|\widehat{\bm{\epsilon}}\|^2/s_{j}^2}}
+\end{align}
+where $\widehat{\beta}_{j}$ is the least square estimate of the coefficient $\beta_{j}$ from the regression problem in \eqref{eq:linear-model}, $s_{j}^2=\left[\left(\bm{X^{T}X}\right)_{jj}^{-1}\right]^{-1}$ and $\widehat{\bm{\epsilon}}$ is the residual vector. The $F$-statistics is given by,
+\begin{align}\label{eq:F-stat}
+  F = \frac{\|\bm{X}\widehat{\bm{\beta}}-\bm{X}_{*,-j}\widehat{\bm{\beta}}_{-j}\|^2}{\|\bm{y}-\bm{X}\widehat{\bm{\beta}}\|^2/(n-p)} = \frac{\|\bm{X}\widehat{\bm{\beta}}-\bm{X}_{*,-j}\widehat{\bm{\beta}}_{-j}\|^2}{\frac{1}{n-p}\|\widehat{\bm{\epsilon}}\|^{2}}
+\end{align}
+where $\widehat{\bm{\beta}}_{-j}$ is the least squares coefficients coming from the partial model,
+\begin{align*}
+  \bm{y} = \bm{X}_{*,-j}\bm{\beta}_{-j} + \epsilon
+\end{align*}
+From Unit $1$ recall that the regression problem \eqref{eq:linear-model} can be rewritten as,
+\begin{align*}
+  \bm{y} = \bm{x}_{*j}^{\perp}\beta_{j} + \bm{X}_{*,-j}\bm{\beta}_{-j}' + \epsilon
+\end{align*}
+where $\bm{x}_{*j}^{\perp}$ is the residual from regressing $\bm{x}_{*j}$ on $\bm{X}_{*,-j}$ or in other words it is the projection of $\bm{x}_{*j}$ onto $C(\bm{X}_{*,-j})^{\perp}$ (Note that the coefficient $\beta_{j}$ remains unchanged in the two models). Using orthogonality, the least squares estimates of $\beta_{j}$ and $\bm{\beta}_{-j}'$ can be found by regressing $\bm{y}$ on $\bm{x}_{*j}^{\perp}$ and $\bm{X}_{*,-j}$ separately. Then by definition we must have,
+\begin{align}\label{eq:beta-equal}
+  \widehat{\bm{\beta}}_{-j} = \widehat{\bm{\beta}}_{-j}'
+\end{align}
+Consider the permutation matrix $\bm{P}$ with rows $\bm{p}_{i}^{T},1\leq i\leq p$ defined by,
+\begin{align*}
+  \bm{p}_{i}=\begin{cases}
+    \bm{e}_{i+1} & 1\leq i\leq j-1\\
+    \bm{e}_{1} & i=j\\
+    \bm{e}_{i} & j+1\leq i\leq p
+  \end{cases}
+\end{align*}
+where $\bm{e}_{k}$ denotes the $p\times 1$ vector with $1$ at position $k$ and $0$ at all other positions, for all $1\leq k\leq p$. Define $\widehat{\bm{\gamma}}$ to be the least squares coefficient from regressing $\bm{x}_{*j}$ on $\bm{X}_{*,-j}$. Then it is easy to observe that,
+\begin{align*}
+  \bm{X}\left(P
+  \begin{bmatrix}
+  1 & \bm{0}^{T}\\
+  -\widehat{\bm{\gamma}} & \bm{I}_{p-1}
+  \end{bmatrix}\right)
+  =\begin{bmatrix}
+  \bm{x}_{*j}^{\perp} & \bm{X}_{*,-j}
+  \end{bmatrix}=:\bm{X}'
+\end{align*}
+Thus from Question 1 of Homework 1 we conclude that $C(\bm{X})=C(\bm{X}')$. Thus considering the projection of $\bm{y}$ on $C(\bm{X})$ and $C(\bm{X}')$ and using \eqref{eq:beta-equal} we must have,
+\begin{align*}
+  \bm{X}\widehat{\bm{\beta}} = \bm{x}_{*j}^{\perp}\widehat{\beta}_{j} + \bm{X}_{*,-j}\widehat{\bm{\beta}}_{-j}
+\end{align*}
+Then the $F$-statistics (from \eqref{eq:F-stat}) becomes,
+\begin{align}\label{eq:F-alt-form}
+  F = \frac{\widehat{\beta}_{j}^{2}\|\bm{x}_{*j}^{\perp}\|^2}{\frac{1}{n-p}\|\widehat{\bm{\epsilon}}\|^{2}}
+\end{align}
+Recalling the variance of $\widehat{\beta}_{j}$ (from unit 1), it can be seen that $s_{j}^{2}=\|\bm{x}_{*j}^{\perp}\|^2$. Then from \eqref{eq:t-stat} and \eqref{eq:F-alt-form} we can conclude that,
+$$
+  t_{j}^{2}=F
+$$
+
+\item [(d)] Observe that the hypothesis $\bm{H}_{0}:\bm{c}^{T}\bm{\beta}_{-0}=0$ is equivalent to the hypothesis $\bm{H}_{0}:\widetilde{\bm{c}}^{T}\bm{\beta}=0$, where $\widetilde{\bm{c}}^{T}=(0,\bm{c}^{T})$. Then the usual test statistic $t(\bm{c})$ is given by,
+\begin{align}\label{eq:t(c)redef}
+  t(\bm{c})=\frac{\widetilde{\bm{c}}^{T}\widehat{\bm{\beta}}}{\widehat{\sigma}\sqrt{\widetilde{\bm{c}}^{T}\left(\bm{X}^{T}\bm{X}\right)^{-1}\widetilde{\bm{c}}}}
+\end{align}
+Consider $\bm{e}_{i},1\leq i\leq p$ to be the standard basis vectors of $\mathbb{R}^{p}$ (also defined above in part (c)). Consider an $p\times p$ matrix $\bm{A}=\left[\bm{a}_{1},\cdots,\bm{a}_{p}\right]$ where
+\begin{align*}
+  \bm{a}_{j}=\begin{cases}
+    \bm{e}_{1} & \text{ if }j=1\\
+    \bm{e}_{j} - \bar{x}_{j-1}\bm{e}_{1} & \text{ if } 2\leq j\leq p
+  \end{cases}
+\end{align*}
+and $\bar{x}_{j}$ denotes the mean of column $j$ of $\bm{X}$ for all $1\leq j\leq p-1$. Then
+\begin{align*}
+  \bm{X}'=\bm{XA} = \left[\bm{1}_{n},\bm{x}_{\star 1}-\bar{x}_{1}\bm{1}_{n},\cdots,\bm{x}_{\star p-1}-\bar{x}_{p-1}\bm{1}_{n}\right]
+\end{align*}
+where $\bm{x}_{\star j}$ denotes the $j^{th}$ column of $\bm{X}$ for all $1\leq j\leq p-1$. It is easy to observe that 
+\begin{align*}
+  \bm{A}^{-1} = \begin{cases}
+    \bm{e}_{1} & \text{ if }j=1\\
+    \bm{e}_{j} + \bar{x}_{j-1}\bm{e}_{1} & \text{ if } 2\leq j\leq p
+  \end{cases}
+\end{align*}
+is the inverse of $\bm{A}$ (The proof was done for $p=3$ in HW 1, same proof would follow for the general case). Next consider the following linear model,
+\begin{align}\label{eq:linmodnew}
+  \bm{y} = \bm{X}'\bm{\beta}' + \bm{\epsilon}
+\end{align}
+By HW1 Problem 1(b) we know that $\widehat{\bm{\beta}}' = \bm{A}^{-1}\widehat{\bm{\beta}}$, implying,
+\begin{align*}
+  \widehat{\bm{\beta}}_{-0}'=\widehat{\bm{\beta}}_{-0}
+\end{align*}
+Recalling the expression \eqref{eq:t(c)redef} we have,
+\begin{align}\label{eq:t(c)update}
+  t(\bm{c}) = \frac{\widetilde{\bm{c}}^{T}\widehat{\bm{\beta}}^{'}}{\widehat{\sigma}\sqrt{\widetilde{\bm{c}}^{T}\left(\bm{X}^{T}\bm{X}\right)^{-1}\widetilde{\bm{c}}}}
+\end{align}
+Using inversion of block matrices it can be easily seen that,
+\begin{align}\label{eq:quad-form}
+  \widetilde{\bm{c}}^{T}\left(\bm{X}^{T}\bm{X}\right)^{-1}\widetilde{\bm{c}} = \bm{c}^{T}\left(\bm{X}_{-0}^{T}\bm{X}_{-0}-n\bar{\bm{x}}\bar{\bm{x}}^{T}\right)^{-1}\bm{c}
+\end{align}
+where $\bar{\bm{x}}=(\bar{x}_{1},\cdots,\bar{x}_{p-1})^{T}$. Define,
+\begin{align*}
+  \bm{Z}=\bm{X}_{-0}-\bm{1}_{n}\bar{\bm{x}}^{T}
+\end{align*}
+Observe that $C(\bm{Z})$ is orthogonal to $\bm{1}_{n}$. By definition $\bm{X}'=[\bm{1}_{n}, \bm{Z}]$ and $\bm{Z}^{T}\bm{Z} = \bm{X}_{-0}^{T}\bm{X}_{-0}-n\bar{\bm{x}}\bar{\bm{x}}^{T}$.
+%Then once again using inversion of block matrices we have,
+%\begin{align*}
+%  \widetilde{\bm{c}}^{T}\left(\bm{X}'^{T}\bm{X}'\right)^{-1}\widetilde{\bm{c}}=\bm{c}^{T}\left(\bm{Z}^{T}\bm{Z}\right)^{-1}\bm{c}=\widetilde{\bm{c}}^{T}\left(\bm{X}^{T}\bm{X}\right)^{-1}\widetilde{\bm{c}}
+%\end{align*}
+Recall the model \eqref{eq:linmodnew}, then orthogonality of $\bm{1}_{n}$ and $C(\bm{Z})$ gives,
+\begin{align}\label{eq:betaprime-0}
+  \widehat{\bm{\beta}}_{-0}' = \left(\bm{Z}^{T}\bm{Z}\right)^{-1}\bm{Z}^{T}\bm{y}
+\end{align}
+Combining \eqref{eq:t(c)update},\eqref{eq:quad-form} and \eqref{eq:betaprime-0}, $t(\bm{c})$ becomes,
+\begin{align*}
+  t(\bm{c}) = \frac{\bm{c}^{T}\left(\bm{Z}^{T}\bm{Z}\right)^{-1}\bm{Z}^{T}\bm{y}}{\widehat{\sigma}\sqrt{\bm{c}^{T}\left(\bm{Z}^{T}\bm{Z}\right)^{-1}\bm{c}}}
+\end{align*}
+Using Cauchy Schwarz Inequality we have,
+\begin{align*}
+  \left|t(\bm{c})\right|=\frac{\left|\left(\left(\bm{Z}^{T}\bm{Z}\right)^{-1/2}\bm{c}\right)^{T}\left(\bm{Z}^{T}\bm{Z}\right)^{-1/2}\bm{Z}^{T}\bm{y}\right|}{\widehat{\sigma}\left\|\left(\bm{Z}^{T}\bm{Z}\right)^{-1/2}\bm{c}\right\|_{2}}\leq \frac{1}{\widehat{\sigma}}\left\|\left(\bm{Z}^{T}\bm{Z}\right)^{-1/2}\bm{Z}^{T}\bm{y}\right\|_{2}
+\end{align*}
+and equality would follow if and only if
+\begin{align*}
+  t\left(\bm{Z}^{T}\bm{Z}\right)^{-1/2}\bm{Z}^{T}\bm{y}=\left(\bm{Z}^{T}\bm{Z}\right)^{-1/2}\bm{c}\text{ for some }t\in \mathbb{R}\setminus\{0\}\implies \bm{c}=t\bm{Z}^{T}\bm{y}\text{ for some }t\in\mathbb{R}\setminus\{0\}.
+\end{align*}
+Then the maximum is attained and hence,
+\begin{align*}
+  t_{\max}^{2} = \frac{\left\|\left(\bm{Z}^{T}\bm{Z}\right)^{-1/2}\bm{Z}^{T}\bm{y}\right\|}{\widehat{\sigma}^2}=\frac{\bm{y}^{T}\bm{Z}\left(\bm{Z}^{T}\bm{Z}\right)^{-1}\bm{Z}^{T}\bm{y}}{\widehat{\sigma}^{2}}=\frac{\bm{y}^{T}\bm{P}_{\bm{Z}}\bm{y}}{\widehat{\sigma}^{2}}
+\end{align*}
+where $\bm{P_{Z}}$ is the projection matrix onto $C(\bm{Z})$. Observe that under the null ($\bm{H}_{0}:\bm{\beta}_{-0}=\bm{0}$), $\bm{X\beta}=\bm{1}_{n}$. Then orthogonality of $\bm{1}_{n}$ and $C(\bm{Z})$ gives
+%Again using orthogonality of $\bm{1}_{n}$ and $C(\bm{Z})$, under the null ($\bm{H}_{0}: \bm{\beta}_{-0}=\bm{0}$), 
+$$\bm{P_{Z}y}\sim\mathrm{N}\left(0,\sigma^{2}\bm{P_{Z}}\right).$$
+Using Lemma 1.1 of Unit 2 along with $\bm{P_{Z}}^{2}=\bm{P_{Z}} \text{ and }\text{trace}(\bm{P_{Z}})=\text{dim}(C(\bm{Z}))=p-1$, we have
+\begin{align*}
+  t_{\max}^{2} = \frac{\bm{y}^{T}\bm{P_{Z}}\bm{y}/\sigma^{2}}{\widehat{\sigma}^{2}/\sigma^{2}}\sim (p-1)F_{p-1,n-p}\text{ under null.}
+\end{align*}
+Once again using the orhtogonality,
+\begin{align*}
+  \bm{P_{X}}=\bm{P_{Z}}+\bm{P}_{\bm{1}_{n}}\implies \bm{y}^{T}\bm{P_{Z}}\bm{y}^{T}=\left\|\bm{X}\widehat{\bm{\beta}}-\bar{y}\bm{1}_{n}\right\|^2
+\end{align*}
+Thus $t_{\max}^{2}$ is equivalent to the $F$ statistics used for testing $\bm{H}_{0}:\bm{\beta}_{-0}=\bm{0}$. Finally observe that under the null (any one of the two null hypothesis would suffice, since $\bm{H}_{0}:\bm{c}^{T}\bm{\beta}_{-0}=0$ is an implication of $\bm{H}_{0}:\bm{\beta}_{-0}=\bm{0}$)
+\begin{align*}
+  \widetilde{\bm{c}}^{T}\widehat{\bm{\beta}}\sim \mathrm{N}\left(0,\sigma^{2}\widetilde{\bm{c}}^{T}\left(\bm{X}^{T}\bm{X}\right)^{-1}\widetilde{\bm{c}}\right)
+\end{align*}
+Then,
+\begin{align*}
+  t(\bm{c})\sim t_{n-p}\implies t(\bm{c})^{2}\sim F_{1,n-p}\text{ under null}.
+\end{align*}
+Considering the mean and variance of $F$-distribution it can be easily seen that the null distribution of $t_{\max}^{2}$ will be shifted towards the right from the null distribution of $t(\bm{c})^{2}$ and will have higher variance than the null distribution of $t(\bm{c})^{2}$. The comparison is shown in Fig \ref{fig:dencomp}.
+<<>>=
+n <- 1000; p <- 10
+
+# Generating samples
+x <- (p-1)*rf(n, p-1, n-p)
+y <- rf(n, 1, n-p)
+
+# X denotes t^2_max and Y denotes t(c)
+xlab <- rep('X',n)
+ylab <- rep('Y',n)
+
+# Building a dataframe
+df <- data.frame(value=c(x,y),lab=c(xlab,ylab),stringsAsFactors = F)
+
+#Plot
+dencomp <- ggplot(df,aes(x=value,fill=lab,color=lab,group=lab))+
+  geom_histogram(aes(y = ..density..),
+                 alpha = 0.4,position = position_dodge(),
+                 binwidth = 0.5)+
+  geom_line(aes(y = ..density..,),
+            stat = 'density',show.legend = F)
+
+# Saving the density comparison
+ggsave(plot = dencomp, file = paste0("dencomp.png"), width = 5, height = 5)
+@
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width = 0.7\textwidth]{dencomp.png}
+  \caption{Comparison between $X\sim (p-1)F_{p-1,n-p}$ and $Y\sim F_{1,n-p}$.}
+  \label{fig:dencomp}
+\end{figure}
+\end{enumerate}
+\end{sol}
+
+\begin{prob} \label{prob:data}\textbf{Case study: Violent crime.}
+
+\noindent The \texttt{Statewide\_crime.dat} file under \texttt{stat-961-fall-2021/data} contains information on the number of violent crimes and murders for each U.S. state in a given year, as well as three socioeconomic indicators: percent living in metropolitan areas, high school graduation rate, and poverty rate.
+<<message = FALSE>>=
+crime_data = read_tsv("../../data/Statewide_crime.dat")
+print(crime_data, n = 5)
+@
+
+\noindent The goal of this problem is to study the relationship between the three socioeconomic indicators and the per capita violent crime rate.
+
+\begin{itemize}
+\item[(a)] These data contain the total number of violent crimes per state, but it is more meaningful to model violent crime rate per capita. To this end, go online to find a table of current populations for each state. Augment \verb|crime_data| with a new variable called \verb|Pop| with this population information (see \verb|dplyr::left_join|) and create a new variable called \verb|CrimeRate| defined as \verb|CrimeRate = Violent/Pop| (see \verb|dplyr::mutate|).
+
+\item[(b)] Explore the variation and covariation among the variables \verb|CrimeRate|, \verb|Metro|, \verb|HighSchool|, \verb|Poverty| with the help of visualizations and summary statistics.
+
+\item[(c)] Construct linear model based hypothesis tests and confidence intervals associated with the relationship between \verb|CrimeRate| and the three socioeconomic variables, printing and/or plotting your results. Discuss the results in technical terms.
+
+\item[(d)] Discuss your interpretation of the results from part (c) in language that a policymaker could comprehend, including any caveats or limitations of the analysis. Comment on what other data you might want to gather for a more sophisticated analysis of violent crime.
+
+\end{itemize}
+
+\end{prob}
+\begin{sol}
+\begin{enumerate}
+\item [(a)]
+I took the population data from \href{https://worldpopulationreview.com/states}{World Population Review}. The below chunk creates the new variables \texttt{CrimeRate}.
+<<>>=
+# Reading population data
+PopData <- read.csv("csvData.csv")[-31,2:3]
+
+# Preprocessing population data
+
+## Abbreviating state names
+PopData$State <- state.abb[match(PopData$State,state.name)]
+
+## Matching abbreviations to crime_data
+PopData$State[49] <- "DC";PopData$State[32] <- "IO"
+
+## Preparing for adding to crime_data
+colnames(PopData) <- c("STATE","Pop")
+PopData <- as.data.frame(PopData)
+
+# Adding the population (pop) and crime rate (Violent/Pop) variables
+crime_data <- crime_data %>%
+  left_join(.,PopData) %>%
+  mutate(CrimeRate = Violent/Pop) %>%
+  print(.,n=5)
+@
+\item [(b)]
+From this point onwards we will consider \texttt{CrimeRate} to be violent crimes per $10^{4}$ person. 
+<<>>==
+# Changing CrimeRate to per 10^4 person
+crime_data <- crime_data %>%
+  mutate(CrimeRate = CrimeRate*(10^4))
+
+# Variation and Covariation Plots 
+cov.plot <- crime_data %>%
+      GGally::ggpairs(
+        columns = c(4,5,6,8),
+        lower = list(continuous = 'smooth'))
+
+ggsave(plot = cov.plot, filename = "covariance_plot.png",
+        device = "png", width = 7, height = 6)
+
+# Correlation plot of the variables
+crime.slice <- crime_data[,c("Metro",
+        "HighSchool", "Poverty", "CrimeRate")]
+corr.plot <- ggcorrplot::ggcorrplot(round(cor(crime.slice), 3))
+
+ggsave(plot = corr.plot, filename = "corr_plot.png",
+        device = "png", width = 6, height = 6)
+
+# Summary statistics of crime_data
+crime_summary <- crime_data %>%
+      vtable::st(,out = "return",
+        vars = c("Metro","HighSchool","Poverty","CrimeRate"),
+        digits = 2) %>%
+      kableExtra::kable(format = "latex",
+                    row.names = NA, booktabs = T,
+                    digits = 2, align = rep("c",4)) %>%
+      kableExtra::save_kable("summary_stat.pdf")
+@
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width = 0.8\textwidth]{covariance_plot.png}
+  \caption{Scatterplots of all variables combinations among \texttt{Metro, HighSchool, Poverty} and \texttt{CrimeRate} with \texttt{CrimeRate} shown in scale of violent crimes per $10^{4}$ people.}
+  \label{fig:cov}
+\end{figure}
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width = 0.6\textwidth]{corr_plot.png}
+  \caption{Correlation heatmap of \texttt{Metro, HighSchool, Poverty} and \texttt{CrimeRate} with \texttt{CrimeRate} shown in scale of violent crimes per $10^{4}$ people.}
+  \label{fig:corr}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width = 0.7\textwidth]{summary_stat.pdf}
+  \caption{Summary statistics of \texttt{crime\_data} with \texttt{CrimeRate} shown in scale of violent crimes per $10^{4}$ people.}
+  \label{tab:summary}
+\end{figure}
+The variation and covariations can be observed from Fig \ref{fig:cov} and \ref{fig:corr} and the summary statistics are given in Table \ref{tab:summary}. From Fig \ref{fig:corr} we can see that based on the data, poverty rate has a strong negative correlation with high school graduation rate, which in line with our intuition that in areas where high school graduation rates are high, poverty rate would come down. One surprising observation from Fig \ref{fig:cov} and \ref{fig:corr} is the positive correlation between all the socio-economic factors and crime rate. We will explore this further in part (c). From Table \ref{tab:summary} we can observe that there is lot of variability in the percentage of population living in metropolitan areas. Also looking at the interquartile range and maximum values of \texttt{CrimeRate}, there appears to be presence of outlier in the data, which will be dealt with subsequently. 
+\item [(c)] We consider the following model,
+\begin{align}\label{eq:lm3}
+  \text{\tt CrimeRate} = \beta_{0}+\beta_{1}\text{\tt Metro} + \beta_{2}\text{\tt HighSchool} + \beta_{3}\text{\tt Poverty} + \bm{\epsilon}
+\end{align}
+where $\bm{\epsilon}\sim\mathrm{N}_{n}(\bm{0},\sigma^{2}\bm{I}_{n\times n})$, variable names in the model indicates the $n$ dimensional column vector of the same name from \texttt{crime\_data} and \texttt{CrimeRate} has been modified to be in scale of violent crimes per $10^{4}$ people. In order to ascertain that there is some socio-economic effect on the crime rate in the states we conduct the following hypothesis test,
+\begin{align}\label{eq:Fhypo}
+  \bm{H}_{0}:\bm{\beta}_{-0}=\bm{0}\text{ vs }\bm{H}_{1}:\bm{\beta}_{-0}\neq \bm{0}
+\end{align}
+In the following chunk we fit the linear model in \eqref{eq:lm3}.
+<<>>=
+# Fitting the linear model
+crime.lm <- crime_data %>%
+        lm(CrimeRate ~ Metro + HighSchool + Poverty,.)
+
+# Summary of the fitted linear model
+summary(crime.lm)
+@
+From the \texttt{F-statistic} given in the summary we can conclude that socio-economic effect on crime rate in states is significant at the $5\%$ level. Based on the above conclusion we wish to look which of the socio-economic factors, namely \texttt{Metro, HighSchool} and \texttt{Poverty} are significant. Hence we consider the following hypothesis,
+\begin{align*}
+  \bm{H}_{0,i}:\beta_{i}=0\text{ vs }\bm{H}_{1,i}:\beta_{i}\neq 0, \quad\forall 1\leq i\leq 3
+\end{align*}
+
+From the above summary we can see that the coefficients of all the socio-economic variables are significant at the $5\%$ level.\\
+Let us also discuss the implications of the coefficient estimates. Keeping all other covariates (socio-economic variables) fixed, an increase of $0.054$ violent crimes per $10^{4}$ person is associated with an unit increase in percentage of population living in metro cities, an increase of $0.57$ violent crimes per $10^{4}$ person is associated with an unit increase in high school graduation rate, and an increase of $0.83$ violent crimes per $10^{4}$ person is associated with an unit increase in poverty rate.\\
+We also look at confidence interval of the coefficients of the socio-economic factors.
+<<>>=
+# Table of Confidence Intervals of Coeff estimates
+confint(crime.lm) %>%
+  kableExtra::kable(format = "latex",
+                    row.names = NA, booktabs = T,
+                    digits = 4, align = rep("c",4)) %>%
+      kableExtra::save_kable("confint.pdf")
+@
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width = 0.5\textwidth]{confint.pdf}
+  \caption{Confidence interval of the fitted coefficients in the linear model \eqref{eq:lm3}}
+  \label{tab:confint}
+\end{figure}
+
+From Table \ref{tab:confint} none of the confidence intervals contain $0$. This shows that with probability $.95$ the true parametes are in the intervals given in Table \ref{tab:confint}. This means with high probability all the socio-economic factors are positively related to percentage of violent crimes. This seems counter-intuitive, as a result let us look at the regression diagnostic presented in Fig \ref{fig:regdiag}.
+<<>>=
+# Plotting residuals of the regression against fitted values
+fitvsres <- crime.lm %>%
+  ggplot(aes(.fitted,.resid)) +
+  geom_point() +
+  
+  # Fit a locally weighted regression
+  stat_smooth(method="loess") +
+  
+  # Showing the y-axis
+  geom_hline(yintercept=0, col="red", linetype="dashed") + 
+  
+  xlab("Fitted values") +
+  ylab("Residuals") + 
+  ggtitle("Residual vs Fitted Plot") +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+# Saving the residual vs fitted values
+ggsave(plot = fitvsres, filename = "regdiag.png",
+       device = "png", width = 4, height = 4)
+@
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width = 0.5\textwidth]{regdiag.png}
+  \caption{Plot of residuals against fitted values for the linear model \eqref{eq:lm3}}
+  \label{fig:regdiag}
+\end{figure}
+
+It is clear from Fig \ref{fig:regdiag} that there is presence of outlier, which can heavily impact the conclusions drawn above. The outlier state is given in Table \ref{tab:outlier}.
+<<>>=
+# Index of the outlier state
+out.state <- which.max(crime.lm$residuals)
+
+# Details of the outlier state in a table
+crime_data[out.state,] %>%
+  kableExtra::kable(format = "latex",
+                      row.names = NA, booktabs = T,
+                      digits = 4, align = rep("c",4)) %>%
+        kableExtra::save_kable("outlier.pdf")
+@
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width = 0.8\textwidth]{outlier.pdf}
+  \caption{The outlier state \texttt{DC}}
+  \label{tab:outlier}
+\end{figure}
+Looking at the \texttt{crime\_data} and comparing \texttt{DC} (from Table \ref{tab:outlier}) with other states we can see that although it has high percentages of metropolitan population, high rates of high school graduation, there is significantly high percentage of violent crimes happening there, which does not agree with the other states. Let us redo the above analysis with \texttt{DC} removed from the dataset.
+<<>>=
+# Running the regression with DC removed
+crime.lm.new <- crime_data %>%
+  
+  # Removing the outlier state
+  slice(-out.state) %>%
+  
+  lm(CrimeRate ~ Metro + HighSchool + Poverty, .)
+summary(crime.lm.new)
+@
+From the \texttt{F-statistic} given in the summary we can see that there is not enough evidence to reject the hypothesis \eqref{eq:Fhypo} and thus we can conclude that based on the available data, none of the socio-economic factors have significant effect on the \texttt{CrimeRate} in a state. 
+\item [(d)] Based on the data collected the state of \texttt{DC} appears to be different from the others. It has significantly higher crimes per capita, when considered with poverty rate, metropolitan population and high school graduation rates. The crime rates in the state of \texttt{DC} needs to be analysed further and it would be unwise to implement matching (with other states) policies based upon the data collected. In the present data, it can be seen that \texttt{DC} is not in line with other states, and in order to make useful inferences from the data, it is best to remove \texttt{DC} from the dataset.\\
+
+Based on the provided data, the socio-economic factors of poverty rates, metropolitan population and high school graduation rates cannot explain the variability of crime rates across states. In simpler terms, the data doesn't provide any evidence to suggest that above three socio-economic factors have any significant effect on the crime rates across the states.\\
+
+But one must take this conclusion with a grain of salt. Although there was no evidence of significant effect of the factors, one cannot dismiss that they do not play any role. There may be other deeper factors at play here which were absent in the data. For example, the existing policies in metropolitan areas across states may be good enough to keep crimes at bay, which could overshadow the effects of the factors considered here.
+\end{enumerate}
+\end{sol}
+\end{document}
