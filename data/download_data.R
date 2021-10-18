@@ -67,3 +67,15 @@ if(!file.exists(destination)){
 } else{
   cat(sprintf("%s already exists.\n", filename))
 }
+
+# cps2 data
+filename = "cps2.tsv"
+destination = sprintf("data/%s", filename)
+if(!file.exists(destination)){
+  cat(sprintf("Downloading %s...\n", filename))
+  data("cps2", package="PoEdata")
+  write_tsv(cps2, file = destination)
+} else{
+  cat(sprintf("%s already exists.\n", filename))
+}
+
