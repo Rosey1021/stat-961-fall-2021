@@ -148,7 +148,7 @@ for some positive definite $\bm \Sigma \in \mathbb R^{n \times n}$. The goal of 
 
 \begin{enumerate}
 
-\item[(a)] (Validity of least squares inference) What is the usual least squares estimate $\widehat \beta^{\text{LS}}_0$ for $\beta_0$? What is its variance under the model~\eqref{eq:arbitrary-correlation}? What is the usual variance estimate $\widehat{\text{Var}}[\widehat \beta^{\text{LS}}_0]$, and what is this estimator's expectation under~\eqref{eq:arbitrary-correlation}? The ratio 
+\item[(a)] (Validity of least squares inference) What is the usual least squares estimate $\widehat \beta^{\text{LS}}_0$ for $\beta_0$ (from Unit 2)? What is its variance under the model~\eqref{eq:arbitrary-correlation}? What is the usual variance estimate $\widehat{\text{Var}}[\widehat \beta^{\text{LS}}_0]$ (from Unit 2), and what is this estimator's expectation under~\eqref{eq:arbitrary-correlation}? The ratio 
 \begin{equation}
 \tau_1 \equiv \frac{\mathbb E[\widehat{\text{Var}}[\widehat \beta^{\text{LS}}_0]]}{\text{Var}[\widehat \beta^{\text{LS}}_0]}
 \label{eq:tau-1}
@@ -194,7 +194,7 @@ Two approaches to obtaining heteroskedasticity-robust standard errors are the pa
 
 \item[(b)] Write a function called \verb|huber_white|, which inputs arguments $\bm X$ and $\bm y$ and outputs an estimated $p \times p$ covariance matrix $\widehat{\text{Var}}[\widehat{\bm \beta}]$ based on the Huber-White formula.
 
-\item[(c)] Generate $n = 50$ $(x,y)$ pairs by setting $x$ to be equally-spaced values between 0 and 1 and drawing $y_i = \beta_0 + \beta_1 x_i + \epsilon_i$, where $\epsilon_i \overset{\text{ind}}\sim N(0, 9x_i^2)$. Create a scatter plot of these points, the least squares line, and three confidence bands: the standard least squares confidence band as well as those resulting from the pairs bootstrap and the Huber-White formula. Comment on the relative widths of these three bands depending on the value of $x$.
+\item[(c)] Generate $n = 50$ $(x,y)$ pairs by setting $x$ to be equally-spaced values between 0 and 1 and drawing $y_i = \beta_0 + \beta_1 x_i + \epsilon_i$, where $\epsilon_i \overset{\text{ind}}\sim N(0, 9x_i^2)$, $\beta_0 = 2, \beta_1 = 3$. Create a scatter plot of these points, the least squares line, and three confidence bands: the standard least squares confidence band as well as those resulting from the pairs bootstrap (with $B = 500$) and the Huber-White formula. Comment on the relative widths of these three bands depending on the value of $x$.
 
 \item[(d)] Repeat the experiment from part (c) 100 times to compute the coverage and average width of the three confidence bands for each value of $x$. Plot these two metrics as a function of $x$, and comment on the results.
 
