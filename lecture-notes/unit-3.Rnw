@@ -348,7 +348,8 @@ This the most model-based of the bootstrap variants. It assumes a completely wel
 
 We can weaken the assumptions of the parametric bootstrap by assuming only that $y_i = \bm x_{i*}^T \bm \beta + \epsilon_i$, where $\epsilon_i \overset{\text{i.i.d.}}\sim F$ for some distribution $F$. Then, the data-generating distribution is specified by $(\bm \beta, F)$, which we approximate by substituting $\bm{\widehat \beta}$ for $\bm \beta$ and the empirical distribution of the residuals $\widehat \epsilon_i$ (call it $\widehat F$) for $F$. We can then sample new response vectors based on this approximate data-generating distribution:
 \begin{equation}
-y_i = \bm x_{i*}^T \bm{\widehat \beta} + \epsilon_i^b, \quad \epsilon_i^b \overset{\text{i.i.d.}}\sim \widehat F \quad \text{for } b = 1, \dots, B.
+y_i^b = \bm x_{i*}^T \bm{\widehat \beta} + \epsilon_i^b, \quad \epsilon_i^b \overset{\text{i.i.d.}}\sim \widehat F \quad \text{for } b = 1, \dots, B.
+\label{eq:residual_bootstrap}
 \end{equation}
 Note that i.i.d. sampling $\epsilon_i^b$ from $\widehat F$ amounts to sampling $(\epsilon_1^b, \dots, \epsilon_n^b)$ with replacement from $(\widehat \epsilon_1, \dots, \widehat \epsilon_n)$. Then, as with the parametric bootstrap, we fit a least squares coefficient vector $\bm{\widehat \beta}^b$ to $(\bm X, \bm y^b)$ for each $b$ and obtain standard errors by treating $\{\bm{\widehat \beta}^b\}_{b = 1}^B$ as though it were the sampling distribution of $\bm{\widehat \beta}$.
 
@@ -362,16 +363,263 @@ Note that, unlike the parametric or residual bootstrap, the pairs bootstrap trea
 
 The pairs bootstrap has several variants that help it overcome correlated errors, in addition to heteroskedasticity. The \textit{cluster bootstrap} is applicable in the case when errors have a clustered/grouped structure. In this case, we sample entire clusters of observations, with replacement, from the original set of clusters. The \textit{moving blocks bootstrap} is applicable in the case of spatially or temporally structured errors. In this variant of the pairs bootstrap, we resample spatially or temporally adjacent blocks of observations together to preserve their joint correlation structure.
 
-
-
 \subsection{Robust hypothesis testing} \label{sec:robust-tests}
+
+In principle, any of the robust standard error constructions from Section~\ref{sec:robust-standard-errors} can be used to construct robust hypothesis tests. In this section, we will discuss a separate set of robust methodologies designed specifically for hypothesis testing. These fall roughly into two main categories: permutation tests (Section~\ref{sec:permutation-tests}) and bootstrap-based tests (Section~\ref{sec:bootstrap-tests})). There is a third category of tests based on ranks (e.g. the Wilcoxon test), which we will not discuss in this class.
 
 \subsubsection{Permutation tests} \label{sec:permutation-tests}
 
-\subsubsection{Rank-based tests} \label{sec:rank-based-tests}
+\paragraph{Independence testing.}
+
+Permutation tests are an easy way of testing the null hypothesis of independence between two random variables (or vectors). For our purposes, suppose that $(\bm x_{i*}, y_i)$ are drawn i.i.d. from some joint distribution $F$ (as opposed to the usual assumption that $\bm X$ is fixed). Then, consider the null hypothesis
+\begin{equation}
+H_0: \bm x \perp\!\!\!\perp y.
+\label{eq:independence}
+\end{equation}
+This null hypothesis is related to the null hypothesis $H_0: \bm \beta_{\text{-}0} = 0$ in a linear regression, as formalized by the following lemma.
+\begin{lemma}
+Suppose $\bm x \in \mathbb R^{p-1}$ has a nondegenerate distribution $F_{\bm x}$ in the sense that there does not exist a vector $c \in \mathbb R^{p-1}$ such that $\bm c^T \bm x$ is deterministic. Suppose also that $F_{y|\bm x}$ is a distribution such that $\mathbb E[y|\bm x] = \beta_0 + \bm x^T\bm \beta_{\text{-}0}$ and that the distribution $F_{y|\bm x}$ is specified by its mean. Then,
+\begin{equation}
+\bm x \perp\!\!\!\perp y \quad \Longleftrightarrow \quad \bm \beta_{\text{-}0} = \bm 0.
+\end{equation}
+\end{lemma}
+\begin{proof}
+If $\bm \beta_{\text{-}0} = \bm 0$, then $\mathbb E[y|\bm x] = \beta_0$. Therefore, the mean of $y$ does not depend on $\bm x$. By the assumption on $F_{y|\bm x}$, it follows that the entire distribution $F_{y|\bm x}$ does not depend on $\bm x$, i.e. $y \perp\!\!\!\perp \bm x$. If $\bm \beta_{\text{-}0} \neq \bm 0$, then $\mathbb E[y|\bm x] = \beta_0 + \bm x^T\bm \beta_{\text{-}0}$, which by assumption is non-constant. Since $\mathbb E[y|\bm x]$ depends on $\bm x$, it follows that $y$ is not independent of $\bm x$.
+\end{proof}
+
+Therefore, any valid independence test automatically gives a non-normality-robust and heteroskedasticity-robust test of $H_0: \bm \beta_{\text{-}0} = \bm 0$ in a linear regression.
+
+\paragraph{The permutation test.}
+
+Now, suppose we have $n$ i.i.d. samples $(\bm x_{i*}, y_i)$ from $F$. Under the independence null hypothesis~\eqref{eq:independence}, the distribution of the data is unchanged if we permute the response variables $y_i$. Formally, let $\bm y_{()}$ be the order statistics of the response variable, let $S_n$ be the permutation group on $\{1, \dots, n\}$, and let $\bm y_\tau$ denote the permutation of $\bm y$ by $\tau \in S_n$. Then, 
+\begin{equation}
+\bm y | \bm X, \bm y_{()} \sim \frac{1}{n!}\sum_{\tau \in S_n} \delta(\bm y_{\tau}).
+\end{equation}
+Now, let $T(\bm X, \bm y)$ be any test statistic measuring the association between $\bm y$ and $\bm X$, e.g. a linear regression $F$-statistic. Then, the above distributional result implies that
+\begin{equation}
+T(\bm X, \bm y) | \bm X, \bm y_{()} \sim \frac{1}{n!}\sum_{\tau \in S_n} \delta(T(\bm X, \bm y_{\tau})).
+\end{equation}
+Hence, we can compute the null distribution of $T$ by repeatedly permuting the response $\bm y$ and recomputing $T(\bm X, \bm y_{\tau})$. This gives rise to the permutation $p$-value
+\begin{equation}
+p^{\text{perm}} \equiv \frac{1}{n!}\sum_{\tau \in S_n} \mathbbm 1(T(\bm X, \bm y_{\tau}) \geq T(\bm X, \bm y)).
+\end{equation}
+The uniform distribution of $T(\bm X, \bm y) | \bm X, \bm y_{()}$ implies that
+\begin{equation}
+\mathbb P[p^{\text{perm}} \leq t | \bm X, \bm y_{()}] \leq t \quad \Longrightarrow \quad \mathbb P[p^{\text{perm}} \leq t] = \mathbb E[\mathbb P[p^{\text{perm}} \leq t | \bm X, \bm y_{()}]] \leq t \quad \text{for all } t \in [0,1]..
+\end{equation}
+In practice, $p^{\text{perm}}$ is approximated by independently sampling $B$ permutations $\tau_1, \dots, \tau_B$ from the uniform distribution over $S_n$. Letting $\tau_0$ be the identity permutation, it follows that
+\begin{equation}
+\bm y | \bm X, \bm y \in \{\bm y_{\tau_0}, \dots, \bm y_{\tau_B}\} \sim \frac{1}{B+1}\sum_{b = 0}^B \delta(\bm y_{\tau_b}).
+\end{equation}
+Similar logic as above leads to the approximate permutation $p$-value
+\begin{equation}
+\widehat p^{\text{perm}} \equiv \frac{1}{B+1}\sum_{b = 0}^B \mathbbm 1(T(\bm X, \bm y_{\tau_b}) \geq T(\bm X, \bm y)) = \frac{1}{B+1}\left(1 + \sum_{b = 1}^B \mathbbm 1(T(\bm X, \bm y_{\tau_b}) \geq T(\bm X, \bm y))\right).
+\label{eq:p-perm-hat}
+\end{equation}
+Although $\widehat p^{\text{perm}}$ can be viewed as an approximation to $\bm p^{\text{perm}}$, it is also stochastically larger than the uniform distribution in finite samples:
+\begin{equation}
+\mathbb P[\widehat p^{\text{perm}} \leq t] \leq t \quad \text{for all } t \in [0,1].
+\label{eq:permutation-pvalue-validity}
+\end{equation}
+Warning: A common mistake is to omit the ``1+'' in the numerator and denominator of the definition~\eqref{eq:p-perm-hat}. The resulting $p$-value is \textit{not valid} in the sense of equation~\eqref{eq:permutation-pvalue-validity}.
+
+\paragraph{Example.}
+
+A common application of the permutation test is testing for equality of distributions in the two-sample problem, where the permutation test amounts to generating a null distribution for any test statistic (e.g. a difference in means) by pooling together the two samples and randomly reassigning the classes of the samples.
+
+\paragraph{Strengths and weaknesses.}
+
+The strength of the permutation test is that it is valid under almost no assumptions on the data-generating process. Its main weakness is that it is not applicable to the hypothesis $H_0: \beta_S = 0$ for any group of predictors $S \neq \{1, \dots, p-1\}$. Intuitively, this would require a fancy kind of permutation that breaks the association between $\bm y$ and $\bm X_{*, S}$ while preserving the association between $\bm X_{*, S}$ and $\bm X_{*, \text{-}S}$. This amounts to a test of \textit{conditional} independence, which requires more assumptions on the joint distribution $F_{\bm x, y}$ than an independence test. Another weakness of a permutation test is that it is computationally expensive, although in the 21st century this is not a huge issue.
 
 \subsubsection{Bootstrap-based tests} \label{sec:bootstrap-tests}
 
+While the bootstrap is commonly associated with the construction of standard errors, it can also be used directly for hypothesis testing. Suppose we wish to test the linear regression null hypothesis $H_0: \bm \beta_S = \bm 0$ for some $S \subseteq \{1, \dots, p-1\}$ (which recall we cannot do using a permutation test). We compute some test statistic $T(\bm X, \bm y)$ measuring the significance of $\bm \beta_S$ (e.g. an $F$-statistic but it could be anything else). Then, we can use a variant of the residual bootstrap. We fit the least squares estimate $\bm{\widehat \beta}$ as usual and extract the residuals $\widehat \epsilon_i \equiv y_i - \bm x_{i*}^T \bm{\widehat \beta}$ and their empirical distribution $\widehat F$. Then, placing ourselves under the null hypothesis, we generate new samples $\bm y^b$ from the null distribution analogously to the usual residual bootstrap~\eqref{eq:residual_bootstrap}:
+\begin{equation}
+y_i^b = \bm x_{i,\text{-}S}^T \bm{\widehat \beta}_{\text{-}S} + \epsilon_i^b, \quad \epsilon_i^b \overset{\text{i.i.d.}}\sim \widehat F \quad \text{for } b = 1, \dots, B.
+\end{equation}
+We can then build a null distribution by recomputing $T(\bm X, \bm y^b)$ for each $b$ and then define the bootstrap-based $p$-value
+\begin{equation}
+p^{\text{boot}} \equiv \frac{1}{B+1}\left(1+\sum_{b = 1}^B \mathbbm 1(T(\bm X, \bm y^b) \geq T(\bm X, \bm y))\right). 
+\end{equation}
+
+This bootstrap-based hypothesis test is not as robust as a permutation test or a heteroskedasticity-robust standard error, since the residual bootstrap implicitly assumes homoskedasticity. However, compared to parametric linear model inference, this bootstrap test affords the additional flexibility of using \textit{any} test statistic $T$ (including one based on, say, machine learning). Note that, while the pairs bootstrap is more robust than the residual bootstrap, the pairs bootstrap does not allow one to create samples under the null distribution and therefore cannot be used for hypothesis testing.
+
 \section{R demo} \label{sec:R-demo-misspecification}
+
+Let's take a look at the crime data from HW2:
+<<message=FALSE>>=
+# read crime data
+crime_data = read_tsv("../data/Statewide_crime.dat")
+
+# read and transform population data
+population_data = read_csv("../data/state-populations.csv")
+population_data = population_data %>%
+  filter(State != "Puerto Rico") %>% 
+  select(State, Pop) %>%
+  rename(state_name = State, state_pop = Pop)
+
+# collate state abbreviations
+state_abbreviations = tibble(state_name = state.name, 
+                             state_abbrev = state.abb) %>%
+  add_row(state_name = "District of Columbia", state_abbrev = "DC")
+
+# add CrimeRate to crime_data
+crime_data = crime_data %>%
+  mutate(STATE = ifelse(STATE == "IO", "IA", STATE)) %>%
+  rename(state_abbrev = STATE) %>%
+  left_join(state_abbreviations, by = "state_abbrev") %>%
+  left_join(population_data, by = "state_name") %>%
+  mutate(CrimeRate = Violent/state_pop) %>%
+  select(state_abbrev, CrimeRate, Metro, HighSchool, Poverty)
+
+crime_data
+@
+
+Let's fit the linear regression:
+<<>>=
+# note: we make the state abbreviations row names for better diagnostic plots
+lm_fit = lm(CrimeRate ~ Metro + HighSchool + Poverty, 
+            data = crime_data %>% column_to_rownames(var = "state_abbrev"))
+@
+
+We can get the standard linear regression diagnostic plots as follows:
+<<out.width="75%", fig.align='center'>>=
+# residuals versus fitted
+plot(lm_fit, which = 1)
+
+# residual QQ plot
+plot(lm_fit, which = 2)
+
+# residuals versus leverage (with Cook's distance)
+plot(lm_fit, which = 5)
+@
+
+The information underlying these diagnostic plots can be extracted as follows:
+<<>>=
+tibble(state = crime_data$state_abbrev,
+       std_residual = rstandard(lm_fit),
+       fitted_value = fitted.values(lm_fit),
+       leverage = hatvalues(lm_fit),
+       cooks_dist = cooks.distance(lm_fit))
+@
+
+Clearly DC is an outlier. We can either run a robust estimation procedure or we can redo the analysis without DC. Let's try both. First, we try robust regression using \verb|MASS::rlm|:
+<<>>=
+rlm_fit = MASS::rlm(CrimeRate ~ Metro + HighSchool + Poverty, data = crime_data)
+summary(rlm_fit)
+@
+For some reason, the p-values are not computed automatically. We can compute them ourselves instead:
+<<>>=
+summary(rlm_fit)$coef %>% 
+  as.data.frame() %>%
+  rename(Estimate = Value) %>%
+  mutate(`p value` = 2*dnorm(-abs(`t value`)))
+@
+To see the robust estimation action visually, let's consider a univariate example:
+<<out.width="75%", fig.width = 6, fig.height = 4, fig.align='center'>>=
+# usual and robust univariate fits
+lm_fit = lm(CrimeRate ~ Metro, data = crime_data)
+rlm_fit = MASS::rlm(CrimeRate ~ Metro, data = crime_data)
+
+# collate the fits into a tibble
+line_fits = tibble(method = c("Usual", "Robust"),
+                   intercept = c(coef(lm_fit)["(Intercept)"], 
+                                 coef(rlm_fit)["(Intercept)"]),
+                   slope = c(coef(lm_fit)["Metro"], 
+                                 coef(rlm_fit)["Metro"]))
+
+# plot the fits
+ggplot() +
+  geom_point(aes(x = Metro, y = CrimeRate), data = crime_data) + 
+  geom_abline(aes(intercept = intercept, slope = slope, colour = method),
+              data = line_fits) + 
+  theme_bw()
+@
+
+Next, let's try removing DC and running a usual linear regression.
+<<out.width="75%", fig.align='center'>>=
+lm_fit_no_dc = lm(CrimeRate ~ Metro + HighSchool + Poverty, 
+            data = crime_data %>% 
+              filter(state_abbrev != "DC") %>% 
+              column_to_rownames(var = "state_abbrev"))
+
+# residuals versus fitted
+plot(lm_fit_no_dc, which = 1)
+
+# residual QQ plot
+plot(lm_fit_no_dc, which = 2)
+
+# residuals versus leverage (with Cook's distance)
+plot(lm_fit_no_dc, which = 5)
+@
+
+Next let's look at another dataset, from the Current Population Survey (CPS).
+<<>>=
+cps_data = read_tsv("../data/cps2.tsv")
+cps_data
+@
+
+Suppose we want to regress \verb|wage| on \verb|educ|, \verb|exper|, and \verb|metro|. Let's take a look at the diagnostic plots.
+<<out.width="75%", fig.align='center'>>=
+lm_fit = lm(wage ~ educ + exper + metro, data = cps_data)
+
+# residuals versus fitted
+plot(lm_fit, which = 1)
+
+# residual QQ plot
+plot(lm_fit, which = 2)
+
+# residuals versus leverage (with Cook's distance)
+plot(lm_fit, which = 5)
+@
+
+The residuals versus fitted plot suggests significant heteroskedasticity, with variance growing as a function of the fitted value. To get standard errors robust to this heteroskedasticity, we can use one of the robust estimators discussed in Section~\ref{sec:robust-standard-errors}. Most of the robust standard error constructions discussed in that section are implemented in the R package \verb|sandwich|.
+<<>>=
+library(sandwich)
+@
+For example, Huber-White's heteroskedasticity-consistent estimate $\widehat{\text{Var}}[\bm{\widehat \beta}]$ can be obtain via \verb|vcovHC|:
+<<>>=
+HW_cov = vcovHC(lm_fit)
+HW_cov
+@
+Compare this to the traditional estimate:
+<<>>=
+usual_cov = vcovHC(lm_fit, type = "const")
+usual_cov
+
+# extract the variance estimates from the diagonal
+tibble(variable = rownames(usual_cov), 
+       usual_variance = diag(usual_cov),
+       HW_variance = diag(HW_cov))
+@
+
+Bootstrap standard errors are also implemented in \verb|sandwich|:
+<<>>=
+# pairs bootstrap
+bootstrap_cov = vcovBS(lm_fit, type = "xy")
+tibble(variable = rownames(usual_cov), 
+       usual_variance = diag(usual_cov),
+       HW_variance = diag(HW_cov),
+       boostrap_variance = diag(bootstrap_cov))
+@
+
+Note that the bootstrap standard errors are closer to the HW ones than the standard ones.
+
+Other kinds of robust standard errors are implemented in \verb|sandwich|, like clustered standard errors (via \verb|vcovCL|) and many others we have not discussed. 
+
+The covariance estimate produced by \verb|sandwich| can be easily integrated into linear model inference using the package \verb|lmtest|.
+<<>>=
+library(lmtest)
+
+# robust t-tests for coefficients
+coeftest(lm_fit, vcov. = vcovHC)
+
+# robust confidence intervals for coefficients
+coefci(lm_fit, vcov. = vcovHC)
+
+# robust F-test
+lm_fit_partial = lm(wage ~ educ, data = cps_data) # a partial model
+waldtest(lm_fit_partial, lm_fit, vcov = vcovHC)
+@
 
 \end{document}
