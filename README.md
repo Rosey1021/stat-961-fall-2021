@@ -33,6 +33,6 @@ Wed, Oct 6 | -- | -- | -- | -- | [Homework 2](https://github.com/Katsevich-Teach
 Thu, Oct 7 | 3. Linear model: Misspecification | Model bias, outliers, robust estimation | Agresti 2.5.4, 2.5.5, 11.1.1 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=f70f77d4-1bb5-4590-8179-adb9012604d0) | --
 Tue, Oct 12 | 3. Linear model: Misspecification | Robust standard errors | Agresti 2.7.3 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=15ba5829-386a-49cb-a818-adb9016a0358) | --
 Thu, Oct 14 | -- | Fall break | -- | -- | --
-Tue, Oct 19 | 3. Linear model: Misspecification | Robust hypothesis testing | -- | TBA | --
-Thu, Oct 21 | 3. Linear model: Misspecification | R demo | Agresti 3.4 | TBA | --
+Tue, Oct 19 | 3. Linear model: Misspecification | Robust hypothesis testing | -- | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=60a7891d-4bff-4995-8466-adc0001d6888) | --
+Thu, Oct 21 | 3. Linear model: Misspecification | R demo | Agresti 3.4 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=f2c80b19-3780-4350-bf5e-adc000248084) | --
 Sun, Oct 24 | -- | -- | -- | -- | [Homework 3](https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/homework/homework-3/homework-3.pdf) due at 11:59pm
