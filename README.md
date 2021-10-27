@@ -36,3 +36,5 @@ Thu, Oct 14 | -- | Fall break | -- | -- | --
 Tue, Oct 19 | 3. Linear model: Misspecification | Robust hypothesis testing | -- | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=60a7891d-4bff-4995-8466-adc0001d6888) | --
 Thu, Oct 21 | 3. Linear model: Misspecification | R demo | Agresti 3.4 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=f2c80b19-3780-4350-bf5e-adc000248084) | --
 Sun, Oct 24 | -- | -- | -- | -- | [Homework 3](https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/homework/homework-3/homework-3.pdf) due at 11:59pm
+Tue, Oct 26 | 3. Linear model: Misspecification | TBA | -- | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=7aa72123-bd63-4b2e-a955-adca00feaa2d) | --
+Thu, Oct 28 | 3. Linear model: Misspecification | TBA | Agresti 3.4 | TBA | --
