@@ -98,8 +98,8 @@ inline_hook <- function(x) {
 }
 knit_hooks$set(inline = inline_hook)
 
-# cache all chunks
-opts_chunk$set(cache = TRUE)
+# don't cache chunks
+opts_chunk$set(cache = FALSE)
 
 # create directory for figures
 if(!dir.exists("figures")){
@@ -125,6 +125,7 @@ if(!dir.exists("figures")){
 \noindent In accordance with this policy, \\
 
 \noindent \textit{Please list anyone you discussed this homework with:} \\
+James Blume
 
 \noindent \textit{Please list what external references you consulted (e.g. articles, books, or websites):} 
 
@@ -203,48 +204,47 @@ Under $H_0$, we have the convergence
   \item[(a)] We can rewrite~\eqref{eq:linear-model} as follows: 
     \begin{align*}
       \begin{pmatrix} y_1 \\ \vdots \\ y_n \end{pmatrix} &= \begin{pmatrix} x_{11} & \dots & x_{1p} \\ \vdots & \ddots & \vdots \\ x_{n1} & \hdots & x_{np} \end{pmatrix} \begin{pmatrix} \beta_1 \\ \vdots \\ \beta_p \end{pmatrix} + \begin{pmatrix} \epsilon_1 \\ \vdots \\ \epsilon_n \end{pmatrix} \\
-      &= \begin{pmatrix} \bm{x_1} \cdot \bm{\beta} + \epsilon_1 \\ \vdots \\ \bm{x_n} \cdot \bm{\beta} + \epsilon_n \end{pmatrix},
+      &= \begin{pmatrix} \bm{x}_1^T \bm{\beta} + \epsilon_1 \\ \vdots \\ \bm{x}_n^T \bm{\beta} + \epsilon_n \end{pmatrix},
     \end{align*}
-    where the covariance matrix of $\bm{\epsilon}$ is $\sigma^2 \bm{I}_n$. Note that this means the $\epsilon_i$ are all uncorrelated, but the fact that they are multivariate normal and uncorrelated implies that the $\epsilon_i$ are independent standard normal random variables. So, $y_i \sim \bm{x}_i \cdot \bm{\beta} + \epsilon_i$, where $\epsilon_i \stackrel{\text{i.i.d.}}{\sim} N(0, \sigma^2)$.
+    where the covariance matrix of $\bm{\epsilon}$ is $\sigma^2 \bm{I}_n$. Note that this means the $\epsilon_i$ are all uncorrelated, but the fact that they are multivariate normal and uncorrelated implies that the $\epsilon_i$ are independent standard normal random variables. So, $y_i \sim \bm{x}_i^T \bm{\beta} + \epsilon_i$, where $\epsilon_i \stackrel{\text{i.i.d.}}{\sim} N(0, \sigma^2)$.
     
     Though each $y_i$ is parametrized by $\bm{\beta} \in \mathbb{R}^p$, it is also a function of $\bm{x}_i$, which is not necessarily the same for each $i$ since the $\bm{x}_i$ are regarded as fixed. As a result, the fixed-design model does not fit into the classical inferential setup, since the $y_i$ need not be identically distributed. 
   
-  \item[(b)] The Fisher information doe not make sense in this context because the $y_i$ each have different PDFs, since they are not i.i.d. as noted in (a). We have previously seen that $\widehat{\beta}_j \sim N(\beta_j, \sigma^2/s_j^2)$, so $\sqrt{n}(\widehat{\beta}_j - \beta_j) \sim N(0, \sigma^2/(s_j/n)^2)$. So, an analog for the Fisher information would be $(s_j/n)^2/\sigma^2$.
+  \item[(b)] We saw in Unit 2 that $\bm{y} \sim N(\bm{X \beta}, \sigma^2 \bm{I}_n)$. So, we know that the joint density (equivalent to the likelihood function) for the fixed-design model is 
+  \[p_{\bm{\beta}}(\bm{y}) = \frac{1}{(2 \pi \sigma^2)^{n/2}} \exp[-\frac{1}{2 \sigma^2} || \bm{y} - \bm{X} \bm{\beta}||^2],\]
+  and
+  \[\log p_{\bm{\beta}}(\bm{y}) = -\frac{n}{2} \log(2 \pi \sigma^2) - \frac{1}{2 \sigma^2} ||\bm{y} - \bm{X} \bm{\beta}||^2.\]
+  Then
+  \[\frac{\partial}{\partial \bm{\beta}} \log p_{\bm{\beta}}(\bm{y}) = \frac{1}{\sigma^2} \bm{X}^T(\bm{y} - \bm{X} \bm{\beta})\]
+  and
+  \[\frac{\partial^2}{\partial \bm{\beta}^2} \log p_{\bm{\beta}}(\bm{y}) = -\frac{1}{\sigma^2} \bm{X}^T \bm{X}.\]
+  So, our analog of Fisher information is 
+  \[- \mathbb{E}_{\bm{\beta}}[\frac{\partial^2}{\partial \bm{\beta}^2} \log p_{\bm{\beta}}(\bm{y})] = \frac{1}{\sigma^2} \bm{X}^T \bm{X}.\]
   
-  %We know from Unit 1 that when $\sigma^2$ is assumed to be known, the maximum likelihood estimator for $\bm{\beta}$ is the same as the least squares estimate $\widehat{\bm{\beta}} = (\bm{X}^T \bm{X})^{-1} \bm{X}^T \bm{y} = (\bm{X}^T \bm{X})^{-1} \bm{X}^T (\bm{X} \bm{\beta} + \bm{\epsilon}) = \bm{\beta} + (\bm{X}^T \bm{X})^{-1} \bm{X}^T \bm{\epsilon}$. So, $\widehat{\bm{\beta}} - \bm{\beta} = (\bm{X}^T \bm{X})^{-1} \bm{X}^T \bm{\epsilon}$ and $\sqrt{n}(\widehat{\bm{\beta}} - \bm{\beta}) = (\frac{\bm{X}^T \bm{X}}{n})^{-1} \frac{1}{\sqrt{n}} \bm{X}^T \bm{\epsilon}$. Note that since $\bm{\epsilon} \sim N(0, \sigma^2 \bm{I}_n), \frac{1}{\sqrt{n}} \bm{X}^T \epsilon \sim N(0, \sigma^2 \frac{\bm{X}^T \bm{X}}{n})$.
-  % Q := (X^T X / n)^{-1} exist?
+
   
-  %We have also seen in this unit that $\widehat{\bm{\beta}} \sim N(\bm{\beta}, \sigma^2(\bm{X}^T \bm{X})^{-1})$. So, $\widehat{\bm{\beta}} - \bm{\beta} \sim N(0, \sigma^2(\bm{X}^T \bm{X})^{-1})$.
-  
-  \item[(c)] % NOTE: FINISH
-  Define our parameter vector of interest to be $\bm{\theta} := (\bm{\beta}, \sigma^2)$. We saw in Unit 2 that $\bm{y} \sim N(\bm{X \beta}, \sigma^2 \bm{I}_n)$. So, we know that the joint density (equivalent to the likelihood function) for the fixed-design model is 
-  \begin{align*}
-    p_{\bm{\theta}}(\bm{y}) &= \frac{1}{\sqrt{(2 \pi)^n |\sigma^2 \bm{I}_n|}} \exp[-\frac{1}{2} (\bm{y} - \bm{X \beta})^T (\sigma^2 \bm{I}_n)^{-1} (\bm{y} - \bm{X \beta})] \\
-    &= \frac{1}{(2 \pi \sigma^2)^{n/2}} \exp[-\frac{1}{2 \sigma^2} ||y - \bm{X \beta}||^2].
-  \end{align*}
-    Because $\log(x)$ is a monotone increasing function, any maximum of $p_{\bm{\theta}}(\bm{y})$ is also a maximum of $\ell_{\bm{\theta}}(\bm{y}) := \log[p_{\bm{\theta}}(\bm{y})]$ and vice versa.
+  \item[(c)]
+  Define our parameter vector of interest to be $\bm{\theta} := (\bm{\beta}, \sigma^2)$. Because $\log(x)$ is a monotone increasing function, any maximum of $p_{\bm{\theta}}(\bm{y})$ is also a maximum of $\ell_{\bm{\theta}}(\bm{y}) := \log[p_{\bm{\theta}}(\bm{y})]$ and vice versa.
    
-    We can simplify as follows: 
-    \begin{align*}
-      \ell_{\bm{\theta}}(\bm(y)) &= \log[p_{\bm{\theta}}(\bm{y})] \\
-      &= -\frac{1}{2}[n \log(2 \pi \sigma^2) + \frac{1}{\sigma^2} ||\bm{y} - \bm{X \beta}||^2].
-    \end{align*}
+  We saw in (b) that 
+  \[\ell_{\bm{\theta}}(\bm(y)) = -\frac{1}{2}[n \log(2 \pi \sigma^2) + \frac{1}{\sigma^2} ||\bm{y} - \bm{X \beta}||^2]\]
+  and 
+  \[\frac{\partial}{\partial \bm{\beta}} \ell_{\bm{\theta}}(\bm{y}) = \frac{1}{\sigma^2} \bm{X}^T(\bm{y} - \bm{X \beta}).\]
+  Under the full rank assumption we obtain the same maximum likelihood estimator for $\bm{\beta}$ by setting the partials equal to 0 and solving for $\bm{\beta}$; that is, $\widehat{\bm{\beta}} = (\bm{X}^T \bm{X})^{-1} \bm{X}^T \bm{y}$. 
     
-    So, 
-      \[\frac{\partial}{\partial \bm{\beta}} \ell_{\bm{\theta}}(\bm{y}) = \frac{1}{\sigma^2} \bm{X}^T(\bm{y} - \bm{X \beta}).\]
-    Under the full rank assumption we receive the same maximum likelihood estimator for $\bm{\beta}$ by setting the partials equal to 0 and solving for $\bm{\beta}$; that is, $\widehat{\bm{\beta}} = (\bm{X}^T \bm{X})^{-1} \bm{X}^T \bm{y}$. 
-    
-    We also have that \[\frac{\partial}{\partial \sigma} \ell_{\bm{\theta}}(\bm{y}) = \frac{1}{\sigma^3} ||\bm{y} - \bm{X \beta}||^2 - \frac{n}{\sigma}.\]
-    Again setting the partial equal to 0 and solving for $\sigma^2$ while substituting our estimator $\widehat{\bm{\beta}}$, we see that the maximum likelihood estimator is $\widehat{\sigma}^2 = \frac{1}{n} ||\bm{y} - \bm{X \widehat{\beta}}||^2 = \frac{1}{n} ||(\bm{I}- \bm{H})\bm{y}||^2  = \frac{1}{n} ||\bm{\widehat{\epsilon}}||^2$.
+  We also have that \[\frac{\partial}{\partial \sigma} \ell_{\bm{\theta}}(\bm{y}) = \frac{1}{\sigma^3} ||\bm{y} - \bm{X \beta}||^2 - \frac{n}{\sigma}.\]
+  Again setting the partial equal to 0 and solving for $\sigma^2$ while substituting our estimator $\widehat{\bm{\beta}}$, we see that the maximum likelihood estimator is $\widehat{\sigma}^2 = \frac{1}{n} ||\bm{y} - \bm{X \widehat{\beta}}||^2 = \frac{1}{n} ||(\bm{I}- \bm{H})\bm{y}||^2  = \frac{1}{n} ||\bm{\widehat{\epsilon}}||^2$.
   
-    Thus, our estimator for $\beta$ remains the same as the least squares estimator, while the estimator for $\epsilon$ differs from our unbiased estimator by a factor of $\frac{n}{n-p}$.
+  Thus, our estimator for $\bm{\beta}$ remains the same as the least squares estimator, while the estimator for $\epsilon$ differs from our unbiased estimator by a factor of $\frac{n}{n-p}$ (interestingly, this means that the MLE is asymptotically unbiased since $\frac{n}{n-p} \rightarrow 1$ as $n \rightarrow \infty$).
     
   \item[(d)] Define $\Theta := (\sigma^2, \beta_1, \dots, \beta_p) \in \mathbb{R}^{p+1}$. We also take $\Theta_1 := \Theta$ and $\Theta_0 := \{\theta = (\sigma^2, \beta_1, \dots, \beta_p) \in \mathbb{R}^{p+1} | \bm{\beta}_S = 0\}$. Then we have that we are testing
   \[H_0: \bm{\theta} \in \Theta_0 \text{ versus } H_1: \bm{\theta} \in \Theta_1.\]
   
   Define $\ell_i(\bm{y}) := \max_{\bm{\theta} \in \Theta_i} p_{\bm{\theta}}(\bm{y})$, where $p_{\bm{\theta}}(\bm{y})$ is the density for the linear model; i.e. 
   \[p_{\bm{\theta}}(\bm{y}) := \frac{1}{(2 \pi \sigma^2)^{n/2}} \exp[-\frac{1}{2 \sigma^2} ||\bm{y} - \bm{X \beta}||^2].\]
-  We know from (c) that $(\widehat{\sigma}^2_1, \widehat{\beta}^1) := \argmax_{\bm{\theta} \in \Theta} p_{\bm{\theta}}(\bm{y}) = (\frac{1}{n}||\bm{y} - \bm{X} \widehat{\bm{\beta}}^1||^2, (\bm{X}^T \bm{X})^{-1} \bm{X} \bm{y})$. 
+  
+  We know from (c) that $(\widehat{\sigma}^2_1, \widehat{\beta}^1) := \argmax_{\bm{\theta} \in \Theta_1} p_{\bm{\theta}}(\bm{y}) = (\frac{1}{n}||\bm{y} - \bm{X} \widehat{\bm{\beta}}^1||^2, (\bm{X}^T \bm{X})^{-1} \bm{X} \bm{y})$. 
+  
   Also, 
   \begin{align*}
     \argmax_{\bm{\theta} \in \Theta_0} p_{\bm{\theta}}(\bm{y}) &= \argmax_{\bm{\theta} \in \Theta : \bm{\beta}_S = 0} \frac{1}{(2 \pi \sigma^2)^{n/2}} \exp[-\frac{1}{2 \sigma^2} ||\bm{y} - \bm{X \beta}||^2] \\
@@ -281,7 +281,7 @@ Under $H_0$, we have the convergence
     &= |S| \frac{n}{n-p} F + n O(\big(\frac{|S|}{n-p} F\big)^2) \\
   &= |S| \frac{n}{n-p} F + O(n^{-1}).  
   \end{align*}
-  Note that as $n \rightarrow \infty$, this quantity tends toward $|S| F$. That is to say, asymptotically $2 \log\Lambda$ is within a factor $|S|$ of $F$ (and thus, $\frac{2}{|S|} \log\Lambda$ is asymptotically $F$-distributed with $|S|$ and $n-p$ degrees of freedom).
+  Note that as $n \rightarrow \infty$, this quantity tends toward $|S| F$. That is to say, asymptotically $2 \log\Lambda$ is within a factor $|S|$ of $F$. Recall that for an $F$-distribution with $|S|$ and $n-p$ degrees of freedom, as the denominator degrees of freedom $n-p \rightarrow \infty$, the distribution converges to $\chi^2_{|S|}$. So, $\frac{2}{|S|} \log \Lambda$ is asymptotically distributed as $\chi^2_{|S|}$.
   
   
 \end{enumerate}  
@@ -310,14 +310,12 @@ What is the null distribution of $t_{\max}^2$? What $F$-statistic is $t_{\max}^2
 
 \begin{sol}
 \begin{enumerate}
-% DONE
-\item[(a)] Recall that \[R^2 = \frac{\text{SSR}}{\text{SST}} = \frac{||\bm{X} \widehat{\bm{\beta}} - \overline{y} \bm{1}_n||^2}{||\bm{y} - \overline{y} \bm{1}_n||^2} = \frac{||(\bm{H} - \bm{H}_1) \bm{y}||^2}{||(\bm{I} - \bm{H}_1) \bm{y}||^2}.\] Then we also have \[1 - R^2 = \frac{||(\bm{I} - \bm{H}_1) \bm{y}||^2 - ||(\bm{H} - \bm{H}_1) \bm{y}||^2}{||(\bm{I} - \bm{H}_1) \bm{y}||^2} = \frac{||(\bm{I} - \bm{H}) \bm{y}||^2}{||(\bm{I} - \bm{H}_1) \bm{y}||^2}.\]
+\item[(a)] Recall that \[R^2 = \frac{\text{SSR}}{\text{SST}} = \frac{||\bm{X} \widehat{\bm{\beta}} - \overline{y} \bm{1}_n||^2}{||\bm{y} - \overline{y} \bm{1}_n||^2} = \frac{||(\bm{H} - \bm{H}_0) \bm{y}||^2}{||(\bm{I} - \bm{H}_0) \bm{y}||^2}.\] Then we also have \[1 - R^2 = \frac{||(\bm{I} - \bm{H}_0) \bm{y}||^2 - ||(\bm{H} - \bm{H}_0) \bm{y}||^2}{||(\bm{I} - \bm{H}_0) \bm{y}||^2} = \frac{||(\bm{I} - \bm{H}) \bm{y}||^2}{||(\bm{I} - \bm{H}_0) \bm{y}||^2}.\]
 
-So, $(\frac{n-p}{p-1}) \frac{R^2}{1-R^2} = \frac{||(\bm{H} - \bm{H}_1) \bm{y}||^2 / (p-1)}{||(\bm{I} - \bm{H}) \bm{y}||^2 / (n - p)} =: F$. But this is exactly the $F$-statistic for the hypothesis test with null hypothesis $H_0:\, \beta_1 = \dots = \beta_{p-1} = 0$. We can also invert this relationship and find that for $c := \frac{p-1}{n-p} F$, we have $R^2 = \frac{c}{c+1}$.
+So, $(\frac{n-p}{p-1}) \frac{R^2}{1-R^2} = \frac{||(\bm{H} - \bm{H}_0) \bm{y}||^2 / (p-1)}{||(\bm{I} - \bm{H}) \bm{y}||^2 / (n - p)} =: F$. But this is exactly the $F$-statistic for the hypothesis test with null hypothesis $H_0:\, \beta_1 = \dots = \beta_{p-1} = 0$. We can also invert this relationship and find that for $c := \frac{p-1}{n-p} F$, we have $R^2 = \frac{c}{c+1}$.
 
 Under the null distribution, the $F$-statistic is $F$ distributed with $p - 1$ and $n - p$ degrees of freedom. Note that $R^2$ and $F$ are positively related which makes sense - a higher $R^2$ indicates that the full model explains more of the variance in the observed data, which in turn suggests that we do not have $\beta_1 = \dots = \beta_{p-1} = 0$.
 
-% DONE
 \item[(b)]
 <<2b simulation, echo=TRUE, results=TRUE, warning = FALSE>>=
 # Simulation parameters
@@ -347,10 +345,13 @@ R_2_plt <-
     ggplot(aes(x = R_2)) +
       geom_histogram(bins = 30) +
       ylab("Count") + 
-      xlab("R^2") +
+      xlab(latex2exp::TeX("R^2")) +
       ylim(0, 35) +
       xlim(0, 1) +
-      facet_wrap( ~ p)
+      facet_wrap( ~ p) +
+  theme(axis.text = element_text(size = 14),
+        axis.title = element_text(size = 16, face = "bold"),
+        strip.text = element_text(size = 20))
 
 ggsave(plot = R_2_plt, filename = "./figures/R_2_plt.png",
        device = "png", width = 12, height = 8)
@@ -363,51 +364,57 @@ ggsave(plot = R_2_plt, filename = "./figures/R_2_plt.png",
 \label{fig:R_2_plt}
 \end{figure}
 
-The plots of the empirical distributions of $R^2$ can be found in Figure~\ref{fig:R_2_plt}. Note that as $p$ increases, the mass of the empirical null distribution of $R^2$ slowly shifts to the right, going from right-skewed, to relatively symmetric, then left-skewed. When $p \approx 1$, we have that $c \approx 0$, so $R^2 \approx 0$, whereas when $p \approx n$, we have $c \approx F$, so $R^2 \approx 1$.
+The plots of the empirical distributions of $R^2$ can be found in Figure~\ref{fig:R_2_plt}. Note that as $p$ (the facet label for each subplot) increases, the mass of the empirical null distribution of $R^2$ slowly shifts to the right, going from right-skewed, to relatively symmetric, then left-skewed. For fixed $n$, when $p \approx 1$ we have that $c \approx 0$, so $R^2 \approx 0$, whereas when $p \approx n-1$ we have $c \approx F$, so $R^2 \approx 1$.
 
 % NOTE: NEED TO FINISH
-\item[(c)] Recall that $t = \frac{\widehat{\beta}_j}{\widehat{\sigma}/s_j}$, so $t^2 = \frac{\widehat{\beta}_j^2 s_j^2}{\widehat{\sigma}^2}$ and that $F = \frac{(||\bm{X} \widehat{\bm{\beta}} - \bm{X}_{-j} \widehat{\bm{\beta}}_{-j}||^2) / 1}{(||\bm{y} - \bm{X} \widehat{\bm{\beta}}||^2) / (n - p)}$. But, $\widehat{\sigma}^2 = \frac{1}{n-p} ||\bm{y} - \bm{X} \widehat{\bm{\beta}}||^2$, so 
-\[t^2 = \frac{\widehat{\bm{\beta}}^2_j s_j^2}{||\bm{y} - \bm{X} \widehat{\bm{\beta}}||^2 / (n-p)}\] and thus it suffices to show that 
-\[\widehat{\bm{\beta}}^2_j s^2_j = ||\bm{X} \widehat{\bm{\beta}} - \bm{X}_{-j} \widehat{\bm{\beta}}_{-j}||^2 = ||(\bm{H} - \bm{H}_{-j}) \bm{y}||^2 = ||\bm{H}_j \bm{y}||^2 = ||\widehat{\beta}_{j | -j} \bm{x}_{*j}^{\bot}||^2.\]
-Note that $s_j^2 = ||\bm{x}_{*j}^{\bot}||^2$, so this equivalent to proving that 
-\[||\widehat{\beta}_{j | -j} \bm{x}_{*j}^{\bot}||^2 = \widehat{\bm{\beta}}^2_j s^2_j = \widehat{\bm{\beta}}^2_j ||\bm{x}_{*j}^{\bot}||^2 = ||\widehat{\bm{\beta}}_j \bm{x}_{*j}^{\bot}||^2.\]
+\item[(c)] Recall that $t = \frac{\widehat{\beta}_j}{\widehat{\sigma}/s_j}$, so $t^2 = \frac{\widehat{\beta}_j^2 s_j^2}{\widehat{\sigma}^2}$ and that $F = \frac{(||\bm{X} \widehat{\bm{\beta}} - \bm{X}_{-j} \widehat{\bm{\beta}}_{-j}||^2) / 1}{(||\bm{y} - \bm{X} \widehat{\bm{\beta}}||^2) / (n - p)}$. But, $\widehat{\sigma}^2 = \frac{1}{n-p} ||\bm{y} - \bm{X} \widehat{\bm{\beta}}||^2$ and $s_j^2 := ||\bm{x}_{*j}^{\bot}||^2$, so 
+\[t^2 = \frac{\widehat{\beta}^2_j ||\bm{x}_{*j}^{\bot}||^2}{||\bm{y} - \bm{X} \widehat{\bm{\beta}}||^2 / (n-p)} = \frac{||\widehat{\beta}_j \bm{x}_{*j}^{\bot}||^2}{||\bm{y} - \bm{X} \widehat{\bm{\beta}}||^2 / (n-p)}\] and thus it suffices to show that 
+\[||\widehat{\beta}_j \bm{x}_{*j}^{\bot}||^2 = ||\bm{X} \widehat{\bm{\beta}} - \bm{X}_{-j} \widehat{\bm{\beta}}_{-j}||^2 = ||(\bm{H} - \bm{H}_{-j}) \bm{y}||^2 = ||\bm{H}_{j | -j} \bm{y}||^2 = ||\widehat{\beta}_{j | -j} \bm{x}_{*j}^{\bot}||^2.\]
+Note that this is in fact true by orthogonalization of the predictors, the coefficients are the same and so we are finished.
 
 % NOTE: NEED TO FINISH
-\item[(d)] We first recall that \[t(\bm{c}) = \frac{\bm{c}^T \widehat{\bm{\beta}}}{\widehat{\sigma} \sqrt{\bm{c}^T (\bm{X}^T \bm{X})^{-1} \bm{c}}} \sim t_{n - p}\]
-under the null hypothesis $H_0: \bm{c}^T \bm{\beta}_{-0} = 0$. Taking $A := (\bm{X}^T \bm{X})^{-1}$ and recognizing that $\widehat{\sigma}$ is independent of $\bm{c}$, we have that
+\item[(d)] For simplicity of notation, we write $\bm{c}$ as a vector in both $\mathbb{R}^p$ and $\mathbb{R}^{p-1}$ with the understanding that the first component of $\bm{c}$ is $0$ when it is treated as a vector in $\mathbb{R}^p$.
+
+We first recall that \[t(\bm{c}) = \frac{\bm{c}^T \widehat{\bm{\beta}}_{-0}}{\widehat{\sigma} \sqrt{\bm{c}^T (\bm{X}_{-0}^T \bm{X}_{-0})^{-1} \bm{c}}} \sim t_{n-(p-1)}\]
+under the null hypothesis $H_0: \bm{c}^T \bm{\beta}_{-0} = 0$. We then have that $t(\bm{c})^2 \sim F_{1, n-(p-1)}$.
+
+Taking $A := (\bm{X}_{-0}^T \bm{X}_{-0})^{-1}$ and recognizing that $\widehat{\sigma}$ is independent of $\bm{c}$, we have that
 \begin{align*}
-  c_{\max} :=& \argmax_{c \in \mathbb{R}^{p-1}} t(\bm{c}) \\
-  =& \argmax_{c \in \mathbb{R}^{p-1}} \frac{\bm{c}^T \widehat{\bm{\beta}}}{\widehat{\sigma} \sqrt{\bm{c}^T (\bm{X}^T \bm{X})^{-1} \bm{c}}} \\
-  =& \argmax_{c \in \mathbb{R}^{p-1}} \frac{\bm{c}^T \widehat{\bm{\beta}}}{\sqrt{\bm{c}^T \bm{A} \bm{c}}}.
+  \bm{c}_{\max} :=& \argmax_{\bm{c} \in \mathbb{R}^{p-1}} t(\bm{c}) \\
+  =& \argmax_{\bm{c} \in \mathbb{R}^{p-1}} \frac{\bm{c}^T \widehat{\bm{\beta}}_{-0}}{\widehat{\sigma} \sqrt{\bm{c}^T (\bm{X}_{-0}^T \bm{X}_{-0})^{-1} \bm{c}}} \\
+  =& \argmax_{\bm{c} \in \mathbb{R}^{p-1}} \frac{\bm{c}^T \widehat{\bm{\beta}}_{-0}}{\sqrt{\bm{c}^T \bm{A} \bm{c}}}.
 \end{align*}
-Note that this objective function is in fact scale invariant: if $\bm{d} := a \bm{c}$, then \[\frac{\bm{d}^T \widehat{\bm{\beta}}}{\sqrt{\bm{d}^T \bm{A} \bm{d}}} = \frac{(a \bm{c})^T \widehat{\bm{\beta}}}{\sqrt{(a \bm{c})^T \bm{A} (a \bm{c})}} = \frac{\bm{c}^T \widehat{\bm{\beta}}}{\sqrt{\bm{c}^T \bm{A} \bm{c}}}.\]
+Note that this objective function is in fact scale invariant: if $\bm{d} := a \bm{c}$, then \[\frac{\bm{d}^T \widehat{\bm{\beta}}_{-0}}{\sqrt{\bm{d}^T \bm{A} \bm{d}}} = \frac{(a \bm{c})^T \widehat{\bm{\beta}}_{-0}}{\sqrt{(a \bm{c})^T \bm{A} (a \bm{c})}} = \frac{\bm{c}^T \widehat{\bm{\beta}}_{-0}}{\sqrt{\bm{c}^T \bm{A} \bm{c}}}.\]
 So, we have that we can rewrite the optimization problem as follows:
-\[c_{\max} = \argmax_{c \in \mathbb{R}^{p-1}} \frac{\bm{c}^T \widehat{\bm{\beta}}}{\sqrt{\bm{c}^T \bm{A} \bm{c}}} = \argmax_{c \in \mathbb{R}^{p-1} \text{ s.t. } \bm{c}^T \bm{A} \bm{c} = 1} \bm{c}^T \widehat{\bm{\beta}}.\]
+\[\bm{c}_{\max} = \argmax_{\bm{c} \in \mathbb{R}^{p-1}} \frac{\bm{c}^T \widehat{\bm{\beta}}_{-0}}{\sqrt{\bm{c}^T \bm{A} \bm{c}}} = \argmax_{\bm{c} \in \mathbb{R}^{p-1} \text{ s.t. } \bm{c}^T \bm{A} \bm{c} = 1} \bm{c}^T \widehat{\bm{\beta}}_{-0}.\]
 
 We can solve this problem using Lagrange multipliers and end up with a system of equations:
 \begin{equation*}
   \begin{cases}
-    \bm{0} = \frac{\partial}{\partial \bm{c}}[\bm{c}^T \widehat{\bm{\beta}} - \lambda (\bm{c}^T \bm{A} \bm{c} - 1)] \\
+    \bm{0} = \frac{\partial}{\partial \bm{c}}[\bm{c}^T \widehat{\bm{\beta}}_{-0} - \lambda (\bm{c}^T \bm{A} \bm{c} - 1)] \\
     1 = \bm{c}^T \bm{A} \bm{c}
   \end{cases} 
   = 
   \begin{cases}
-    \bm{0} = \widehat{\bm{\beta}} - \lambda 2 \bm{A} \bm{c} \\
+    \bm{0} = \widehat{\bm{\beta}}_{-0} - \lambda 2 \bm{A} \bm{c} \\
     1 = \bm{c}^T \bm{A} \bm{c}.
   \end{cases}
 \end{equation*}
 
-Solving, we get that $\lambda = \frac{1}{2} ||\bm{X} \widehat{\bm{\beta}}||$ and $\bm{c}_{\max} = \frac{\bm{A}^{-1} \widehat{\bm{\beta}}}{||\bm{X} \widehat{\bm{\beta}}||} = \frac{\bm{X}^T \bm{X} \widehat{\bm{\beta}}}{||\bm{X} \widehat{\bm{\beta}}||}$. 
+Solving, we get that $\lambda = \frac{1}{2} ||\bm{X}_{-0} \widehat{\bm{\beta}}_{-0}||$ and $\bm{c}_{\max} = \frac{\bm{A}^{-1} \widehat{\bm{\beta}}_{-0}}{||\bm{X}_{-0} \widehat{\bm{\beta}}_{-0}||} = \frac{\bm{X}_{-0}^T \bm{X}_{-0} \widehat{\bm{\beta}}_{-0}}{||\bm{X}_{-0} \widehat{\bm{\beta}}_{-0}||}$. 
 
 So,
 \begin{align*} 
-  \bm{c}_{\max}^T \widehat{\bm{\beta}} &= \bigg( \frac{\bm{X}^T \bm{X} \widehat{\bm{\beta}}}{||\bm{X} \widehat{\bm{\beta}}||} \bigg)^T \widehat{\bm{\beta}} \\
-  &= \frac{\widehat{\bm{\beta}}^T \bm{X}^T \bm{X} \widehat{\bm{\beta}}}{||\bm{X} \widehat{\bm{\beta}}||} \\
-  &= \frac{(\bm{X} \widehat{\bm{\beta}})^T \bm{X} \widehat{\bm{\beta}}}{||\bm{X} \widehat{\bm{\beta}}||} \\
-  &= ||\bm{X} \widehat{\bm{\beta}}||.
+  \bm{c}_{\max}^T \widehat{\bm{\beta}}_{-0} &= \bigg( \frac{\bm{X}_{-0}^T \bm{X}_{-0} \widehat{\bm{\beta}}}{||\bm{X}_{-0} \widehat{\bm{\beta}}_{-0}||} \bigg)^T \widehat{\bm{\beta}}_{-0} \\
+  &= \frac{\widehat{\bm{\beta}}_{-0}^T \bm{X}_{-0}^T \bm{X}_{-0} \widehat{\bm{\beta}}_{-0}}{||\bm{X}_{-0} \widehat{\bm{\beta}}_{-0}||} \\
+  &= \frac{(\bm{X}_{-0} \widehat{\bm{\beta}}_{-0})^T \bm{X}_{-0} \widehat{\bm{\beta}}_{-0}}{||\bm{X}_{-0} \widehat{\bm{\beta}}_{-0}||} \\
+  &= ||\bm{X}_{-0} \widehat{\bm{\beta}}_{-0}|| \\
+  &= ||\bm{H}_{-0} \bm{y}||.
 \end{align*}
-Likewise, we have $\bm{c}_{\max}^T (\bm{X}^T \bm{X})^{-1} \bm{c}_{\max} = 1$ by construction. So, $t_{\max} = \frac{||\bm{X} \widehat{\bm{\beta}}||}{\widehat{\sigma}} = \frac{||\bm{X} \widehat{\bm{\beta}}|| / \sqrt{1}}{||\bm{y} - \bm{X} \widehat{\bm{\beta}}|| / \sqrt{n-p}}$ and
-\[t_{\max}^2 = \frac{||\bm{X} \widehat{\bm{\beta}}||^2 / 1}{||\bm{y} - \bm{X} \widehat{\bm{\beta}}||^2 / (n-p)}.\]
+Likewise, we have $\bm{c}_{\max}^T (\bm{X}_{-0}^T \bm{X}_{-0})^{-1} \bm{c}_{\max} = 1$ by construction. So, $t_{\max} = \frac{||\bm{H}_{-0} \bm{y}||}{\widehat{\sigma}} = \frac{||\bm{H}_{-0} \bm{y}|| / \sqrt{1}}{||\bm{y} - \bm{X}_{-0} \widehat{\bm{\beta}}_{-0}|| / \sqrt{n-p}}$ and
+\[t_{\max}^2 = \frac{||\bm{H}_{-0} \bm{y}|| / 1}{||\bm{y} - \bm{X} \widehat{\bm{\beta}}||^2 / (n-p)}.\]
+
+Because $\dim(C(\bm{X}_{-0})) = p-1$, we have that $\frac{1}{p-1} t_{\max}^2 \sim F_{p-1, n-p}$.
 
 \end{enumerate}
 \end{sol}
@@ -439,6 +446,12 @@ print(crime_data, n = 5)
 \begin{enumerate}
 \item[(a)] 
 <<hw 3a, echo=TRUE, results=TRUE>>=
+# Replace incorrect abbreviation for Iowa
+crime_data <-
+  crime_data %>%
+  mutate(STATE = replace(STATE, STATE=="IO", "IA")) %>%
+  as.data.frame()
+
 # Read in 2019 census data for state population estimates
 pop_data <- 
   read.csv("http://www2.census.gov/programs-surveys/popest/datasets/2010-2019/national/totals/nst-est2019-alldata.csv") %>%
@@ -463,15 +476,14 @@ crime_data_full <-
   merge(crime_data, pop_data,
         by.x = "STATE", by.y = "Abbreviation") %>%
   select(-NAME) %>%
-  # Create violent crime rate variable
-  mutate(CrimeRate = Violent/Pop)
+  # Create violent crime rate variable (crime per million people)
+  mutate(CrimeRate = Violent/Pop*1000000)
 
 head(crime_data_full)
 @
 
-% NOTE: TO FINISH, ADD WORD SUMMARIES
 \item[(b)]
-<<hw 3b, echo=TRUE, results='hide'>>=
+<<hw 3b, echo=TRUE, results='hide', warnings=FALSE>>=
 # For creating correlation plots
 library(corrplot)
 library(viridis)
@@ -480,43 +492,49 @@ library(viridis)
 png("./figures/corr_plt.png")
 crime_data_full %>%
   select(CrimeRate, Metro, HighSchool, Poverty) %>%
+  rename(`Crime Rate` = CrimeRate, `High School` = HighSchool) %>%
   cor() %>%
   corrplot(type = "upper", tl.cex = 1.4, cl.cex = 1.2,
            tl.col = "black", col = magma(256))
 dev.off()
 
+# Produce and save pairs plot
 png("./figures/pairs_plt.png") 
 crime_data_full %>%
   select(CrimeRate, Metro, HighSchool, Poverty) %>%
-  GGally::ggpairs(columnLabels = c("Crime Rate", "Metro", "High School", "Poverty"))
+  GGally::ggpairs(columnLabels = 
+                    c("Crime Rate", "Metro", 
+                      "High School", "Poverty"))
 dev.off()
 
 # Produce and save summary statistics
 summary_stats <-
   crime_data_full %>%
   select(CrimeRate, Metro, HighSchool, Poverty) %>%
+  rename(`Crime Rate` = CrimeRate, `High School` = HighSchool) %>%
   summary() %>%
   as.data.frame.matrix()
 
 colnames(summary_stats) <- 
-  c("CrimeRate", "Metro", "HighSchool", "Poverty")
+  c("Crime Rate", "Metro", "High School", "Poverty")
 
 summary_stats <-
   summary_stats %>%
   # Get rid of added text from summary()
-  mutate(CrimeRate = 
-           str_replace(CrimeRate, pattern = ".*:", replacement = ""),
+  mutate(`Crime Rate` = 
+           str_replace(`Crime Rate`, pattern = ".*:", replacement = ""),
          Metro = 
            str_replace(Metro, pattern = ".*:", replacement = ""),
-         HighSchool = 
-           str_replace(HighSchool, pattern = ".*:", replacement = ""),
+         `High School` = 
+           str_replace(`High School`, pattern = ".*:", replacement = ""),
          Poverty = 
            str_replace(Poverty, pattern = ".*:", replacement = ""))
 
-rownames(summary_stats) <- c("Min.", "Q1", "Median", "Mean", "Q3", "Max.")
+rownames(summary_stats) <- 
+  c("Min.", "Q1", "Median", "Mean", "Q3", "Max.")
 
 summary_stats %>%
-  kableExtra::kable(format = "latex", booktabs = TRUE, digits = 2) %>%
+  kableExtra::kable(format = "latex", booktabs = TRUE, digits = 8) %>%
   kableExtra::save_kable("figures/crime_tbl.png")
 @
 
@@ -541,26 +559,25 @@ summary_stats %>%
 \label{tab:crime_tbl}
 \end{table}
 
-We plot the correlation between our variables in Figure~\ref{fig:corr_plt}, pairwise scatterplots in Figure~\ref{fig:pairs_plt}, and summary statistics for each variable in Table~\ref{tab:crime_tbl}.
-
-We see little correlation between the Metro and High School variables; some positive correlation between Metro and Crime Rate, as well as High School and Crime Rate; some negative correlation between Metro and Poverty; more positive correlation between Crime Rate and Poverty; and finally strong negative correlation between High School and Poverty (Figures~\ref{fig:corr_plt},~\ref{fig:pairs_plt}). We also see that the distributions of Crime Rate and Poverty are right-skewed, while those of Metro and High School are left-skewed (Figure~\ref{fig:pairs_plt}).
+We plot the correlation between our variables in Figure~\ref{fig:corr_plt}, pairwise scatterplots in Figure~\ref{fig:pairs_plt}, and summary statistics for each variable in Table~\ref{tab:crime_tbl}. We see little correlation between the Metro and High School variables; some positive correlation between Metro and Crime Rate, as well as High School and Crime Rate; some negative correlation between Metro and Poverty; more positive correlation between Crime Rate and Poverty; and finally strong negative correlation between High School and Poverty (Figures~\ref{fig:corr_plt},~\ref{fig:pairs_plt}). We also see that the distributions of Crime Rate and Poverty are right-skewed, while those of Metro and High School are left-skewed (Figure~\ref{fig:pairs_plt}).
 % NOTE: NEED TO FINISH
 \item[(c)]
 <<hw 3c>>=
-lm_fit <- lm(CrimeRate ~ Metro + HighSchool + Poverty,
-             data = crime_data_full)
+lm_fit <- 
+  lm(CrimeRate ~ Metro + HighSchool + Poverty,
+     data = crime_data_full)
 
 summary(lm_fit)
 
 confint(lm_fit) %>%
-  as.data.frame()  %>%
+  as.data.frame() %>%
   kableExtra::kable(format = "latex", booktabs = TRUE, digits = 2) %>%
   kableExtra::save_kable("figures/conf_int_tbl.png")
 @
 
 \begin{table}[h!]
 \centering
-\includegraphics[width = .3\textwidth]{figures/conf_int_tbl.png}
+\includegraphics[width = .4\textwidth]{figures/conf_int_tbl.png}
 \caption{Confidence intervals for linear model coefficients.}
 \label{tab:conf_int_tbl}
 \end{table}
@@ -569,8 +586,10 @@ Looking at the estimated linear model, we say that all coefficients are signific
 
 We also see that the model has an $R^2$ of 0.34, indicating that it explains about 34\% of the variation in the observed data. Notably, the $p$-value for the $F$-test is significant at the $\alpha = 0.05$ level, indicating that there is strong evidence that at least one of the non-intercept coefficients is nonzero.
 
-% NOTE: NEED TO FINISH
-\item[(d)]
+\item[(d)] From a policymaking standpoint, the key takeaway is that an increase in any one of the variables (while holding the others constant), seems to be associated with an increase in crime. This may suggest that higher poverty or more metropolitan areas need additional policies to help combat the problem of violent crimes. One thing of note is that the model suggests that a higher high school graduation rate is associated with a higher violent crime rate when holding the other variables constant. This is counter to what one might intuitively expect, but could be because the poverty rate and high school graduation rate variables are highly (negatively) correlated, so care must be taken when drawing conclusions from the model. Other caveats are that the model does not consider interactions between the different variables (e.g. maybe a higher poverty rate increases the effect that the metropolitan residential rate has on crime rate) and assumes linear relationships between the variables. 
+
+Looking at data on the county level would help to increase the sample size and would reduce the likelihood of running into Simpson's paradox from dealing with aggregated data. Other socioeconomic data like population density and (un)employment rates could be interesting for a more in-depth analysis of violent crime as well.
+
 \end{enumerate}
 \end{sol}
 
