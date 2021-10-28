@@ -243,8 +243,10 @@ Under the assumption of~\eqref{eq:postulated-model} and approximating a $t$-dist
 \begin{align*}
   \text{Type-I error} &= \Prob[t_{p-1} \geq z_{1-\alpha}] \\
   &= \Prob\bigg[N\bigg( \frac{||\bx_{* p-1}^\bot||}{\sigma} {}_{p}\gamma_{p-1} \beta_p, 1 \bigg) \geq z_{1-\alpha} \bigg] \\
-  &= \Prob\bigg[N(0,1) \geq z_{1-\alpha} - \frac{||\bx_{* p-1}^\bot||}{\sigma} {}_{p}\gamma_{p-1} \beta_p \bigg].
+  &= \Prob\bigg[ N(0,1) \geq z_{1-\alpha} - \frac{||\bx_{* p-1}^\bot||}{\sigma} {}_{p}\gamma_{p-1} \beta_p \bigg] \\
+  &= \Prob\bigg[ N(0,1) \geq z_{a-\alpha} - t_{p-1} \frac{{}_{p}\gamma_{p-1}}{\betahat_{p-1}} \beta_p \bigg].
 \end{align*}
+We will use the final equation for Type-I error in the simulation for (e).
 
 \item[(d)] We have that $\text{Bias}[\betahat_{p-1}]$ varies linearly with $\beta_p$. 
 
@@ -256,7 +258,7 @@ Because ${}_{p}\gamma_{p-1}$ is the projection of $\bx_{*p}$ onto $C(\bX_{-p})$,
 
 % TODO
 \item[(e)] 
-<<numerical sim>>=
+<<numerical sim, results='hide', warning=FALSE>>=
 ### Package management
 library(pacman)
 p_load("MASS")
@@ -301,8 +303,8 @@ sim_results <- data.frame()
 
 
 ### Run simulation for each value of rho, beta_p
-for(rho_sim in rho[1]){
-  for(beta_p_sim in beta_p[1]){
+for(rho_sim in rho){
+  for(beta_p_sim in beta_p){
     # Get AR(1) covariance matrix Sigma(rho) for simulation value of rho, p
     Sigma_sim <- get_ar_1_cov(rho_sim, p)
     
@@ -329,8 +331,8 @@ for(rho_sim in rho[1]){
     # Simulated Type-I error is this count divided by number draws of y
     ct_exceeds <- 0
     
-    #for(i in 1:num_draws){
-    for(i in 1:1){
+    for(i in 1:num_draws){
+    #for(i in 1:1){
       # Sample epsilon_i iid from N(0, sigma^2)
       epsilon <- rnorm(n=n, mean=0, sd=sigma)
       
@@ -372,17 +374,11 @@ for(rho_sim in rho[1]){
     X_minusp <- X[, 1:p]
     
     # Bias vector is (X_{-p}^T X_{-p})^{-1} X_{-p}^T x_{*p} beta_p
-    bias_vector = solve(t(X_minusp) %*% X_minusp) %*% t(X_minusp) %*% X[, p+1] %*% beta_p_sim
-    
-    print(dim(t(X_minusp)))
-    print(dim(X_minusp))
-    print(dim(X[, p+1]))
-    print(dim(solve(t(X_minusp) %*% X_minusp)))
-    print(dim(solve(t(X_minusp) %*% X_minusp) %*% t(X_minusp)))
-    print(dim(solve(t(X_minusp) %*% X_minusp) %*% t(X_minusp) %*% X[, p+1]))
-    print(dim(solve(t(X_minusp) %*% X_minusp) %*% t(X_minusp) %*% X[, p+1] %*% beta_p_sim))
-    
-    #print(bias_vector)
+    bias_vector = 
+      solve(t(X_minusp) %*% X_minusp) %*% 
+      t(X_minusp) %*% 
+      X[, p+1] %*% 
+      beta_p_sim
     
     
     bias_beta_p_1 <- bias_vector[p]
@@ -396,27 +392,64 @@ for(rho_sim in rho[1]){
     
     # Store simulation result in a dataframe
     sim_result <- 
-      data.frame(beta_p=beta_p_sim, rho=rho_sim, sim_bias=sim_bias, sim_type_i=sim_type_i, theor_bias=bias_beta_p_1)
+      data.frame(
+        beta_p=beta_p_sim, 
+        rho=rho_sim, 
+        simulated_bias=sim_bias, 
+        theoretical_bias=bias_beta_p_1,
+        simulated_type_i=sim_type_i)
     
     # Add this simulation;s result to overall list of results
     sim_results <- rbind(sim_results, sim_result)
   }
 }
 
-print(sim_results)
+# Convert simulation results to long format
+sim_results_long_bias <- 
+  sim_results %>% 
+    pivot_longer(
+      c(simulated_bias, theoretical_bias), 
+      names_to="is_sim", 
+      values_to="bias") %>%
+    mutate(is_sim = str_replace(is_sim, "_.*", "")) %>%
+    mutate(group = paste0(rho, paste0(" (", paste0(is_sim, ")"))))
+sim_results_long_type_i <-
+  sim_results %>% 
+    pivot_longer(
+      c(simulated_type_i, theoretical_type_i), 
+      names_to="is_sim", 
+      values_to="type_i") %>%
+    mutate(is_sim = str_replace(is_sim, "_.*", "")) %>%
+    mutate(group = paste0(rho, paste0(" (", paste0(is_sim, ")"))))
+sim_results <-
+  sim_results_bias %>%
+    inner_join(sim_results_long_type_i, by=group)
 
-
+### Create plots
+# Plot of expected, theoretical bias as a function of beta_p
 bias_plt <- 
-  sim_results %>%
+  sim_results_long %>%
     ggplot() +
-    geom_point(aes(x = beta_p, y = sim_bias, color=as.factor(rho))) +
-    # Add y = theoretical bias
-    geom_line(aes(x = beta_p, y = theor_bias, color=as.factor(rho))) +
-    ylab(TeX("Simulated bias ($n = 1,000$ draws)")) +
+    # Add scatter plot of simulated bias
+    geom_point(aes(x = beta_p, y = bias, color=group)) +
+    ylab(TeX("Simulated bias")) +
     xlab(TeX("$\\beta_p$")) +
     labs(color=TeX("$\\rho$"))
     
+ggsave("./figures/bias_plt.png", bias_plt)
 @
+
+Note that in the bias plot, we have close agreement between the simulated and theoretical predictions. The curve is roughly fan-shaped, with increasing deviations from a line as $\beta_p$ increases. This is in accordance with (a), which said that the bias was a linear function of $\beta_p$.
+
+% TODO: Type-I error plot
+% - Problem? Can only calculate Type-I error once we've fixed y --> 1000 points for each value of beta_p?
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width = .8\textwidth]{figures/bias_plt.png}
+\caption{Simulated and theoretical bias vs. $\beta_p$ ($n = 1,000$ draws).}
+\label{fig:bias_plt}
+\end{figure}
 
 \end{sol}
 
@@ -449,6 +482,102 @@ print(covid_data, n = 3)
 
 \begin{sol}
 
+\item[(a)]
+<<2a>>=
+# Create linear model
+lm_full <- lm(case_fatality_rate ~ ., 
+              covid_data %>% dplyr::select(-county, -state))
+
+# Get dataframe with coefficient summaries
+feat_summary <- summary(lm_full)$coefficients
+
+# Get subset of summary for those coefficients that are significant at the
+# multiple testing adjusted threshold
+sig_feat_summary <-
+  feat_summary[feat_summary[, "Pr(>|t|)"] <= 0.05/41, ]
+
+# Create table with summary
+sig_feat_summary %>%
+  kableExtra::kable(format = "latex", booktabs = TRUE, digits = 4, escape=FALSE) %>%
+  kableExtra::save_kable("figures/sig_feat_tbl.png")
+@
+
+The proportion of variation in the response explained by the predictors is the $R^2$, which is 33.12\%.
+
+The details of the coefficients that are significant at $\alpha = 0.05$ after a multiple testing correction are shown in the table.
+
+\begin{table}[h!]
+\centering
+\includegraphics[width = .6\textwidth]{figures/sig_feat_tbl.png}
+\caption{Summary of features significant with multiple testing corrections.}
+\label{tab:sig_feat_tbl}
+\end{table}
+
+\item[(b)]
+<<2b>>=
+png("figures/resid_fitted_plt.png")
+plot(lm_full, which=1)
+dev.off()
+
+png("figures/resid_leverage_plt.png")
+plot(lm_full, which=5)
+dev.off()
+@
+
+Looking at the plot of residuals vs. fitted values we can see a fan shape, indicating the presence of heteroskedasticity or correlation between our errors.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width = .8\textwidth]{figures/resid_fitted_plt.png}
+\caption{Residuals vs. fitted values}
+\label{fig:resid_fitted_plt}
+\end{figure}
+
+There do not seem to be any point with unduly high Cook's distance in the plot of the residuals against leverage, indicating that there are not any apparent outliers.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width = .8\textwidth]{figures/resid_leverage_plt.png}
+\caption{Residuals vs. leverage.}
+\label{fig:resid_leverage_plt}
+\end{figure}
+
+% TODO
+\item[(c)]
+<<2c plot>>=
+# Extract standardized residuals
+std_res <- stdres(lm_full)
+
+df_std_res <- data.frame(State=covid_data$state, std_res=std_res)
+
+std_res_state_plt <-
+  df_std_res %>%
+    ggplot() +
+      geom_boxplot(aes(x=std_res, color=State)) +
+      xlab("Standardized residuals")
+
+ggsave("figures/std_res_plt.png", std_res_state_plt)
+@
+
+Looking at the distribution of standardized residuals by state, the fact that different states have different widths of the whiskers for their respective plots suggests that the variance within each state; i.e. we may have a grouped correlation structure.
+
+<<2c test>>=
+# Load sandwich package
+p_load("sandwich")
+@
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width = .8\textwidth]{figures/std_res_state_plt.png}
+\caption{Distribution of standardized residuals by state.}
+\label{fig:std_res_state_plt}
+\end{figure}
+
+% TODO
+\item[(d)]
+
+% TODO
+\item[(e)]
 \end{sol}
 
 \clearpage
