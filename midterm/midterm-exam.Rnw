@@ -244,7 +244,7 @@ Under the assumption of~\eqref{eq:postulated-model} and approximating a $t$-dist
   \text{Type-I error} &= \Prob[t_{p-1} \geq z_{1-\alpha}] \\
   &= \Prob\bigg[N\bigg( \frac{||\bx_{* p-1}^\bot||}{\sigma} {}_{p}\gamma_{p-1} \beta_p, 1 \bigg) \geq z_{1-\alpha} \bigg] \\
   &= \Prob\bigg[ N(0,1) \geq z_{1-\alpha} - \frac{||\bx_{* p-1}^\bot||}{\sigma} {}_{p}\gamma_{p-1} \beta_p \bigg] \\
-  &= \Prob\bigg[ N(0,1) \geq z_{a-\alpha} - t_{p-1} \frac{{}_{p}\gamma_{p-1}}{\betahat_{p-1}} \beta_p \bigg].
+  &= \Prob\bigg[ N(0,1) \geq z_{1-\alpha} - t_{p-1} \frac{{}_{p}\gamma_{p-1}}{\betahat_{p-1}} \beta_p \bigg].
 \end{align*}
 We will use the final equation for Type-I error in the simulation for (e).
 
@@ -322,6 +322,16 @@ for(rho_sim in rho){
     X_beta_full <- X %*% beta_full
     
     
+    # Get matrix for postulated model
+    X_minusp <- X[, 1:p]
+    
+    # Compute coefficient matrix for auxillary regression of x_{p} on X_{-p}
+    p_gamma <- solve(t(X_minusp) %*% X_minusp) %*% t(X_minusp) %*% X[, p+1] %*% beta_p_sim
+    
+    # Extract x_{p-1} coefficient from auxillary regression
+    p_gamma_p_1 <- p_gamma[p]
+    
+    
     # Total error from all draws of y
     # Simulated bias = (total error)/(number draws of y)
     tot_error <- 0
@@ -330,6 +340,9 @@ for(rho_sim in rho){
     # of the distribution under the postulated model
     # Simulated Type-I error is this count divided by number draws of y
     ct_exceeds <- 0
+    
+    # Vector to store Type-I error for each draw of y
+    type_i_errors <- c()
     
     for(i in 1:num_draws){
     #for(i in 1:1){
@@ -353,9 +366,11 @@ for(rho_sim in rho){
       # Extract regression coefficients
       beta_full_hat <- lm_sim$coefficients
       
+      # Extract \widehat{beta_{p-1}}
+      beta_hat_p_1 <- beta_full_hat[p]
       
       # Calculate difference between true and estimated beta_{p-1}
-      beta_p_1_error <- beta_full_hat[p]-beta_full[p]
+      beta_p_1_error <- beta_hat_p_1 - beta_p_sim
       
       # Add error to total error
       tot_error <- tot_error + beta_p_1_error
@@ -364,15 +379,23 @@ for(rho_sim in rho){
       # Extract t-statistic t_{p-1} from model fit
       t_p_1 <- summary(lm_sim)$coefficients[p, "t value"]
       
+      # Get quantile for significance test at level alpha
+      z_1_alpha <- qnorm(1-alpha)
+      
       # Add to count if t_{p-1} >= z_{1-alpha}
-      ct_exceeds <- ct_exceeds + 1 * (t_p_1 >= qnorm(1-alpha))
+      ct_exceeds <- ct_exceeds + 1 * (t_p_1 >= z_1_alpha)
+      
+      # Compute actual Type-I error
+      type_i_error <- 
+        pnorm(q = z_1_alpha - t_p_1/beta_hat_p_1 * p_gamma_p_1 * beta_p_sim, 
+              lower.tail=FALSE)
+      
+      # Add computed Type-I error to list
+      type_i_errors <- c(type_i_errors, type_i_error)
     }
     
     
     ## Compute true bias based on 1(a)
-    # Get matrix for postulated model
-    X_minusp <- X[, 1:p]
-    
     # Bias vector is (X_{-p}^T X_{-p})^{-1} X_{-p}^T x_{*p} beta_p
     bias_vector = 
       solve(t(X_minusp) %*% X_minusp) %*% 
@@ -380,8 +403,8 @@ for(rho_sim in rho){
       X[, p+1] %*% 
       beta_p_sim
     
-    
     bias_beta_p_1 <- bias_vector[p]
+    
     
     # Compute simulated bias
     sim_bias <- tot_error/num_draws
@@ -397,7 +420,8 @@ for(rho_sim in rho){
         rho=rho_sim, 
         simulated_bias=sim_bias, 
         theoretical_bias=bias_beta_p_1,
-        simulated_type_i=sim_type_i)
+        simulated_type_i=sim_type_i,
+        theoretical_type_i=mean(type_i_errors))
     
     # Add this simulation;s result to overall list of results
     sim_results <- rbind(sim_results, sim_result)
@@ -407,47 +431,78 @@ for(rho_sim in rho){
 # Convert simulation results to long format
 sim_results_long_bias <- 
   sim_results %>% 
+    dplyr::select(
+      -simulated_type_i, 
+      -theoretical_type_i) %>%
     pivot_longer(
       c(simulated_bias, theoretical_bias), 
       names_to="is_sim", 
       values_to="bias") %>%
     mutate(is_sim = str_replace(is_sim, "_.*", "")) %>%
-    mutate(group = paste0(rho, paste0(" (", paste0(is_sim, ")"))))
+    mutate(group = paste0(rho, paste0(" (", paste0(is_sim, ")")))) %>%
+    dplyr::select(-is_sim)
 sim_results_long_type_i <-
   sim_results %>% 
+    dplyr::select(
+      -simulated_bias,
+      -theoretical_bias) %>%
     pivot_longer(
       c(simulated_type_i, theoretical_type_i), 
       names_to="is_sim", 
       values_to="type_i") %>%
     mutate(is_sim = str_replace(is_sim, "_.*", "")) %>%
-    mutate(group = paste0(rho, paste0(" (", paste0(is_sim, ")"))))
+    mutate(group = paste0(rho, paste0(" (", paste0(is_sim, ")")))) %>%
+    dplyr::select(-is_sim)
 
 
 ### Create plots
-# Plot of expected, theoretical bias as a function of beta_p
+# Plot of simulated, theoretical bias as a function of beta_p
 bias_plt <- 
   sim_results_long_bias %>%
     ggplot() +
     # Add scatter plot of simulated bias
     geom_point(aes(x = beta_p, y = bias, color=group)) +
-    ylab(TeX("Simulated bias")) +
+    ylab(TeX("Bias")) +
     xlab(TeX("$\\beta_p$")) +
     labs(color=TeX("$\\rho$"))
     
 ggsave("./figures/bias_plt.png", bias_plt, 
-       width=8, height=6)
+       width=6, height=4)
+
+# Plot of simulated, theoretical Type-I error as a function of beta_p
+type_i_plt <-
+  sim_results_long_type_i %>%
+    ggplot() +
+    # Add scatter plot of simulated bias
+    geom_point(aes(x = beta_p, y = type_i, color=group)) +
+    # Add line for nomial level alpha
+    geom_hline(yintercept=alpha, linetype="dashed", color="red") +
+    ylab(TeX("Type-I error")) +
+    xlab(TeX("$\\beta_p$")) +
+    labs(color=TeX("$\\rho$"))
+
+ggsave("./figures/type_i_plt.png", type_i_plt, 
+       width=6, height=4)
 @
 
 Note that in the bias plot, we have close agreement between the simulated and theoretical predictions. The curve is roughly fan-shaped, with increasing deviations from a line as $\beta_p$ increases. This is in accordance with (a), which said that the bias was a linear function of $\beta_p$.
-
-% TODO: Type-I error plot
-% - Problem? Can only calculate Type-I error once we've fixed y --> 1000 points for each value of beta_p?
 
 \begin{figure}[h!]
 \centering
 \includegraphics[width = .8\textwidth]{figures/bias_plt.png}
 \caption{Simulated and theoretical bias vs. $\beta_p$ ($n = 1,000$ draws).}
 \label{fig:bias_plt}
+\end{figure}
+
+In the Type-I error plot, we have that for small $\rho$, the simulated and theoretical values are close to one another and generally center around the nominal level $\alpha$, denoted by the dashed red line. When $\rho$ is larger, we have that the Type-I error increases drastically as a function of $\beta_p$, increasing steeply and then leveling off as it approaches 1. There is more of a discrepancy between the simulated and theoretical values for the Type-I error when $\rho$ is larger.
+
+Intuitively, the more correlated our omitted predictor is with the other predictors, the more drastic of an effect its omission has on our simulated Type-I error. So, a larger value of $\rho$ (meaning higher correlation between the variables) leads to a greater deviation from the true Type-I error.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width = .8\textwidth]{figures/type_i_plt.png}
+\caption{Simulated and theoretical Type-I error vs. $\beta_p$ ($n = 1,000$ draws).}
+\label{fig:type_i_plt}
 \end{figure}
 
 \end{sol}
