@@ -1,0 +1,561 @@
+% (C) Brett Klamer - MIT - http://opensource.org/licenses/MIT
+% Please contact me if you find any errors or make improvements
+% Contact details at brettklamer.com
+
+\documentclass[11pt,letterpaper,english,oneside]{article} % article class is a standard class
+%==============================================================================
+%Load Packages
+%==============================================================================
+\usepackage[left=1in,right=1in,top=1in,bottom=1in]{geometry} % easy page margins
+\usepackage[utf8]{inputenc} % editor uses utf-8 encoding
+\usepackage[T1]{fontenc} % T1 font pdf output
+\usepackage{lmodern} % Latin modern roman font
+\usepackage{bm, bbm} % bold and blackboard bold math symbols
+\usepackage{amsmath, amsfonts, amssymb, amsthm} % math packages
+\usepackage[final]{microtype} % better microtypography
+\usepackage{graphicx} % for easier grahics handling
+\usepackage[hidelinks, colorlinks=true, linkcolor = blue, urlcolor = blue]{hyperref} % to create hyperlinks
+\usepackage{float} % tells floats to stay [H]ere!
+\usepackage{mdframed} % it's better than framed. knitr uses framed so settings won't conflict
+\usepackage{enumitem} % nice lists
+\usepackage{fancyhdr} % nice headers
+\usepackage{caption}  % to control figure and table captions
+
+\captionsetup{width=0.9\textwidth, justification = raggedright}
+
+%==============================================================================
+% Enter name and homework title here
+%==============================================================================
+\author{Sam Rosenberg}
+\title{STAT 961: Midterm Exam \\ Fall 2021}
+\date{Due Saturday, October 30 at 11:59pm; Time limit: 48 hours}
+
+%==============================================================================
+% Put title and author in PDF properties
+%==============================================================================
+\makeatletter % change interpretation of @
+\hypersetup{pdftitle={\@title},pdfauthor={\@author}}
+
+
+%==============================================================================
+% Header settings
+%==============================================================================
+\pagestyle{fancy} % turns on fancy header styles
+\fancyhf{} % clear all header and footer fields
+\makeatletter
+\lhead{\@author} % left header
+\chead{\@title} % center header
+\makeatother
+\rhead{Page \thepage} % right header
+\setlength{\headheight}{13.6pt} % fixes minor warning
+\makeatother % change back interpretation of @
+
+%==============================================================================
+% List spacing
+%==============================================================================
+\setlist[itemize]{parsep=0em} % fix itemize spacing
+\setlist[enumerate]{parsep=0em} % fix enumerate spacing
+
+%==============================================================================
+% Float spacing (changes spacing of tables, graphs, etc)
+%==============================================================================
+%\setlength{\textfloatsep}{3pt}
+%\setlength{\intextsep}{3pt}
+
+%==============================================================================
+% Define Problem and Solution Environments
+%==============================================================================
+\theoremstyle{definition} % use definition's look
+\newtheorem{problem}{Problem}
+\newtheorem{solution}{Solution}
+\mdfsetup{ % box margin fix for mdframe and how it plays with parskip and others.
+innerleftmargin=4pt,
+innerrightmargin=4pt,
+innertopmargin=-1pt,
+innerbottommargin=4pt}
+% \newenvironment{prob}{\begin{mdframed}\begin{problem}\hspace{0pt}}{\end{problem}\end{mdframed}}
+\newenvironment{prob}{\clearpage \begin{problem}\hspace{0pt}}{\end{problem}}
+\newenvironment{sol}{\begin{solution}\hspace{0pt}}{\end{solution}}
+
+%==============================================================================
+% New commands
+%==============================================================================
+\newcommand{\var}{\text{Var}}
+\newcommand{\betahatls}{\widehat{\beta}_{0}^{\text{LS}}}
+\newcommand{\betahatmle}{\widehat{\beta}_{0}^{\text{MLE}}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\bepsilonhat}{\widehat{\bm{\epsilon}}}
+\newcommand{\Tr}{\text{Tr}}
+\newcommand{\diag}{\text{diag}}
+\newcommand{\id}{\bm{I}_n}
+
+\newcommand{\bbeta}{\bm{\beta}}
+\newcommand{\bbetahat}{\widehat{\bm{\beta}}}
+\newcommand{\betahat}{\widehat{\beta}}
+\newcommand{\bX}{\bm{X}}
+\newcommand{\bXT}{\bm{X}^T}
+\newcommand{\bx}{\bm{x}}
+\newcommand{\by}{\bm{y}}
+\newcommand{\bI}{\bm{I}}
+\newcommand{\bH}{\bm{H}}
+\newcommand{\sigmahat}{\widehat{\sigma}}
+\newcommand{\bepsilon}{\bm{\epsilon}}
+\newcommand{\Prob}{\mathbb{P}}
+
+%==============================================================================
+% set knitr options
+%==============================================================================
+% latex (change space before and after knitr kframe; based on framed package)
+\setlength{\OuterFrameSep}{0.3em}
+% R
+<<setup, include=FALSE, cache=FALSE>>=
+library(knitr)
+# inline hook to process the output of \Sexpr{} statements to just 2 digits
+inline_hook <- function(x) {
+  if(is.numeric(x)) x <- round(x, 2)
+  paste(as.character(x), collapse=", ")
+}
+knit_hooks$set(inline = inline_hook)
+
+# cache all chunks
+opts_chunk$set(cache = TRUE)
+
+# create directory for figures
+if(!dir.exists("figures")){
+  dir.create("figures")
+}
+@
+
+\begin{document}
+
+
+\maketitle
+
+\section{Instructions}
+
+\paragraph{Setup.} The materials you need for this exam are available \href{https://upenn.box.com/s/i48xscrgj01ijsmlbkamgdkqyk7pzdh5}{here}. Please navigate to this site and download the files you find there. Place \verb|midterm-exam.Rnw| under \verb|stat-961-fall-2021/midterm/| and \verb|covid_data.tsv| under \verb|stat-961-fall-2021/data/|.
+
+\paragraph{Collaboration.} This exam must be completed individually; seeking help from classmates or others is prohibited. You may only ask the instructor clarifying questions via private Piazza post. However, you may consult any course materials or the internet in completing this exam. \\
+
+\noindent \textit{Please list what external references you consulted (e.g. articles, books, or websites):} 
+
+\paragraph{Writeup.} Use this document as a starting point for your writeup, adding your solutions between \verb|\begin{sol}| and \verb|\end{sol}|. See the \href{https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/getting-started/preparing-reports.pdf}{preparing reports guide} for guidance on compilation, creation of figures and tables, and presentation quality. Show all the code you wrote to produce your numerical results, and include complete derivations typeset in LaTeX for the mathematical questions. 
+
+\paragraph{Programming.}
+
+The \texttt{tidyverse} paradigm for data manipulation (\texttt{dplyr}) and plotting (\texttt{ggplot2}) are strongly encouraged, but points will not be deducted for using base \texttt{R}. 
+<<message=FALSE, cache = FALSE>>=
+library(tidyverse)
+@
+
+\paragraph{Grading.} Each sub-part of each problem will be worth 3 points: 0 points for no solution or completely wrong solution; 1 point for some progress; 2 points for a mostly correct solution; 3 points for a complete and correct solution modulo small flaws. The presentation quality of the solution for each problem (as exemplified by the guidelines in Section 3 of the \href{https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/getting-started/preparing-reports.pdf}{preparing reports guide}) will be evaluated out of an additional 3 points.
+
+\paragraph{Submission.} Compile your writeup to PDF and submit to \href{https://www.gradescope.com/courses/285243}{Gradescope}.
+
+\clearpage
+
+\begin{prob} \label{prob:model-bias}\textbf{The consequences of model bias.} \\
+
+\noindent To study the effect of a predictor $x_{p-1}$ on a response $y$, we collect an observational dataset of $n$ samples; for each sample we measure $y, x_{p-1}$, and $p-1$ possible confounders $x_0, x_1, \dots, x_{p-2}$. We then postulate the linear model model
+\begin{equation}
+y = \beta_0 x_0 + \cdots + \beta_{p-2}x_{p-2} + \beta_{p-1}x_{p-1} + \epsilon, \quad \epsilon \sim N(0, \sigma^2),
+\label{eq:postulated-model}
+\end{equation}
+based on which we construct $\bm{\widehat \beta}$ and $\widehat \sigma^2$, test $H_0: \beta_{p-1} = 0$, and construct a confidence interval for $\beta_{p-1}$ as in Unit 2. Unfortunately, we forgot about one confounder, $x_p$! It turns out that that $x_{p-1}$ actually has no effect on $y$, and that the true distribution of the data is
+\begin{equation}
+y = \beta_0 x_0 + \cdots + \beta_{p-2}x_{p-2} + \beta_{p-1}x_{p-1} + \beta_{p}x_{p} + \epsilon, \quad \epsilon \sim N(0, \sigma^2), \quad \text{where } \beta_{p-1} = 0. 
+\label{eq:true-model}
+\end{equation}
+In this problem, we will investigate the consequences of this model bias. As usual, we view the predictors as fixed.
+
+\begin{enumerate}
+
+\item[(a)] What is the distribution of the least squares coefficient estimate $\widehat \beta_{p-1}$---defined based on the postulated linear model~\eqref{eq:postulated-model}---under the true data-generating model~\eqref{eq:true-model}? What is the bias of $\widehat \beta_{p-1}$?
+
+\item[(b)] What is the expectation of the variance estimate $\widehat \sigma^2$---defined based on the postulated linear model~\eqref{eq:postulated-model}---under the true data-generating model~\eqref{eq:true-model}?
+
+\item[(c)] What is the Type-I error of the right-sided level-$\alpha$ $t$-test of $H_0: \beta_{p-1} = 0$---constructed based on the postulated model~\eqref{eq:postulated-model}---under the true data-generating model~\eqref{eq:true-model}? [For the sake of this question, you may ignore the sampling variability in $\widehat \sigma^2$ (i.e. assume $\widehat \sigma^2$ is always equal to its expectation) and approximate $t_{n-p} \approx N(0,1)$.]
+
+\item[(d)] How do the bias found in part (a) and the Type-I error found in part (c) vary with $\beta_p$? Discuss the intuition for these results. [To discuss the dependency of the Type-I error on $\beta_p$, you may restrict your attention to $\beta_p \rightarrow \infty$.]
+
+\item[(e)] Carry out the following numerical simulation to assess bias and Type-I error. Set $n = 100$, $p = 20$, $\sigma = 1$, $(\beta_0, \dots, \beta_{p-1}) = \bm 0$, $\beta_{p} \in \{0, 0.5, 1, \dots, 4.5, 5\}$, and $\alpha = 0.05$. Draw $(x_{i,0}, \dots, x_{i,p-1}, x_{i,p}) \overset{\text{i.i.d.}}\sim N(\bm 0, \bm \Sigma(\rho))$ for $i = 1, \dots, n$, where $\bm \Sigma(\rho)$ is the AR(1) covariance matrix with autocorrelation parameter $\rho \in \{0.05, 0.2\}$, i.e. $\bm \Sigma(\rho)_{j_1, j_2} = \rho^{|j_1-j_2|}$ for $j_1, j_2 \in \{1, \dots, p+1\}$. For each pair $(\beta_p, \rho)$, compute the bias of $\widehat \beta_{p-1}$ computed with respect to the postulated model~\eqref{eq:postulated-model} and the Type-I error of the corresponding $t$-test, via 1000 draws of $\bm y$ based on the model~\eqref{eq:true-model}, while keeping the predictors fixed. Plot the simulated bias and Type-I error as a function of $\beta_p$ for each $\rho$, overlaying the theoretical predictions from parts (a) and (c), respectively. Add a dashed horizontal line on the Type-I error plot at the nominal level $\alpha$. Comment on the agreement between the simulation and theoretical predictions, the shapes of the resulting curves, and how these connect to the discussion in part (d).
+
+\end{enumerate}
+
+\end{prob}
+
+\begin{sol}
+\item[(a)] Say that the model matrix under the true model~\eqref{eq:true-model} is $\bX = \begin{pmatrix} \bX_{-p} & \bx_{*p} \end{pmatrix}$ and the true coefficient vector is $\bbeta = \begin{pmatrix} \bbeta_{-p} \\ \beta_p \end{pmatrix}$. Under~\eqref{eq:postulated-model}, we have that our estimator for $\bbeta_{-p}$ is $\bbetahat_{-p} = (\bXT_{-p} \bX_{-p})^{-1} \bXT_{-p} \by$. We also have that $\by = \bX_{-p} \bbeta_{-p} + \bx_{*p} \beta_p + \bepsilon$. 
+
+Note that under~\eqref{eq:true-model}, $y \sim N(\bX \bbeta, \ \sigma^2 \bI_n)$ and $\bepsilon \sim N(0, \sigma^2 \bI_n)$. So, \begin{align*}
+  \bbetahat_{-p} &= (\bXT_{-p} \bX_{-p})^{-1} \bXT_{-p} \by \\
+  &= (\bXT_{-p} \bX_{-p})^{-1} \bXT_{-p} (\bX_{-p} \bbeta_{-p} + \bx_{*p} \beta_p + \bepsilon) \\
+  &= \bbeta_{-p} + (\bXT_{-p} \bX_{-p})^{-1} \bXT_{-p} \bx_{*p} \beta_p + (\bXT_{-p} \bX_{-p})^{-1} \bXT_{-p} \bepsilon \\
+  &\sim N(\bbeta_{-p} + (\bXT_{-p} \bX_{-p})^{-1} \bXT_{-p} \bx_{*p} \beta_p, \ \sigma^2 [(\bXT_{-p} \bX_{-p})^{-1} \bXT_{-p}][(\bXT_{-p} \bX_{-p})^{-1} \bXT_{-p}]^T) \\
+  &= N(\bbeta_{-p} + (\bXT_{-p} \bX_{-p})^{-1} \bXT_{-p} \bx_{*p} \beta_p, \ \sigma^2 (\bXT_{-p} \bX_{-p})^{-1}).
+\end{align*}
+Then 
+\begin{align*}
+  \betahat_{p-1} &\sim N(\beta_{p-1} + \big[ (\bXT_{-p} \bX_{-p})^{-1} \bXT_{-p} \bx_{*p} \beta_p \big]_{p-1}, \ \sigma^2 \big[ (\bXT_{-p} \bX_{-p})^{-1} \big]_{p-1,p-1}) \\
+  &= N\bigg( \beta_{p-1} + \big[ (\bXT_{-p} \bX_{-p})^{-1} \bXT_{-p} \bx_{*p} \beta_p \big]_{p-1}, \ \frac{\sigma^2}{s_{p-1}^2} \bigg) \\
+  &= N\bigg(\big[ (\bXT_{-p} \bX_{-p})^{-1} \bXT_{-p} \bx_{*p} \beta_p \big]_{p-1}, \ \frac{\sigma^2}{||\bx_{*,p-1}^\bot||^2} \bigg),
+\end{align*}
+where $s_j^2$ and $\bx_{*,p-1}^\bot$ are both defined with respect to the presumed (incorrect) model~\eqref{eq:postulated-model} and our vector/matrix indexing is beginning at 0 for simplicity.
+
+So, the question remains as to how we can simplify the quantity $\big[ (\bXT_{-p} \bX_{-p})^{-1} \bXT_{-p} \bx_{*p} \beta_p \big]_{p-1}$. Note that $(\bXT_{-p} \bX_{-p})^{-1} \bXT_{-p} \bx_{*p}$ is the coefficient matrix of the least squares regression of $\bx_{*p}$ onto $\bX_{-p}$. Say that the $j$-th coefficient of this regression is ${}_p\gamma_{j}$, then we have that $\big[ (\bXT_{-p} \bX_{-p})^{-1} \bXT_{-p} \bx_{*p} \beta_p \big]_{p-1} = {}_p\gamma_{p-1} \beta_p$ and \[\beta_{p-1} \sim N({}_p\gamma_{p-1} \beta_p, \frac{\sigma^2}{||\bx_{*,p-1}^\bot||^2}).\]
+
+Recall that the bias of an estimator $\widehat{\theta}$ of $\theta$ is $\E[\widehat{\theta}] - \theta$. So, 
+\[\text{Bias}[\betahat_{p-1}] = \E[\betahat_{p-1}] = {}_p\gamma_{p-1} \beta_p.\]
+
+\item[(b)] Denote the residuals using the estimator $\bbetahat_{-p}$ to be $\bepsilonhat_{-p} = \by - \bX\bbetahat_{-p}$. Then the variance estimate $\sigmahat^2$ based on~\eqref{eq:postulated-model} is 
+\begin{align*}
+  \sigmahat^2 &= \frac{1}{n-p}||\bepsilonhat_{-p}||^2 \\
+  &= \frac{1}{n-p} \bepsilonhat_{-p}^T \bepsilonhat \\ &= \frac{1}{n-p} [(\bI_n - \bH_{-p}) \by]^T [(\bI_n - \bH_{-p}) \by] \\
+  &= \frac{1}{n-p} \by^T (\bI_n - \bH_{-p})^T (\bI_n - \bH_{-p}) \by \\
+  &= \frac{1}{n-p} \by^T (\bI_n - \bH_{-p}) \by,
+\end{align*}
+where the last equality holds because $\bI - \bH_{-p}$ is a projection matrix so it is both symmetric and idempotent.
+
+Note that the covariance matrix of $\by$ is $\sigma^2 \bI_n$ and its expectation is $\bX \bbeta$. So, we have 
+\begin{align*}
+  \E[\sigmahat^2] &= \frac{1}{n-p} \E[\by^T (\bI_n - \bH_{-p}) \by] \\
+  &= \frac{1}{n-p} \sum_{i,j=1}^n \E[y_i [\bI_n - \bH_{-p}]_{i,j} y_j] \\
+  &= \frac{1}{n-p} \sum_{i,j=1}^n [\bI_n - \bH_{-p}]_{i,j} \ \E[y_i y_j] \\
+  &= \frac{1}{n-p} \sum_{i,j=1}^n \big[ \bI_n - \bH_{-p}]_{i,j} \ (\text{Cov}(y_i, y_j) + \E[y_i] \E[y_j]) \quad \text{(covariance formula)} \\
+  &= \frac{1}{n-p} \sum_{i,j=1}^n [\bI_n - \bH_{-p}]_{i,j} \ ( \big[ \sigma^2 \bI_n \big]_{i,j} + (\bx_{i*} \bbeta) (\bx_{j*} \bbeta) ) \\
+  &= \frac{1}{n-p} \sum_{i,j=1}^n [\bI_n - \bH_{-p}]_{i,j} \big[ \sigma^2 \bI_n \big]_{i,j} + (\bx_{i*} \bbeta) [\bI_n - \bH_{-p}]_{i,j} (\bx_{j*} \bbeta) \\
+  &= \frac{1}{n-p} \sum_{i,j=1}^n [\bI_n - \bH_{-p}]_{i,j} \big[ \sigma^2 \bI_n \big]_{j,i} + (\bx_{i*} \bbeta) [\bI_n - \bH_{-p}]_{i,j} (\bx_{j*} \bbeta) \quad (\sigma^2 \bI_n \text{ symmetric}) \\
+  &= \frac{1}{n-p} \sum_{i=1}^n  \big[ (\bI_n - \bH_{-p}) \sigma^2 \bI_n \big]_{i,i} + (\bX \bbeta)^T (\bI - \bH_{-p}) (\bX \bbeta) \\
+  &= \frac{1}{n-p} \big[ \Tr[\sigma^2 (\bI_n - \bH_{-p})] + (\bX \bbeta)^T (\bI - \bH_{-p}) (\bX \bbeta) \big] \\
+  &= \frac{1}{n-p} \big[\sigma^2 \Tr[\bI_n - \bH_{-p}] + (\bX \bbeta)^T (\bI - \bH_{-p}) (\bX \bbeta) \big] \\
+  &= \frac{1}{n-p} \big[ \sigma^2 \Tr[\bH_{-p}^\bot] + (\bX \bbeta)^T (\bH_{-p}^\bot) (\bX \bbeta) \big] \\
+  &= \frac{1}{n-p} \big[ \sigma^2 \Tr[\bH_{-p}^\bot] + (\bH \by)^T (\bH_{-p}^\bot) \bH \by \big] \\
+  &= \frac{1}{n-p} \big[ \sigma^2 \Tr[\bH_{-p}^\bot] + \by^T \bH^T (\bH_{-p}^\bot) \bH \by \big] \\
+  &= \frac{1}{n-p} \big[ \sigma^2 \Tr[\bH_{-p}^\bot] + \by^T \bH (\bH_{-p}^\bot) \bH \by \big] \\
+  &= \sigma^2 + \frac{\by^T \bH (\bH_{-p}^\bot) \bH \by}{n-p} \quad (\text{since } \Tr[\bH_{-p}^\bot] = \text{Dim}(C(\bH_{-p}^\bot))).
+\end{align*}
+
+\item[(c)] Under~\eqref{eq:postulated-model}, we have that the test statistic for the right-sided level-$\alpha$ $t$-test for the hypothesis $H_0: \beta_{p-1} = 0$ is $t_{p-1} = \frac{\betahat_{p-1}}{\sigmahat/s_j} = \frac{\betahat_{p-1}}{\sigmahat/||\bx_{*p-1}^\bot||}$. Recalling from (a) that $\beta_{p-1} \sim N({}_p\gamma_{p-1} \beta_p, \frac{\sigma^2}{||\bx_{*,p-1}^\bot||^2})$ and assuming that $\sigmahat^2 = \sigma^2$, we have that 
+\[t_{p-1} \sim N\bigg( \frac{||\bx_{* p-1}^\bot||}{\sigma} {}_{p}\gamma_{p-1} \beta_p, 1 \bigg).\]
+That is, we have a mean-shift in the distribution of the test statistic by $\frac{||\bx_{* p-1}^\bot||}{\sigma} {}_{p}\gamma_{p-1} \beta_p$. 
+
+Under the assumption of~\eqref{eq:postulated-model} and approximating a $t$-distribution with $n-p$ degrees of freedom as being $N(0,1)$, we have that the Type-I error for the t-test for $H_0: \beta_{p-1} = 0$ is $\Prob[t_{p-1} \leq z_{1 - \alpha}]$, where $z_{1-\alpha}$ is the $1-\alpha$ quantile of a standard normal distribution (i.e. $\Prob[N(0,1) \leq z_{1-\alpha}] = 1-\alpha$). Substituting in the distribution of $t_{p-1}$, we have that
+\begin{align*}
+  \text{Type-I error} &= \Prob[t_{p-1} \geq z_{1-\alpha}] \\
+  &= \Prob\bigg[N\bigg( \frac{||\bx_{* p-1}^\bot||}{\sigma} {}_{p}\gamma_{p-1} \beta_p, 1 \bigg) \geq z_{1-\alpha} \bigg] \\
+  &= \Prob\bigg[N(0,1) \geq z_{1-\alpha} - \frac{||\bx_{* p-1}^\bot||}{\sigma} {}_{p}\gamma_{p-1} \beta_p \bigg].
+\end{align*}
+
+\item[(d)] We have that $\text{Bias}[\betahat_{p-1}]$ varies linearly with $\beta_p$. 
+
+Note that $\frac{||\bx_{*p-1}^\bot||}{\sigma} > 0$ as both the numerator and denominator are positive. So as $\beta_p \rightarrow \infty$, $z_{1-\alpha} - \frac{||\bx_{* p-1}^\bot||}{\sigma} {}_{p}\gamma_{p-1} \beta_p$ tends toward $-\infty$ if ${}_{p}\gamma_{p-1} > 0$, $\infty$ if ${}_{p}\gamma_{p-1} < 0$, and $z_{1-\alpha}$ if ${}_{p}\gamma_{p-1} = 0$. Then if ${}_{p}\gamma_{p-1} > 0$, $\text{Type-I error} \rightarrow 1$; if ${}_{p}\gamma_{p-1} < 0$, $\text{Type-I error} \rightarrow 0$; and if ${}_{p}\gamma_{p-1} = 0$, $\text{Type-I error} = \alpha$ as $\beta_p \rightarrow \infty$. 
+
+Intuitively, as the absolute effect size of the omitted variable tends toward infinity, the magnitude of the bias on our estimated coefficient likewise tends to infinity. We can interpret this as saying that omitting larger effects causes more bias (and likewise omitting smaller effects causes less bias). 
+
+Because ${}_{p}\gamma_{p-1}$ is the projection of $\bx_{*p}$ onto $C(\bX_{-p})$, we intuitively have that the exclusion of $\beta_p$ has no impact on our Type-I error when $x_{*p}$ is uncorrelated with (equivalently, is orthogonal to) $C(\bX_{-p})$. When ${}_{p}\gamma_{p-1} > 0$ and $\beta_p \rightarrow \infty$, we have that the mean of $t_{p-1}$ is shifted right towards $\infty$, so the Type-I error increases toward 1. Likewise when ${}_{p}\gamma_{p-1} < 0$ and $\beta_p \rightarrow \infty$, the mean of $t_{p-1}$ is shifted left toward $-\infty$ and so the Type-I error decreases toward 0.
+
+% TODO
+\item[(e)] 
+<<numerical sim>>=
+### Package management
+library(pacman)
+p_load("MASS")
+p_load("latex2exp")
+
+
+### Set simulation parameters
+# n: number of data points
+n <- 100
+
+# p: number of predictors in postulated model
+p <- 20
+
+# sigma: standard error
+sigma <- 1
+
+# beta: vector of coefficients for postulated model (beta_0, ..., beta_{p-1})
+beta <- rep(0, p)
+
+# beta_p: vector of test values for \beta_p
+beta_p <- seq(from=0, to=5, by=0.5)
+
+# alpha: significance level for hypothesis test under postulated model
+alpha <- 0.05
+
+# rho: vector of autocorrelation parameters for the AR(1) covariance matrix
+rho <- c(0.05, 0.2)
+
+# num_draws: number of draws of y for each round of simulation
+num_draws <- 1000
+
+
+# Function for computing AR(1) covariance matrix as a function of rho, p
+get_ar_1_cov <- function(rho, p){
+  # Sigma_{i,j} = rho^|i-j|
+  return(rho^abs(outer(1:(p+1), 1:(p+1), "-")))
+}
+
+
+# Data frame for storing simulation results
+sim_results <- data.frame()
+
+
+### Run simulation for each value of rho, beta_p
+for(rho_sim in rho[1]){
+  for(beta_p_sim in beta_p[1]){
+    # Get AR(1) covariance matrix Sigma(rho) for simulation value of rho, p
+    Sigma_sim <- get_ar_1_cov(rho_sim, p)
+    
+    # Generate n x iid from N(0_{p+1}, Sigma(rho))
+    X <- mvrnorm(n=n, mu=rep(0, p+1), Sigma=Sigma_sim)
+
+    # Create model dataframe
+    model_df <- as.data.frame(X)
+    colnames(model_df) <- paste0("x", (1:ncol(model_df))-1)
+    
+    # Full model beta vector
+    beta_full <- c(beta, beta_p_sim)
+    
+    # Compute X beta_full
+    X_beta_full <- X %*% beta_full
+    
+    
+    # Total error from all draws of y
+    # Simulated bias = (total error)/(number draws of y)
+    tot_error <- 0
+    
+    # Number of times that approximate t-statistic exceeds the 1-alpha quantile
+    # of the distribution under the postulated model
+    # Simulated Type-I error is this count divided by number draws of y
+    ct_exceeds <- 0
+    
+    #for(i in 1:num_draws){
+    for(i in 1:1){
+      # Sample epsilon_i iid from N(0, sigma^2)
+      epsilon <- rnorm(n=n, mean=0, sd=sigma)
+      
+      # Compute y = X beta_full + epsilon
+      y <- X_beta_full + epsilon
+      
+      # Add y to model dataframe
+      model_df$y <- y
+      
+      
+      # Postulated model formula includes all variables except xp and does *not*
+      # include an intercept
+      post_form <- formula(paste0("y ~ . -1 -x",p))
+      
+      # Run linear regression on postulated model
+      lm_sim <- lm(post_form, data=model_df)
+      
+      # Extract regression coefficients
+      beta_full_hat <- lm_sim$coefficients
+      
+      
+      # Calculate difference between true and estimated beta_{p-1}
+      beta_p_1_error <- beta_full_hat[p]-beta_full[p]
+      
+      # Add error to total error
+      tot_error <- tot_error + beta_p_1_error
+      
+      
+      # Extract t-statistic t_{p-1} from model fit
+      t_p_1 <- summary(lm_sim)$coefficients[p, "t value"]
+      
+      # Add to count if t_{p-1} >= z_{1-alpha}
+      ct_exceeds <- ct_exceeds + 1 * (t_p_1 >= qnorm(1-alpha))
+    }
+    
+    
+    ## Compute true bias based on 1(a)
+    # Get matrix for postulated model
+    X_minusp <- X[, 1:p]
+    
+    # Bias vector is (X_{-p}^T X_{-p})^{-1} X_{-p}^T x_{*p} beta_p
+    bias_vector = solve(t(X_minusp) %*% X_minusp) %*% t(X_minusp) %*% X[, p+1] %*% beta_p_sim
+    
+    print(dim(t(X_minusp)))
+    print(dim(X_minusp))
+    print(dim(X[, p+1]))
+    print(dim(solve(t(X_minusp) %*% X_minusp)))
+    print(dim(solve(t(X_minusp) %*% X_minusp) %*% t(X_minusp)))
+    print(dim(solve(t(X_minusp) %*% X_minusp) %*% t(X_minusp) %*% X[, p+1]))
+    print(dim(solve(t(X_minusp) %*% X_minusp) %*% t(X_minusp) %*% X[, p+1] %*% beta_p_sim))
+    
+    #print(bias_vector)
+    
+    
+    bias_beta_p_1 <- bias_vector[p]
+    
+    # Compute simulated bias
+    sim_bias <- tot_error/num_draws
+    
+    # Compute simulated Type-I error
+    sim_type_i <- ct_exceeds/num_draws
+    
+    
+    # Store simulation result in a dataframe
+    sim_result <- 
+      data.frame(beta_p=beta_p_sim, rho=rho_sim, sim_bias=sim_bias, sim_type_i=sim_type_i, theor_bias=bias_beta_p_1)
+    
+    # Add this simulation;s result to overall list of results
+    sim_results <- rbind(sim_results, sim_result)
+  }
+}
+
+print(sim_results)
+
+
+bias_plt <- 
+  sim_results %>%
+    ggplot() +
+    geom_point(aes(x = beta_p, y = sim_bias, color=as.factor(rho))) +
+    # Add y = theoretical bias
+    geom_line(aes(x = beta_p, y = theor_bias, color=as.factor(rho))) +
+    ylab(TeX("Simulated bias ($n = 1,000$ draws)")) +
+    xlab(TeX("$\\beta_p$")) +
+    labs(color=TeX("$\\rho$"))
+    
+@
+
+\end{sol}
+
+\begin{prob} \textbf{Case study: Determinants of COVID case-fatality rate.} \\
+
+\noindent The coronavirus pandemic has had a disparate impact on different communities across the United States. A key measure of this impact is the \textit{case-fatality rate}, defined as the ratio of the number of deaths to the number of cases, expressed as a percentage. The goal of the present analysis is to study the relationship between the case-fatality rate and a variety of health and socioeconomic factors at the county level in the year 2020, before vaccines became widely available.
+
+To this end, we are given \verb|covid_data.tsv|, compiled from case and death tracking data from \href{https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv}{The New York Times} and 41 county-level health and socioeconomic factors compiled by the \href{https://www.countyhealthrankings.org/}{County Health Rankings and Roadmaps}. Descriptions of these 41 socioeconomic factors are given in Appendix~\ref{sec:feature-descriptions}. The data contain 935 counties out of about 3000 total in the US, for which the health and socioeconomic factors were available.
+
+<<message = FALSE>>=
+covid_data = read_tsv("../data/covid_data.tsv")
+print(covid_data, n = 3)
+@
+
+\begin{enumerate}
+
+\item[(a)] Run a linear regression of \verb|case_fatality_rate| on the 41 given predictors. What fraction of the variation in the response is explained by the predictors? Print a table containing the features whose $t$-test $p$-values pass the multiplicity-adjusted threshold of $\alpha' = 0.05/41 \approx 0.0012$, for each feature displaying the coefficient estimate, standard error, and $p$-value.
+
+\item[(b)] Create the residuals-versus-fitted-values and residuals-versus-leverage diagnostic plots. Are there any apparent concerns regarding the independence and homoskedasticity assumptions? Are there any apparent outliers?
+
+\item[(c)] To further probe the independence assumption, visualize the distributions of the standardized residuals grouped by state. [Hint: Use a box plot, with states on the vertical axis.] Are any departures from independence apparent in this plot? To assess statistically whether \verb|state| is associated with \verb|case_fatality_rate|, run a heteroskedasticity-robust test to determine whether the model with an indicator for state fits significantly better than the model run in part (a). What do you conclude?
+
+\item[(d)] The effect of the \verb|state| variable can be accounted for using two different robust analyses: (1) based on the linear regression in part (a) but with Liang-Zeger standard errors, clustering by \verb|state| and (2) based on the linear regression in part (a) but with \verb|state| as an additional predictor and with Huber-White standard errors. For both of these methods, print tables containing the features whose $t$-test $p$-values pass the multiplicity-adjusted threshold of $\alpha' = 0.05/41 \approx 0.0012$, for each feature displaying the coefficient estimate, standard error, and $p$-value.
+
+\item[(e)] Discuss the pros and cons of the two analyses done in part (d). In what situations would analysis (1) be more appropriate, and in what situations would analysis (2) be more appropriate? Which analysis leads to greater standard error inflation? To address the latter question, for each robust analysis produce a histogram (across features) of the factor by which the standard error exceeds that obtained from the analysis in part (a). On the whole, which analysis would you recommend for this problem?
+
+\end{enumerate}
+
+\end{prob}
+
+\begin{sol}
+
+\end{sol}
+
+\clearpage
+
+\appendix
+
+\section{Descriptions of features in COVID data} \label{sec:feature-descriptions}
+
+Below are the 41 features we used for analysis. Words written in parentheses represent variable names. Unless noted otherwise, all variables are continuous. 
+
+\noindent \textbf{Health behaviors:} 
+
+\begin{itemize}
+  \item \textit{Tobacco Use}
+  \begin{itemize}
+    \item Adult smoking (\verb|smoke_perc|): Percentage of adults who are current smokers.
+  \end{itemize}
+  \item \textit{Diet and Exercise}
+  \begin{itemize}
+   \item Adult obesity (\verb|obesity_perc|): Percentage of the adult population (age 20 and older) reporting a body mass index (BMI) greater than or equal to 30 kg/m2.
+   \item Food environment index (\verb|food_environment|): Index of factors that contribute to a healthy food environment, from 0 (worst) to 10 (best).
+   \item Physical inactivity (\verb|inactive_perc|): Percentage of adults age 20 and over reporting no leisure-time physical activity.
+   \item Access to exercise opportunities (\verb|physical_exercise_opportunities|): Percentage of population with adequate access to locations for physical activity.
+   \item Food insecurity (\verb|Food_Insecure_perc|): Percentage of population who lack adequate access to food.
+   \item Limited access to healthy foods (\verb|limited_healthy_access|): Percentage of population who are low-income and do not live close to a grocery store.
+  \end{itemize}
+\item \textit{Alcohol and Drug Use}
+\begin{itemize}
+  \item Excessive Drinking (\verb|drinking_perc|): Percentage of adults reporting binge or heavy drinking.
+\end{itemize}
+  \item \textit{Sexual Activity}
+  \begin{itemize}
+  \item Sexually transmitted infections (\verb|stis|): Number of newly diagnosed chlamydia cases per 100,000 population.
+  \item Teen births (\verb|teen_births|): Number of births per 1,000 female population ages 15-19.
+  \item Low Birth Weight Percentage (\verb|low_birthweight_percentage|): Percentage of live births with low birthweight (<2,500 grams).
+\end{itemize}
+\end{itemize}
+
+\noindent \textbf{Clinical care:}
+
+\begin{itemize}
+  \item \textit{Access to Care}
+  \begin{itemize}
+    \item Uninsured (\verb|uninsured|): Percentage of population under age 65 without health insurance.
+  \item Primary care physicians (\verb|primarycare_ratio|): Ratio of population to primary care physicians.
+  \item Dentists (\verb|dentist_ratio|): Ratio of population to dentists. 
+  \item Mental health providers (\verb|mentalhealth_ratio|): Ratio of population to mental health providers.
+  \item  Other primary care providers (\verb|otherproviders_ratio|): Ratio of population to primary care providers other than physicians.
+  \end{itemize}
+   \item \textit{Quality of Care}
+   \begin{itemize}
+   \item Preventable hospital stays (\verb|preventable_hospitalization|): Rate of hospital stays for ambulatory-care sensitive conditions per 100,000 Medicare enrollees.
+  \item Mammography screening (\verb|mammogram_perc|): Percentage of female Medicare enrollees ages 65-74 that received an annual mammography screening.
+  \item Flu vaccinations (\verb|flu_vaccine_perc|): Percentage of fee-for-service (FFS) Medicare enrollees that had an annual flu vaccination.
+  \item Teen births (\verb|teen_births|): Number of births per 1,000 female population ages 15-19.
+\end{itemize}
+\end{itemize}
+
+\noindent\textbf{Social and economic factors:} 
+\begin{itemize}
+  \item \textit{Education}
+  \begin{itemize}
+    \item High school completion (\verb|HS_completion|): Percentage of adults ages 25 and over with a high school diploma or equivalent.
+    \item Some college (\verb|some_college|): Percentage of adults ages 25-44 with some post-secondary education.
+    \item Disconnected youth (\verb|disconnected_youth|): Percentage of teens and young adults ages 16-19 who are neither working nor in school.
+    \end{itemize}
+    \item \textit{Employment}
+    \begin{itemize}
+    \item Unemployment (\verb|unemployment|): Percentage of population ages 16 and older who are unemployed but seeking work.
+    \end{itemize}
+    \item \textit{Income}
+    \begin{itemize}
+    \item Children in poverty (\verb|children_poverty_percent|): Percentage of people under age 18 in poverty.
+  \item Income inequality (\verb|income_inequality|): Ratio of household income at the 80th percentile to income at the 20th percentile.
+  \item Median household income (\verb|median_income|): The income where half of households in a county earn more and half of households earn less.
+  \item Children eligible for free or reduced price lunch (\verb|children_freelunches|): Percentage of children enrolled in public schools that are eligible for free or reduced price lunch.
+  \end{itemize}
+  \item \textit{Family and Social Support}
+  \begin{itemize}
+  \item Children in single-parent households (\verb|single_parent_households|): Percentage of children that live in a household headed by a single parent.
+  \item Social associations (\verb|social_associations|): Number of membership associations per 10,000 residents. 
+  \item Residential segregation—Black/White (\verb|segregation_black_white|): Index of dissimilarity where higher values indicate greater residential segregation between Black and White county residents.
+  \item Residential segregation—non-White/White (\verb|segregation_nonwhite_white|): Index of dissimilarity where higher values indicate greater residential segregation between non-White and White county residents.
+  \end{itemize}
+  \item \textit{Community Safety}
+  \begin{itemize}
+    \item Violent crime rate (\verb|Violent_crime|) Number of reported violent crime offenses per 100,000 residents. 
+\end{itemize}
+\end{itemize}
+
+\noindent \textbf{Physical environment:}
+\begin{itemize}
+\item \textit{Air and Water Quality}
+\begin{itemize}
+  \item Air pollution - particulate matter (\verb|air_pollution|): Average daily density of fine particulate matter in micrograms per cubic meter (PM2.5).
+  \item Drinking water violations (\verb|water_violations|): Indicator of the presence of health-related drinking water violations. 1 indicates the presence of a violation, 0 indicates no violation.
+  \end{itemize}
+  \item \textit{Housing and Transit}
+   \begin{itemize}
+   \item Housing overcrowding (\verb|housing_overcrowding|): Percentage of households with overcrowding, 
+  \item Severe housing costs (\verb|high_housing_costs|): Percentage of households with high housing costs
+  \item Driving alone to work (\verb|driving_alone_perc|): Percentage of the workforce that drives alone to work.
+  \item Long commute—driving alone (\verb|long_commute_perc|): Among workers who commute in their car alone, the percentage that commute more than 30 minutes.
+  \item Traffic volume (\verb|traffic_volume|): Average traffic volume per meter of major roadways in the county.
+  \item Homeownership (\verb|homeownership|): Percentage of occupied housing units that are owned.
+  \item Severe housing cost burden (\verb|severe_ownership_cost|): Percentage of households that spend 50\% or more of their household income on housing.
+  \end{itemize}
+  \end{itemize}
+
+\end{document}
