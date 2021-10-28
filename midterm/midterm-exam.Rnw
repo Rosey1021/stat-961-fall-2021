@@ -485,8 +485,8 @@ print(covid_data, n = 3)
 \item[(a)]
 <<2a>>=
 # Create linear model
-lm_full <- lm(case_fatality_rate ~ ., 
-              covid_data %>% dplyr::select(-county, -state))
+lm_full <- 
+  lm(case_fatality_rate ~ . - county - state, covid_data)
 
 # Get dataframe with coefficient summaries
 feat_summary <- summary(lm_full)$coefficients
@@ -495,6 +495,16 @@ feat_summary <- summary(lm_full)$coefficients
 # multiple testing adjusted threshold
 sig_feat_summary <-
   feat_summary[feat_summary[, "Pr(>|t|)"] <= 0.05/41, ]
+
+# Fix row names
+rownames(sig_feat_summary) <-
+  c("Disconnected youth (%)",
+    "Unemployment (%)",
+    "Housing overcrowding (%)",
+    "Segregation: nonwhite, white",
+    "Inactive (%)",
+    "Flu vaccine (%)",
+    "Median income")
 
 # Create table with summary
 sig_feat_summary %>%
@@ -561,17 +571,60 @@ ggsave("figures/std_res_plt.png", std_res_state_plt)
 
 Looking at the distribution of standardized residuals by state, the fact that different states have different widths of the whiskers for their respective plots suggests that the variance within each state; i.e. we may have a grouped correlation structure.
 
-<<2c test>>=
-# Load sandwich package
-p_load("sandwich")
-@
-
 \begin{figure}[h!]
 \centering
 \includegraphics[width = .8\textwidth]{figures/std_res_state_plt.png}
 \caption{Distribution of standardized residuals by state.}
 \label{fig:std_res_state_plt}
 \end{figure}
+
+<<2c test>>=
+# Load sandwich package
+p_load("sandwich")
+
+# Load lmtest package
+p_load("lmtest")
+
+# Create a model that includes state fixed effect
+lm_w_state <-
+  lm(case_fatality_rate ~ . - county, covid_data)
+
+
+# Extract coefficient estimates
+beta_hat <- lm_w_state$coefficients
+
+# Get Liang-Zeger covariance estimate
+lz_sigma_hat <- vcovCL(lm_w_state)
+
+# Robust F-test
+robust_f_test <-
+  waldtest(lm_full, lm_w_state, vcov=lz_sigma_hat) %>%
+    as.matrix() %>% 
+    data.frame()
+
+# Fix column names
+colnames(robust_f_test) <-
+  c("Residual DF", "DF", "F", "Pr(>F)")
+
+# Create table with summary
+robust_f_test %>%
+  mutate(
+    `Residual DF` = as.character(signif(`Residual DF`, 2)),
+    DF = as.character(signif(DF, 2)),
+    F = as.character(signif(F, 2)),
+    `Pr(>F)` = as.character(signif(`Pr(>F)`, 2))) %>%
+  kableExtra::kable(format = "latex", booktabs = TRUE, digits = 4, escape=FALSE) %>%
+  kableExtra::save_kable("figures/robust_f_test.png")
+@
+
+Note that the only significant coefficients after multiple testing corrections are for state indicator variables, indicating that the model does fit significantly better when the indicator is included.
+
+\begin{table}[h!]
+\centering
+\includegraphics[width = .6\textwidth]{figures/sig_p_val_tbl.png}
+\caption{Summary of features significant with multiple testing corrections.}
+\label{tab:sig_p_val_tbl}
+\end{table}
 
 % TODO
 \item[(d)]
