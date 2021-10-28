@@ -518,7 +518,7 @@ The details of the coefficients that are significant at $\alpha = 0.05$ after a 
 
 \begin{table}[h!]
 \centering
-\includegraphics[width = .6\textwidth]{figures/sig_feat_tbl.png}
+\includegraphics[width = .8\textwidth]{figures/sig_feat_tbl.png}
 \caption{Summary of features significant with multiple testing corrections.}
 \label{tab:sig_feat_tbl}
 \end{table}
@@ -552,7 +552,6 @@ There do not seem to be any point with unduly high Cook's distance in the plot o
 \label{fig:resid_leverage_plt}
 \end{figure}
 
-% TODO
 \item[(c)]
 <<2c plot>>=
 # Extract standardized residuals
@@ -566,14 +565,15 @@ std_res_state_plt <-
       geom_boxplot(aes(x=std_res, color=State)) +
       xlab("Standardized residuals")
 
-ggsave("figures/std_res_plt.png", std_res_state_plt)
+ggsave("figures/std_res_state_plt.png", std_res_state_plt,
+       width=12, height=8)
 @
 
 Looking at the distribution of standardized residuals by state, the fact that different states have different widths of the whiskers for their respective plots suggests that the variance within each state; i.e. we may have a grouped correlation structure.
 
 \begin{figure}[h!]
 \centering
-\includegraphics[width = .8\textwidth]{figures/std_res_state_plt.png}
+\includegraphics[width = 1\textwidth]{figures/std_res_state_plt.png}
 \caption{Distribution of standardized residuals by state.}
 \label{fig:std_res_state_plt}
 \end{figure}
@@ -617,13 +617,13 @@ robust_f_test %>%
   kableExtra::save_kable("figures/robust_f_test.png")
 @
 
-Note that the only significant coefficients after multiple testing corrections are for state indicator variables, indicating that the model does fit significantly better when the indicator is included.
+Note that the $p$-value from the robust F-test is extremely small, indicating that the inclusion of state significantly improves the model's fit.
 
 \begin{table}[h!]
 \centering
-\includegraphics[width = .6\textwidth]{figures/sig_p_val_tbl.png}
-\caption{Summary of features significant with multiple testing corrections.}
-\label{tab:sig_p_val_tbl}
+\includegraphics[width = .4\textwidth]{figures/robust_f_test.png}
+\caption{Robust F-test summary.}
+\label{tab:robust_f_test}
 \end{table}
 
 % TODO
