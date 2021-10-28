@@ -421,14 +421,12 @@ sim_results_long_type_i <-
       values_to="type_i") %>%
     mutate(is_sim = str_replace(is_sim, "_.*", "")) %>%
     mutate(group = paste0(rho, paste0(" (", paste0(is_sim, ")"))))
-sim_results <-
-  sim_results_bias %>%
-    inner_join(sim_results_long_type_i, by=group)
+
 
 ### Create plots
 # Plot of expected, theoretical bias as a function of beta_p
 bias_plt <- 
-  sim_results_long %>%
+  sim_results_long_bias %>%
     ggplot() +
     # Add scatter plot of simulated bias
     geom_point(aes(x = beta_p, y = bias, color=group)) +
@@ -436,7 +434,8 @@ bias_plt <-
     xlab(TeX("$\\beta_p$")) +
     labs(color=TeX("$\\rho$"))
     
-ggsave("./figures/bias_plt.png", bias_plt)
+ggsave("./figures/bias_plt.png", bias_plt, 
+       width=8, height=6)
 @
 
 Note that in the bias plot, we have close agreement between the simulated and theoretical predictions. The curve is roughly fan-shaped, with increasing deviations from a line as $\beta_p$ increases. This is in accordance with (a), which said that the bias was a linear function of $\beta_p$.
@@ -496,25 +495,18 @@ feat_summary <- summary(lm_full)$coefficients
 sig_feat_summary <-
   feat_summary[feat_summary[, "Pr(>|t|)"] <= 0.05/41, ]
 
-# Fix row names
 rownames(sig_feat_summary) <-
-  c("Disconnected youth (%)",
-    "Unemployment (%)",
-    "Housing overcrowding (%)",
-    "Segregation: nonwhite, white",
-    "Inactive (%)",
-    "Flu vaccine (%)",
-    "Median income")
+  str_replace_all(rownames(sig_feat_summary), "_", "\\\\_")
 
 # Create table with summary
 sig_feat_summary %>%
-  kableExtra::kable(format = "latex", booktabs = TRUE, digits = 4, escape=FALSE) %>%
+  kableExtra::kable(
+    format = "latex", booktabs = TRUE, 
+    digits = 4, escape=FALSE) %>%
   kableExtra::save_kable("figures/sig_feat_tbl.png")
 @
 
 The proportion of variation in the response explained by the predictors is the $R^2$, which is 33.12\%.
-
-The details of the coefficients that are significant at $\alpha = 0.05$ after a multiple testing correction are shown in the table.
 
 \begin{table}[h!]
 \centering
@@ -522,6 +514,8 @@ The details of the coefficients that are significant at $\alpha = 0.05$ after a 
 \caption{Summary of features significant with multiple testing corrections.}
 \label{tab:sig_feat_tbl}
 \end{table}
+
+The details of the coefficients that are significant at $\alpha = 0.05$ after a multiple testing correction are shown in Table~\ref{tab:sig_feat_tbl}.
 
 \item[(b)]
 <<2b>>=
@@ -609,11 +603,13 @@ colnames(robust_f_test) <-
 # Create table with summary
 robust_f_test %>%
   mutate(
-    `Residual DF` = as.character(signif(`Residual DF`, 2)),
-    DF = as.character(signif(DF, 2)),
-    F = as.character(signif(F, 2)),
-    `Pr(>F)` = as.character(signif(`Pr(>F)`, 2))) %>%
-  kableExtra::kable(format = "latex", booktabs = TRUE, digits = 4, escape=FALSE) %>%
+    `Residual DF` = as.character(signif(`Residual DF`, 4)),
+    DF = as.character(signif(DF, 4)),
+    F = as.character(signif(F, 4)),
+    `Pr(>F)` = as.character(signif(`Pr(>F)`, 4))) %>%
+  kableExtra::kable(
+    format = "latex", booktabs = TRUE, 
+    digits = 4, escape=FALSE) %>%
   kableExtra::save_kable("figures/robust_f_test.png")
 @
 
@@ -621,16 +617,160 @@ Note that the $p$-value from the robust F-test is extremely small, indicating th
 
 \begin{table}[h!]
 \centering
-\includegraphics[width = .4\textwidth]{figures/robust_f_test.png}
+\includegraphics[width = .45\textwidth]{figures/robust_f_test.png}
 \caption{Robust F-test summary.}
 \label{tab:robust_f_test}
 \end{table}
 
-% TODO
 \item[(d)]
+To account for the effect of the state variable, we first perform robust $t$-tests with multiple testing corrections using LZ standard errors, with clusters defined by state and variable descriptions provided in the Appendix.
+
+<<2d analysis 1>>=
+library(broom)
+
+# Robust t-test using LZ standard errors, clustering by state
+robust_t_lz <- coeftest(lm_full, vcov.=lz_sigma_hat)
+
+# Only get coefficients significant at alpha=0.05 with multiple testing
+# correction
+robust_t_lz_sig <-
+  robust_t_lz %>%
+    tidy() %>%
+    filter(`p.value` <= 0.05/41) 
+
+colnames(robust_t_lz_sig) <-
+  c("Covariate", "Estimate", "SE", "Statistic", "$p$-value")
+
+robust_t_lz_tbl <-
+  robust_t_lz_sig %>%
+    mutate(
+      Covariate = str_replace_all(Covariate, "_", "\\\\_"),
+      Estimate = as.character(signif(Estimate, 4)),
+      SE = as.character(signif(SE, 4)),
+      Statistic = as.character(signif(Statistic, 4)),
+      `$p$-value` = as.character(signif(`$p$-value`, 4)))
+
+robust_t_lz_tbl %>%
+  kableExtra::kable(
+    format = "latex", booktabs = TRUE, 
+    digits = 4, escape=FALSE) %>%
+  kableExtra::save_kable("figures/robust_t_test_lz.png")
+@
+
+\begin{table}[h!]
+\centering
+\includegraphics[width = .8\textwidth]{figures/robust_t_test_lz.png}
+\caption{Robust t-test with LZ SEs summary.}
+\label{tab:robust_t_test_lz}
+\end{table}
+
+The results of the robust $t$-test from the first analysis are provided in Table~\ref{tab:robust_t_test_lz}.
+
+
+Our second robust analysis will use HW standard errors obtained from the model that includes state as a predictor, then uses a robust $t$-test.
+
+<<2d analysis 2>>=
+# Get HW covariance estimate
+hw_sigma_hat <- vcovHC(lm_w_state)
+
+# Robust t-test using HW standard errors, model includes state
+robust_t_hw <- coeftest(lm_full, vcov.=hw_sigma_hat)
+
+# Only get coefficients significant at alpha=0.05 with multiple testing
+# correction
+robust_t_hw_sig <-
+  robust_t_hw %>%
+    tidy() %>%
+    filter(`p.value` <= 0.05/41) 
+
+colnames(robust_t_hw_sig) <-
+  c("Covariate", "Estimate", "SE", "Statistic", "$p$-value")
+
+robust_t_hw_tbl <-
+  robust_t_hw_sig %>%
+    mutate(
+      Covariate = str_replace_all(Covariate, "_", "\\\\_"),
+      Estimate = as.character(signif(Estimate, 4)),
+      SE = as.character(signif(SE, 4)),
+      Statistic = as.character(signif(Statistic, 4)),
+      `$p$-value` = as.character(signif(`$p$-value`, 4)))
+
+robust_t_hw_tbl %>%
+  kableExtra::kable(
+    format = "latex", booktabs = TRUE, 
+    digits = 4, escape=FALSE) %>%
+  kableExtra::save_kable("figures/robust_t_test_hw.png")
+@
+
+\begin{table}[h!]
+\centering
+\includegraphics[width = .8\textwidth]{figures/robust_t_test_hw.png}
+\caption{Robust t-test with HW SEs summary.}
+\label{tab:robust_t_test_hw}
+\end{table}
+
+The results of the robust $t$-test from the second analysis are provided in Table~\ref{tab:robust_t_test_hw}.
+
 
 % TODO
-\item[(e)]
+\item[(e)] The first analysis assumes that the state in which a county is located only affects the data generating process by way of the errors; i.e. the errors are identically distributed for all counties in the same state but not necessarily across counties. The second analysis instead assumes that the state in which a county is located directly affects the data generating process by some fixed amount, with the errors remaining uncorrelated (though not necessarily identically distributed).
+
+A benefit of (1) is the ability to (somewhat) account for geographical effects into account by assuming correlated errors within states. One negative part of approach (1) is that it cannot account for geographical correlations between adjacent counties in different states; here a moving blocks bootstrap would be more appropriate. On the flip side, a con of (2) is the fact that it assumes a consistent state fixed effect size for all counties in a given state, only allowing variability to occur from the socioeconomic covariates and uncorrelated errors. In the case of COVID however, this is not necessarily a bad thing as many intervention policies (e.g. lockdowns) were implemented at the state level and so were relatively consistent across all counties in a given state.
+
+<<2e>>=
+# Get SEs from (a)
+nonrobust_t_se <-
+  feat_summary %>%
+    data.frame() %>%
+    dplyr::select(Std..Error) %>%
+    rename(SE=Std..Error) %>%
+    mutate(Covariate = rownames(.),
+           Method="Non-robust")
+
+# Get LZ SEs
+robust_t_lz_se <-
+  robust_t_lz %>%
+    tidy() %>%
+    mutate(`SE inflation factor` = std.error/nonrobust_t_se$SE) %>%
+    dplyr::select(term, `SE inflation factor`) %>%
+    rename(Covariate=term) %>%
+    mutate(Method="LZ")
+
+# Get HW SEs
+robust_t_hw_se <-
+  robust_t_hw %>%
+    tidy() %>%
+        mutate(`SE inflation factor` = std.error/nonrobust_t_se$SE) %>%
+    dplyr::select(term, `SE inflation factor`) %>%
+    rename(Covariate=term) %>%
+    mutate(Method="HW")
+
+# Combine robust SEs
+robust_t_se <- rbind(robust_t_lz_se, robust_t_hw_se)
+
+# Create histogram of robust SEs
+se_inflation_hist <-
+  robust_t_se %>%
+    ggplot() + 
+      geom_histogram(aes(x=`SE inflation factor`, fill=Method)) +
+    ylab("Count")
+
+ggsave("figures/se_inflation_hist.png", se_inflation_hist)
+@
+
+We plot the distribution across features of the factor by which SEs were increased from part (a) using the robust analysis. 
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width = 1\textwidth]{figures/se_inflation_hist.png}
+\caption{Distribution of factor by which SEs were increased with robust analysis.}
+\label{fig:se_inflation_hist}
+\end{figure}
+
+Note that the distribution for method (2) using HW SEs has a longer right-tail, indicating that the use of HW has a tendency to increase the SEs more than the LZ method.
+
+On the whole, I would recommend the use of the LZ approach, as it takes geographical correlations into consideration and does not assume a constant fixed effect size for all counties in a given state. Moreover, it tends to increase the SEs less than that of the HW approach. Any desire to account for state-level covariates such as the introduction of a lockdown can be accounted for by directly including these covariates in the model, rather than relying on a state indicator to (hopefully!) account for all such confounders.
+
 \end{sol}
 
 \clearpage
