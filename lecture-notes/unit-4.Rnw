@@ -266,9 +266,61 @@ The regression of the \textit{adjusted response variable} $\bm z^{(t)}$ on $\bm 
 \end{equation}
 which we define as our next iterate. It's easy to verify that the IRLS iteration~\eqref{eq:IRLS-iteration} is equivalent to the Newton-Raphson iteration~\eqref{eq:NR-iteration}.
 
+\paragraph{Deviance (definition).}
+
+Suppose that
+\begin{equation}
+y_i \overset{\text{ind}}\sim f_{\eta_i}
+\end{equation}
+for some vector $\bm \eta \in \mathbb R^n$. Then, the log likelihood, expressed as a function of $\bm \mu \in \mathbb R^n$, is
+\begin{equation}
+L(\bm y; \bm \mu) \equiv \sum_{i = 1}^n{\eta_i y_i - \psi(\eta_i)} + \sum_{i = 1}^n \log h(y_i) = \sum_{i = 1}^n {g(\mu_i)y_i - \psi(g(\mu_i))} + \sum_{i = 1}^n \log h(y_i).
+\end{equation}
+When we fit a GLM, we choose
+\begin{equation}
+\bm{\widehat \beta} = \underset{\bm \beta}{\arg \max}\ L(\bm y; \bm \mu(\bm \beta)) \quad \Longleftrightarrow \quad \bm{\widehat \mu} = \underset{\bm \mu \in C_\mu(\bm X)}{\arg \max}\ L(\bm y; \bm \mu).
+\end{equation}
+Thus a GLM can be viewed as a constrained optimization problem over $\bm{\mu} \in C_\mu(\bm X) \subset \mathbb R^n$. What if we were to maximize $L(\bm y; \bm \mu)$ over all $\bm \mu \in \mathbb R^d$? It is easy to see that the $\bm \mu$ we would obtain is $\bm \mu = \bm y$. This model is called the \textit{saturated model}. Inspired by this fact, we define the \textit{deviance} statistic 
+\begin{equation}
+D(\bm y; \bm{\widehat \mu}) \equiv 2(L(\bm y; \bm y) - L(\bm y; \bm{\widehat \mu})) = 2\left(\max_{\bm \mu \in \mathbb R^d} L(\bm y; \bm \mu) - \max_{\bm \mu \in C_{\mu}(\bm X)}L(\bm y; \bm \mu)\right).
+\end{equation}
+We can view $D(\bm y; \bm{\widehat \mu}) \geq 0$ as a measure of the \textit{lack of fit} of a GLM. We could in principle define the deviance for any pair $(\bm y, \bm \mu)$ via
+\begin{equation}
+D(\bm y; \bm \mu) \equiv 2(L(\bm y; \bm y) - L(\bm y; \bm{\mu})) = 2\left(\sum_{i = 1}^n (g(y_i)-g(\mu_i))y_i - (\psi(g(y_i)) - \psi(g(\mu_i)))\right).
+\end{equation}
+Then, it is clear that maximizing the likelihood is equivalent to minimizing the deviance:
+\begin{equation}
+\bm {\widehat \mu} = \underset{\bm \mu \in C_\mu(\bm X)}{\arg \max}\ L(\bm y; \bm \mu) = \underset{\bm \mu \in C_\mu(\bm X)}{\arg \min}\ D(\bm y; \bm \mu).
+\end{equation}
+
+\paragraph{Deviance (examples).} 
+
+Let's first compute the deviance for $\bm y \sim N(\bm \mu, \bm I)$. We have $L(\bm y, \bm \mu) = -\frac{1}{2}\|\bm y - \bm \mu\|^2 - \frac{n}{2}\log 2\pi$ and $L(\bm y, \bm y) = - \frac{n}{2}\log 2\pi$, so 
+\begin{equation}
+D(\bm y; \bm \mu) = \|\bm y - \bm \mu\|^2,
+\end{equation}
+which we recognize as the familiar residual sum of squares (RSS). Therefore, the deviance is a generalization of the RSS. Let's compute the deviance for a Poisson regression, where $\psi(\eta) = e^{\eta}$ and $g(\mu) = \log(\mu)$. We have
+\begin{equation}
+D(\bm y; \bm \mu) = 2\left(\sum_{i = 1}^n (g(y_i)-g(\mu_i))y_i - (\psi(g(y_i)) - \psi(g(\mu_i)))\right) = 2\left(\sum_{i = 1}^n y_i \log \frac{y_i}{\mu_i} - (y_i - \mu_i)\right).
+\end{equation}
+Now, if $\bm{\widehat \mu}$ is the maximum likelihood mean vector for a Poisson regression including an intercept, the normal equations tell us that $\bm 1^T(\bm y - \bm{\widehat \mu}) = 0$, so 
+\begin{equation}
+D(\bm y; \bm{\widehat\mu}) = 2\sum_{i = 1}^n y_i \log \frac{y_i}{\widehat \mu_i}.
+\end{equation}
+This is the lack-of-fit measure that a Poisson regression seeks to minimize.
+
 \section{Inference in GLMs} \label{sec:glm-inf}
 
-\paragraph{Asymptotic normality and GLM standard errors.} Inference in GLMs is based on asymptotic likelihood theory. Using the Hessian computation~\eqref{eq:hessian}, we can compute the Fisher information matrix
+\paragraph{Inferential goals.} There are two types of inferential goals: hypothesis testing and confidence interval construction. Within hypothesis testing, we can test $H_0: \beta_j = 0$ (importance of a single coefficient), $H_0: \bm \beta_S = \bm 0$ for some $S \subset \{0,\dots,p-1\}$ (importance of a group of coefficients), or $H_0: \bm \eta = \bm X \bm \beta$ (goodness of fit). Within confidence intervals, we may want to construct intervals for the coefficients $\beta_j$ or for fitted values $\eta_i$ or $\mu_i$. 
+
+\paragraph{Inferential tools.}
+
+Inference in GLMs is based on asymptotic likelihood theory. Hypothesis tests (and, by inversion, confidence intervals) can be constructed in three asymptotically equivalent ways: Wald tests, likelihood ratio tests (LRT), and score tests. Despite their asymptotic equivalence, in finite samples some tests may be preferable to others. We will discuss the most commonly applied methods for each inferential task, though others are possible as well.
+
+\subsection{Wald tests and confidence intervals}
+
+\paragraph{Asymptotic normality and Wald standard errors.}  
+Wald tests and confidence intervals are based on the large-sample distribution of the MLE, with covariance matrix equal to the Fisher information. Using the Hessian computation~\eqref{eq:hessian}, we can compute the Fisher information matrix
 \begin{equation}
 \bm I(\bm \beta) = -\mathbb E_{\bm \beta}[\nabla^2_{\bm \beta}\log \mathcal L(\bm \beta)] = \bm X^T \bm W(\bm \beta) \bm X,
 \end{equation}
@@ -276,16 +328,16 @@ recalling the definition of $\bm W$ in equation~\eqref{eq:W-def}. Therefore, lik
 \begin{equation}
 \bm{\widehat \beta} \overset \cdot \sim N(\bm \beta, (\bm X^T \bm W(\bm \beta) \bm X)^{-1}).
 \end{equation}
-Using the plug-in variance estimate, we typically construct GLM standard errors based on
+Using the plug-in variance estimate, we can construct Wald standard errors based on
 \begin{equation}
 \widehat{\text{Var}}[\bm{\widehat \beta}] \equiv (\bm X^T \bm W(\bm{\widehat \beta}) \bm X)^{-1}.
 \end{equation}
 
-\paragraph{Confidence intervals.}
+\paragraph{Wald confidence intervals.}
 
-A confidence interval for each coordinate $\beta_j$ can be obtained via
+A Wald confidence interval for each coordinate $\beta_j$ can be obtained via
 \begin{equation}
-\text{CI}(\widehat \beta_j) \equiv \widehat \beta_j \pm 2 \cdot \text{SE}(\widehat \beta_j), \quad \text{where} \quad \text{SE}(\beta_j) \equiv \sqrt{(\bm X^T \bm W(\bm{\widehat \beta}) \bm X)^{-1}_{jj}}.
+\text{CI}(\widehat \beta_j) \equiv \widehat \beta_j \pm 2 \cdot \text{SE}(\widehat \beta_j), \quad \text{where} \quad \text{SE}(\widehat \beta_j) \equiv \sqrt{(\bm X^T \bm W(\bm{\widehat \beta}) \bm X)^{-1}_{jj}}.
 \label{eq:conf-int-beta}
 \end{equation}
 A confidence interval for $\eta_i = \bm x_{i*}^T \bm \beta$ can be obtained via
@@ -294,25 +346,64 @@ A confidence interval for $\eta_i = \bm x_{i*}^T \bm \beta$ can be obtained via
 \end{equation}
 A confidence interval for $\mu_i \equiv \mathbb E_{\bm \beta}[y_i] = \dot \psi(\eta_i)$ can be obtained by applying the strictly increasing function $\dot \psi$ to the endpoints of the confidence interval for $\eta_i$. Note that the resulting confidence interval may be asymmetric.
 
-\paragraph{Testing a single coordinate.}
+\paragraph{Wald test for a single coefficient.}
 
 We can invert the confidence interval~\eqref{eq:conf-int-beta} to get a test of the hypothesis $H_0: \beta_j = \beta_j^0$ for any $\beta_j^0 \in \mathbb R$:
 \begin{equation}
-\phi(\bm X, \bm y) = \mathbbm 1(|z(\bm X, \bm y)| > z_{1-\alpha/2}), \quad \text{where} \quad z(\bm X, \bm y) \equiv \frac{\widehat \beta_j}{\text{SE}(\widehat \beta_j)}.
+\phi(\bm X, \bm y) = \mathbbm 1(|z(\bm X, \bm y)| > z_{1-\alpha/2}), \quad \text{where} \quad z(\bm X, \bm y) \equiv \frac{\widehat \beta_j-\beta_j^0}{\text{SE}(\widehat \beta_j)}.
 \end{equation}
 This is the analog of the $t$-test for a linear regression.
 
-\paragraph{Testing multiple coordinates.}
+\subsection{Likelihood ratio tests and confidence intervals}
 
-Likelihood ratio test, deviances, goodness of fit testing. (TBD)
+\paragraph{Testing one or more coefficients.}
 
-\section{Bells and whistles} \label{sec:bells-and-whistles}
+Suppose that $S \subset \{0, 1, \dots, p-1\}$ and we wish to test the null hypothesis $H_0: \bm \beta_S = \bm 0$. For linear regression, we used an $F$-test for this purpose. In Homework 2, we saw that an $F$-test is related to a likelihood ratio test. The likelihood ratio test can be defined for arbitrary GLMs, and is usually how we test multiple coordinates. To define the likelihood ratio test, let $\bm{\widehat\mu}_{\text{-}S} \in \mathcal R^n$ the maximum likelihood mean vector under the null hypothesis, and let $\bm{\widehat \mu}$ denote the maximum likelihood mean vector without restrictions on $\bm \beta$. Then, the likelihood ratio test statistic is 
+\begin{equation}
+T^{\text{LRT}} \equiv 2(L(\bm y; \bm{\widehat\mu})-L(\bm y; \bm{\widehat\mu}_{\text{-}S})),
+\end{equation}
+and 
+\begin{equation}
+\text{under } H_0, \quad T^{\text{LRT}} \overset d \rightarrow \chi^2_{|S|}.
+\end{equation}
+Note that the LRT test statistic can also be expressed as a difference in deviances:
+\begin{equation}
+T^{\text{LRT}} = D(\bm y; \bm{\widehat \mu}_{\text{-}S}) - D(\bm y; \bm{\widehat \mu}).
+\end{equation}
+We see the connection with the $F$-test, whose numerator is the difference in the RSSs of the partial and full models.
 
-\paragraph{Offsets.}
+\paragraph{LRT-based confidence intervals.}
 
-\paragraph{Exponential dispersion families.}
+Sometimes, Wald confidence intervals do not work very well in finite samples, e.g. if $\bm{\widehat \beta} \rightarrow \infty$. In these cases, the LRT can be inverted to get more reliable confidence intervals, though this is less straightforward conceptually and computationally.
 
-\paragraph{Non-canonical links.}
+\paragraph{Goodness of fit tests.}
+
+In some cases, we want to compare a GLM model to a \textit{saturated model}. In this case, we can use a likelihood ratio test similar to that applied to test multiple coefficients. It turns out that $D(\bm y; \bm{\widehat \mu})$ is exactly the likelihood ratio statistic we want. Under \textit{small dispersion asymptotics}, we can expect it to have a $\chi^2_{n-p}$ distribution under the null.
+
+\subsection{Score tests}
+
+\paragraph{Goodness of fit tests.}
+
+Score tests are primarily used as alternatives to likelihood ratio tests for testing goodness of fit in GLMs. Score tests are based on the fact that
+\begin{equation}
+\text{under } H_0, \quad \nabla_{\eta}\log \mathcal L(\bm{\widehat\eta_0})I^{-1}(\bm{\widehat\eta_0})\nabla_{\eta}\log \mathcal L(\bm{\widehat \eta_0}) \rightarrow \chi^2_{n-p},
+\end{equation}
+where $\bm{\widehat \eta_0}$ is the maximum likelihood estimate under the null hypothesis. For GLMs, note that
+\begin{equation}
+\nabla_{\eta}\log \mathcal L(\bm \eta) = \bm y - \bm \mu_{\bm \eta} \quad \text{and} \quad I(\bm \eta) = \text{diag}(\ddot \psi(\bm \eta)).
+\end{equation}
+Therefore, we arrive at the statistic
+\begin{equation}
+X^2 \equiv \nabla_{\eta}\log \mathcal L(\bm X \bm{\widehat \beta})I^{-1}(\bm X \bm{\widehat \beta})\nabla_{\eta}\log \mathcal L(\bm X \bm{\widehat \beta}) = (\bm y - \bm{\widehat \mu})^T \bm W^{-1} (\bm y - \bm{\widehat \mu}) = \sum_{i = 1}^n \frac{(y_i - \widehat \mu_i)^2}{\text{var}(\widehat \mu_i)}.
+\end{equation}
+This is Pearson's famous chi-squared statistic, which he proposed in 1900. It was only pointed out that this is a score test many decades later.
+
+
+\section{Further generalizations}
+
+Exponential dispersion families; offsets; non-canonical links.
+
+\section{R demo}
 
 
 \end{document}
