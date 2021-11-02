@@ -38,5 +38,5 @@ Thu, Oct 21 | 3. Linear model: Misspecification | R demo | Agresti 3.4 | [Link](
 Sun, Oct 24 | -- | -- | -- | -- | [Homework 3](https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/homework/homework-3/homework-3.pdf) due at 11:59pm
 Tue, Oct 26 | 4. GLMs: General theory | Exponential families and GLM definition | Agresti 4.1 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=7aa72123-bd63-4b2e-a955-adca00feaa2d) | --
 Thu, Oct 28 | 4. GLMs: General theory | Maximum likelihood estimation and IRLS | Agresti 4.2.1-4.2.3, 4.5 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=ef297513-da5b-491b-93aa-adca013df450) | --
-Tue, Nov 2 | 4. GLMs: General theory | Deviance and inference I | Agresti 4.2.4, 4.3.2, 4.4.1, 4.4.2 | TBA | --
-Thu, Nov 4 | 4. GLMs: General theory | Inference II | Agresti 4.3.1, 4.3.5, 4.4.3, 4.4.4 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=c2cd5706-6436-4879-a30f-adcf01697b19) | --
+Tue, Nov 2 | 4. GLMs: General theory | Deviance and inference I | Agresti 4.2.4, 4.3.2, 4.4.1, 4.4.2 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=c2cd5706-6436-4879-a30f-adcf01697b19) | --
+Thu, Nov 4 | 4. GLMs: General theory | Inference II | Agresti 4.3.1, 4.3.5, 4.4.3, 4.4.4 | TBA  | --
