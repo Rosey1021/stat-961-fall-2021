@@ -185,14 +185,134 @@ Thus the canonical link function for Poisson regression is the \textit{log link 
 
 \paragraph{GLM normal equations.}
 
-Recall that the least squares estimate $\bm{\widehat \beta}$ is also the maximum likelihood estimate. For general GLMs, we also estimate $\bm \beta$ via maximum likelihood. To derive this estimates, let's write down the GLM likelihood and then take a derivative.
+Recall that the least squares estimate $\bm{\widehat \beta}$ is also the maximum likelihood estimate. For general GLMs, we also estimate $\bm \beta$ via maximum likelihood. To derive this estimates, let's write down the GLM likelihood and then take a derivative. The GLM likelihood is
+\begin{equation}
+\mathcal L(\bm \beta) = \prod_{i = 1}^n f_{\eta_i}(y_i) = \prod_{i = 1}^n \exp(\eta_i y_i - \psi(\eta_i)) h(y_i).
+\end{equation}
+Taking a logarithm, we have
+\begin{equation}
+\log \mathcal L(\bm \beta) = \sum_{i = 1}^n (\eta_i y_i - \psi(\eta_i)) + \sum_{i = 1}^n \log h(y_i) = \sum_{i = 1}^n (\bm x_{i*}^T \bm \beta y_i - \psi(\bm x_{i*}^T \bm \beta)) + \sum_{i = 1}^n \log h(y_i).
+\label{eq:glm-log-likelihood}
+\end{equation}
+Taking a gradient in $\bm \beta$, we get
+\begin{equation}
+\nabla_{\bm \beta}\log \mathcal L(\bm \beta) = \sum_{i = 1}^n (\bm x_{i*} y_i - \bm x_{i*}\dot \psi(\bm x^T_{i*}\bm \beta)) = \bm X^T (\bm y - \bm \mu(\bm \beta)).
+\label{eq:log-likelihood-derivative}
+\end{equation}
+Setting this expression to zero, we get the normal equations:
+\begin{equation}
+\bm X^T(\bm y - \bm \mu(\bm{\widehat \beta})) = 0.
+\label{eq:glm-normal-equations}
+\end{equation}
+Recall that, for least squares, we got the same equation, with $\bm \mu(\bm{\widehat \beta}) = \bm X \bm{\widehat\beta}$. We can interpret the normal equations as stating that $\bm \mu(\bm{\widehat \beta})$ is a projection of $\bm y$ onto the model ``space''
+\begin{equation}
+C_\mu(\bm X) \equiv \{\bm \mu = \dot\psi(\bm \eta) = \dot \psi(\bm X \bm \beta): \bm \beta \in \mathbb R^p\}.
+\end{equation}
+parallel to the columns of $\bm X$. Note that the subscript $\mu$ on $C_\mu(\bm X)$ indicates that we are considering the ``space'' (actually, \textit{set}) of possible $\bm \mu$ as opposed to the space $C_\eta(\bm X)$ of possible $\bm \eta$, which we denoted in Unit 1 simply as $C(\bm X)$. For linear models, it is the case that $C_\mu(\bm X) = C_\eta(\bm X)$, but in general, these two are different. Note that $C_\mu(\bm X)$ in general is a manifold as opposed to a linear subspace of $\mathbb R^n$, while $C_\eta(\bm X)$ is always a linear subspace.
 
-\paragraph{Iteratively reweighted least squares.}
+\paragraph{Log-concavity of GLM likelihood.} Unlike linear regression, in general GLMs the function $\bm \mu(\bm{\beta})$ is nonlinear. Therefore, there is in general no closed-form solution to the GLM normal equations~\eqref{eq:glm-normal-equations}. We must instead iteratively compute the maximum likelihood estimate $\bm{\widehat\beta}$. Before talking about the computation of the MLE $\bm{\widehat\beta}$, we state the important fact that $\log \mathcal L(\bm \beta)$ is a concave function of $\bm \beta$, which implies that this function is ``easy to optimize'', i.e. has no local maxima.
 
-TBD.
+\begin{proposition} \label{prop:log-concavity}
+The function $\log \mathcal L(\bm \beta)$ defined in~\eqref{eq:glm-log-likelihood} is concave in $\bm \beta$.
+\end{proposition}
+\begin{proof}
+We claim it suffices to show that $\psi$ is a convex function. Indeed, then $\log \mathcal L(\bm \beta)$ would be the sum of a linear function of $\bm \beta$ and the composition of a concave function with a linear function. To verify that $\psi$ is convex, it suffices to recall that $\ddot \psi(\eta) = \text{Var}_\eta[y] \geq 0$.
+\end{proof}
+\noindent Proposition~\eqref{prop:log-concavity} gives us confidence that an iterative algorithm will converge to the global maximum of the likelihood. We present such an iterative algorithm next.
+
+\paragraph{Newton-Raphson.}
+
+We can solve the equation~\eqref{eq:glm-normal-equations} using the Newton Raphson algorithm, which involves the gradient and Hessian of the function we'd like to maximize. We already computed the gradient in equation~\eqref{eq:log-likelihood-derivative}. To compute the Hessian, we take another gradient in $\bm \beta$. We have
+\begin{equation}
+\begin{split}
+\nabla^2_{\bm \beta} \log \mathcal L(\bm \beta) &= \nabla_{\bm \beta}(\bm X^T(\bm y - \dot \psi(\bm X \bm \beta))) = -\nabla_{\bm \beta} \bm X^T \dot \psi(\bm X \bm \beta) \\
+&\quad= - \bm X^T \text{diag}(\ddot \psi(\bm X\bm \beta))\bm X \equiv -\bm X^T \bm W(\bm \beta)\bm X.
+\end{split}
+\label{eq:hessian}
+\end{equation}
+Here, $\dot \psi$ and $\ddot \psi$ applied to vectors are interpreted element-wise and $\bm W(\bm \beta) \in \mathbb R^{n \times n}$ is the diagonal matrix such that
+\begin{equation}
+W_{ii}(\bm \beta) = \text{Var}_{\bm \beta}[y_i].
+\label{eq:W-def}
+\end{equation}
+The Newton-Raphson iteration is therefore
+\begin{equation}
+\bm{\widehat \beta}^{(t+1)} = \bm{\widehat \beta}^{(t)} - (\nabla^2_{\bm \beta} \log \mathcal L(\bm{\widehat \beta}^{(t)}))^{-1} \nabla_{\bm \beta} \log \mathcal L(\bm{\widehat \beta}^{(t)}) = \bm{\widehat \beta}^{(t)} + (\bm X^T \bm W(\bm{\widehat \beta}^{(t)})\bm X)^{-1}\bm X^T(\bm y - \bm \mu(\bm{\widehat \beta}^{(t)})).
+\label{eq:NR-iteration}
+\end{equation}
+
+\paragraph{Iteratively reweighted least squares (IRLS).}
+
+A nice interpretation of the Newton-Raphson algorithm is as a sequence of weighted least squares fits, known as the iteratively reweighted least squares (IRLS) algorithm. Suppose that we have a current estimate $\bm{\widehat \beta}^{(t)}$, and suppose we are looking for a vector $\bm \beta$ near $\bm{\widehat \beta}^{(t)}$ that fits the model even better. We have
+\begin{equation*}
+\mathbb E_{\bm \beta}[\bm y] = \dot \psi(\bm X \bm \beta) \approx \dot \psi(\bm X \bm{\widehat \beta}^{(t)}) + \text{diag}(\ddot \psi(\bm X \bm{\widehat \beta}^{(t)}))(\bm X \bm \beta - \bm X \bm{\widehat \beta}^{(t)}) = \bm \mu(\bm{\widehat \beta}^{(t)}) + \bm W(\bm{\widehat \beta}^{(t)})(\bm X \bm \beta - \bm X \bm{\widehat \beta}^{(t)}).
+\end{equation*}
+and
+\begin{equation*}
+\text{Var}_{\bm \beta}[\bm y] \approx \bm W(\bm{\widehat \beta}^{(t)}).
+\end{equation*}
+Thus, up to the first two moments, near $\bm \beta = \bm{\widehat \beta}^{(t)}$ the distribution of $\bm y$ is approximately
+\begin{equation}
+\bm y = \bm \mu(\bm{\widehat \beta}^{(t)}) + \bm W(\bm{\widehat \beta}^{(t)})(\bm X \bm \beta - \bm X \bm{\widehat \beta}^{(t)}) + \bm \epsilon, \quad \bm \epsilon \sim N(\bm 0, \bm W(\bm{\widehat \beta}^{(t)})),
+\end{equation}
+or, equivalently,
+\begin{equation}
+\bm z^{(t)} \equiv \bm W(\bm{\widehat \beta}^{(t)})^{-1}(\bm y - \bm \mu(\bm{\widehat \beta}^{(t)})) + \bm X \bm{\widehat \beta}^{(t)} = \bm X \bm \beta + \bm \epsilon', \quad \bm \epsilon' \sim N(\bm 0, \bm W(\bm{\widehat \beta}^{(t)})^{-1}).
+\end{equation}
+The regression of the \textit{adjusted response variable} $\bm z^{(t)}$ on $\bm X$ leaves us with a weighted linear regression, whose maximum likelihood estimate is
+\begin{equation}
+\bm{\widehat \beta}^{(t+1)} = (\bm X^T \bm W(\bm{\widehat \beta}^{(t)}) \bm X)^{-1} \bm X^T \bm W(\bm{\widehat \beta}^{(t)}) \bm z^{(t)},
+\label{eq:IRLS-iteration}
+\end{equation}
+which we define as our next iterate. It's easy to verify that the IRLS iteration~\eqref{eq:IRLS-iteration} is equivalent to the Newton-Raphson iteration~\eqref{eq:NR-iteration}.
 
 \section{Inference in GLMs} \label{sec:glm-inf}
 
-TBD.
+\paragraph{Asymptotic normality and GLM standard errors.} Inference in GLMs is based on asymptotic likelihood theory. Using the Hessian computation~\eqref{eq:hessian}, we can compute the Fisher information matrix
+\begin{equation}
+\bm I(\bm \beta) = -\mathbb E_{\bm \beta}[\nabla^2_{\bm \beta}\log \mathcal L(\bm \beta)] = \bm X^T \bm W(\bm \beta) \bm X,
+\end{equation}
+recalling the definition of $\bm W$ in equation~\eqref{eq:W-def}. Therefore, likelihood theory tells us that, as the sample size $n$ grows, we have
+\begin{equation}
+\bm{\widehat \beta} \overset \cdot \sim N(\bm \beta, (\bm X^T \bm W(\bm \beta) \bm X)^{-1}).
+\end{equation}
+Using the plug-in variance estimate, we typically construct GLM standard errors based on
+\begin{equation}
+\widehat{\text{Var}}[\bm{\widehat \beta}] \equiv (\bm X^T \bm W(\bm{\widehat \beta}) \bm X)^{-1}.
+\end{equation}
+
+\paragraph{Confidence intervals.}
+
+A confidence interval for each coordinate $\beta_j$ can be obtained via
+\begin{equation}
+\text{CI}(\widehat \beta_j) \equiv \widehat \beta_j \pm 2 \cdot \text{SE}(\widehat \beta_j), \quad \text{where} \quad \text{SE}(\beta_j) \equiv \sqrt{(\bm X^T \bm W(\bm{\widehat \beta}) \bm X)^{-1}_{jj}}.
+\label{eq:conf-int-beta}
+\end{equation}
+A confidence interval for $\eta_i = \bm x_{i*}^T \bm \beta$ can be obtained via
+\begin{equation}
+\text{CI}(\widehat \eta_i) \equiv \bm x_{i*}^T \bm{\widehat\beta} \pm 2 \cdot \text{SE}(\eta_i), \quad \text{where} \quad \text{SE}(\widehat \eta_i) \equiv \sqrt{\bm x_{i*}^T(\bm X^T \bm W(\bm{\widehat \beta}) \bm X)^{-1}\bm x_{i*}}.
+\end{equation}
+A confidence interval for $\mu_i \equiv \mathbb E_{\bm \beta}[y_i] = \dot \psi(\eta_i)$ can be obtained by applying the strictly increasing function $\dot \psi$ to the endpoints of the confidence interval for $\eta_i$. Note that the resulting confidence interval may be asymmetric.
+
+\paragraph{Testing a single coordinate.}
+
+We can invert the confidence interval~\eqref{eq:conf-int-beta} to get a test of the hypothesis $H_0: \beta_j = \beta_j^0$ for any $\beta_j^0 \in \mathbb R$:
+\begin{equation}
+\phi(\bm X, \bm y) = \mathbbm 1(|z(\bm X, \bm y)| > z_{1-\alpha/2}), \quad \text{where} \quad z(\bm X, \bm y) \equiv \frac{\widehat \beta_j}{\text{SE}(\widehat \beta_j)}.
+\end{equation}
+This is the analog of the $t$-test for a linear regression.
+
+\paragraph{Testing multiple coordinates.}
+
+Likelihood ratio test, deviances, goodness of fit testing. (TBD)
+
+\section{Bells and whistles} \label{sec:bells-and-whistles}
+
+\paragraph{Offsets.}
+
+\paragraph{Exponential dispersion families.}
+
+\paragraph{Non-canonical links.}
+
 
 \end{document}
