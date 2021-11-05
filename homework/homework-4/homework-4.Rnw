@@ -1,0 +1,221 @@
+% (C) Brett Klamer - MIT - http://opensource.org/licenses/MIT
+% Please contact me if you find any errors or make improvements
+% Contact details at brettklamer.com
+
+\documentclass[11pt,letterpaper,english,oneside]{article} % article class is a standard class
+%==============================================================================
+%Load Packages
+%==============================================================================
+\usepackage[left=1in,right=1in,top=1in,bottom=1in]{geometry} % easy page margins
+\usepackage[utf8]{inputenc} % editor uses utf-8 encoding
+\usepackage[T1]{fontenc} % T1 font pdf output
+\usepackage{lmodern} % Latin modern roman font
+\usepackage{bm, bbm} % bold and blackboard bold math symbols
+\usepackage{amsmath, amsfonts, amssymb, amsthm} % math packages
+\usepackage[final]{microtype} % better microtypography
+\usepackage{graphicx} % for easier grahics handling
+\usepackage[hidelinks, colorlinks=true, linkcolor = blue, urlcolor = blue]{hyperref} % to create hyperlinks
+\usepackage{float} % tells floats to stay [H]ere!
+\usepackage{mdframed} % it's better than framed. knitr uses framed so settings won't conflict
+\usepackage{enumitem} % nice lists
+\usepackage{fancyhdr} % nice headers
+\usepackage{caption}  % to control figure and table captions
+
+\captionsetup{width=0.9\textwidth, justification = raggedright}
+
+%==============================================================================
+% Enter name and homework title here
+%==============================================================================
+\author{Name}
+\title{STAT 961: Homework 4}
+\date{Due Friday, November 19 at 11:59pm}
+
+%==============================================================================
+% Put title and author in PDF properties
+%==============================================================================
+\makeatletter % change interpretation of @
+\hypersetup{pdftitle={\@title},pdfauthor={\@author}}
+
+
+%==============================================================================
+% Header settings
+%==============================================================================
+\pagestyle{fancy} % turns on fancy header styles
+\fancyhf{} % clear all header and footer fields
+\makeatletter
+\lhead{\@author} % left header
+\chead{\@title} % center header
+\makeatother
+\rhead{Page \thepage} % right header
+\setlength{\headheight}{13.6pt} % fixes minor warning
+\makeatother % change back interpretation of @
+
+%==============================================================================
+% List spacing
+%==============================================================================
+\setlist[itemize]{parsep=0em} % fix itemize spacing
+\setlist[enumerate]{parsep=0em} % fix enumerate spacing
+
+%==============================================================================
+% Float spacing (changes spacing of tables, graphs, etc)
+%==============================================================================
+%\setlength{\textfloatsep}{3pt}
+%\setlength{\intextsep}{3pt}
+
+%==============================================================================
+% Define Problem and Solution Environments
+%==============================================================================
+\theoremstyle{definition} % use definition's look
+\newtheorem{problem}{Problem}
+\newtheorem{solution}{Solution}
+\mdfsetup{ % box margin fix for mdframe and how it plays with parskip and others.
+innerleftmargin=4pt,
+innerrightmargin=4pt,
+innertopmargin=-1pt,
+innerbottommargin=4pt}
+% \newenvironment{prob}{\begin{mdframed}\begin{problem}\hspace{0pt}}{\end{problem}\end{mdframed}}
+\newenvironment{prob}{\clearpage \begin{problem}\hspace{0pt}}{\end{problem}}
+\newenvironment{sol}{\begin{solution}\hspace{0pt}}{\end{solution}}
+
+%==============================================================================
+% set knitr options
+%==============================================================================
+% latex (change space before and after knitr kframe; based on framed package)
+\setlength{\OuterFrameSep}{0.3em}
+% R
+<<setup, include=FALSE, cache=FALSE>>=
+library(knitr)
+# inline hook to process the output of \Sexpr{} statements to just 2 digits
+inline_hook <- function(x) {
+  if(is.numeric(x)) x <- round(x, 2)
+  paste(as.character(x), collapse=", ")
+}
+knit_hooks$set(inline = inline_hook)
+
+# cache all chunks
+opts_chunk$set(cache = TRUE)
+
+# create directory for figures
+if(!dir.exists("figures")){
+  dir.create("figures")
+}
+@
+
+\begin{document}
+
+
+\maketitle
+
+\section{Instructions}
+
+\paragraph{Setup.} Pull the latest version of this assignment from Github and set your working directory to \texttt{stat-961-fall-2021/homework/homework-4}. Consult the \href{https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/getting-started/getting-started.pdf}{getting started guide} if you need to brush up on \texttt{R}, \texttt{LaTeX}, or \texttt{Git}.
+
+\paragraph{Collaboration.} The collaboration policy is as stated on the Syllabus:
+
+\begin{quote}
+``Students are permitted to work together on homework assignments, but solutions must be written up and submitted individually. Students must disclose any sources of assistance they received; furthermore, they are prohibited from verbatim copying from any source and from consulting solutions to problems that may be available online and/or from past iterations of the course.''
+\end{quote}
+
+\noindent In accordance with this policy, \\
+
+\noindent \textit{Please list anyone you discussed this homework with:} \\
+
+\noindent \textit{Please list what external references you consulted (e.g. articles, books, or websites):} 
+
+\paragraph{Writeup.} Use this document as a starting point for your writeup, adding your solutions between \verb|\begin{sol}| and \verb|\end{sol}|. See the \href{https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/getting-started/preparing-reports.pdf}{preparing reports guide} for guidance on compilation, creation of figures and tables, and presentation quality. Show all the code you wrote to produce your numerical results, and include complete derivations typeset in LaTeX for the mathematical questions. 
+
+\paragraph{Programming.}
+
+The \texttt{tidyverse} paradigm for data manipulation (\texttt{dplyr}) and plotting (\texttt{ggplot2}) are strongly encouraged, but points will not be deducted for using base \texttt{R}. 
+<<message=FALSE, cache = FALSE>>=
+library(tidyverse)
+@
+
+\paragraph{Grading.} Each sub-part of each problem will be worth 3 points: 0 points for no solution or completely wrong solution; 1 point for some progress; 2 points for a mostly correct solution; 3 points for a complete and correct solution modulo small flaws. The presentation quality of the solution for each problem (as exemplified by the guidelines in Section 3 of the \href{https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/getting-started/preparing-reports.pdf}{preparing reports guide}) will be evaluated out of an additional 3 points.
+
+\paragraph{Submission.} Compile your writeup to PDF and submit to \href{https://www.gradescope.com/courses/284562}{Gradescope}.
+
+\clearpage
+
+\begin{prob} \label{prob:ci-calculation}\textbf{Inverting the Wald, likelihood ratio, and score tests for a Poisson GLM.} \\
+
+\noindent You have two email accounts: your personal one and your academic one. Last month, you received $y_1$ and $y_2$ emails in your personal and academic inboxes, respectively. Interested in the extent to which you receive more (or less) email in your academic inbox, you set up the following Poisson regression model:
+\begin{equation*}
+y_i \overset{\text{ind}} \sim \text{Poi}(\mu_i); \quad \log \mu_i = \beta_0 + \beta_1 x_i; \quad i \in \{1,2\},
+\end{equation*}
+where $x_i \in \{0,1\}$ is an indicator for your academic inbox. Your goal is to build a level-$\alpha$ confidence interval for $e^{\beta_1}$ (the factor by which the expected number of emails in your academic inbox exceeds that in your personal inbox), and to this end you will invert the Wald, likelihood ratio, and score tests.
+
+\begin{enumerate}
+
+\item[(a)] What is the unrestricted maximum likelihood estimate $(\widehat \beta_0, \widehat \beta_1)$? What are the corresponding fitted means $(\widehat \mu_1, \widehat \mu_2)$? What is the maximum likelihood estimate for $\beta_0$ if $\beta_1$ is fixed at some value $\beta_1^0 \in \mathbb R$? What are the corresponding fitted means? What do the fitted means reduce to when $\beta_1^0 = 0$, and why does this make sense?
+
+\item[(b)] What is the large-sample normal approximation to the sampling distribution of $\bm{\widehat \beta}$? What is the resulting level-$\alpha$ Wald confidence interval for $e^{\beta_1}$ (defined by transforming the endpoints of the Wald confidence interval for $\beta_1$)? Express your answer explicitly.
+
+\item[(c)] Given some $\beta_1^0 \in \mathbb R$, what is the likelihood ratio test statistic for $H_0: \beta_1 = \beta_1^0$? What is the level-$\alpha$ confidence interval for $e^{\beta_1}$ that results from inverting this test? The endpoints of your interval may be specified as solutions to a nonlinear equation.
+
+\item[(d)] Formulate the test $H_0: \beta_1 = \beta_1^0$ as a goodness of fit test. What is the corresponding score test statistic? What is the level-$\alpha$ confidence interval for $e^{\beta_1}$ that results from inverting this test? Express your answer explicitly.
+
+
+\end{enumerate}
+
+\end{prob}
+
+\begin{sol}
+
+\end{sol}
+
+\begin{prob} \label{prob:ci-simulation}\textbf{Comparing the three confidence interval constructions from Problem~\ref{prob:ci-calculation}.} \\
+
+\noindent Let's use a numerical simulation to compare the three confidence interval constructions from Problem~\ref{prob:ci-calculation} in finite samples.
+
+\begin{enumerate}
+
+\item[(a)] Write functions called \verb|get_ci_wald|, \verb|get_ci_lrt|, and \verb|get_ci_score| that take as arguments (\verb|y_1|, \verb|y_2|, \verb|alpha|) and return the corresponding confidence intervals for $e^{\beta_1}$. If the confidence interval is undefined for a given pair $(y_1, y_2)$, your function should return $(-\infty, \infty)$.
+
+\item[(b)] To get a first sense of how the three intervals compare, compute level $\alpha = 0.05$ intervals for $(y_1, y_2) = (10^1, 10^1), (10^{1.5}, 10^{1.5}), \dots, (10^5, 10^5)$. Plot the lower and upper endpoints of these intervals as functions of $y_1$ (you should arrive at a plot containing six curves, corresponding to the lower and upper endpoints of the three methods). Add a dashed horizontal line at the MLE for $e^{\beta_1}$ (which is the same for each given pair $(y_1, y_2)$). How do the interval widths compare, both across methods and across $(y_1, y_2)$ values?
+
+\item[(c)] Next, calculate the average length and coverage of the three level $\alpha = 0.05$ confidence intervals for $e^{\beta_1}$ in the following simulation setting. Set $(\mu_1, \mu_2) = (10^1, 10^1), (10^{1.5}, 10^{1.5}), \dots, (10^5, 10^5)$. For each pair $(\mu_1, \mu_2)$, generate 5000 realizations of $(y_1, y_2)$ and compute the three confidence intervals for each realization. Plot the average length and coverage for each of the three interval constructions as a function of $\mu_1$ (please omit the undefined/infinite-length intervals from the calculations of length and coverage). Compare and contrast the average lengths and coverages of the three constructions, both across methods and across $(\mu_1, \mu_2)$ values.
+
+\item[(d)] Last month you received 60 emails in your personal inbox and 90 in your academic inbox. Pick one of the three confidence interval constructions above that you feel has good coverage and small width. According to this construction, what is the confidence interval for $e^{\beta_1}$? Can you reject the null hypothesis that the two inboxes receive emails at the same rate?
+\end{enumerate}
+
+
+\end{prob}
+
+\begin{sol}
+
+\end{sol}
+
+
+\begin{prob} \label{prob:blocks-data}\textbf{Case study: Child development.} \\
+
+\noindent Children were asked to build towers as high as they could out of cubical and cylindrical blocks.\footnote{Johnson, B., Courtney, D.M.: Tower building. Child Development 2(2), 161–162 (1931).} The number of blocks used and the time taken were recorded (see \verb|blocks_data| below). In this problem, only consider the number of blocks used and the age of the child.
+<<message = FALSE>>=
+blocks_data = read_tsv("../../data/blocks.tsv")
+print(blocks_data, n = 5)
+@
+
+\begin{enumerate}
+
+\item[(a)] Create a scatter plot of blocks used versus age; since there are exact duplicates of \verb|(Number, Age)| in the data, use \verb|geom_count()| instead of \verb|geom_point()|. Propose a GLM to model the number of blocks used as a function of age.
+
+\item[(b)] Fit this GLM using R, and write down the fitted model. Determine the standard error for each regression parameter, and find the 95\% Wald confidence intervals for the regression coefficients.
+
+\item[(c)] Use Wald, score, and likelihood ratio tests to determine if age seems necessary in the model. Compare the results and comment.
+
+\item[(d)] Plot the number of blocks used against age as in part (a), adding the relationship described by the fitted model as well as lines indicating the lower and upper 95\% confidence intervals for these fitted values.
+
+\end{enumerate}
+
+\noindent \textit{Acknowledgment: This problem was drawn from ``Generalized Linear Models With Examples in R'' (Dunn and Smyth, 2018).}
+
+
+\end{prob}
+
+\begin{sol}
+
+
+\end{sol}
+
+
+\end{document}
