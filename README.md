@@ -46,3 +46,8 @@ Tue, Nov 16 | 5. GLMs: Special cases | Logistic regression inference | Agresti C
 Thu, Nov 18 | 5. GLMs: Special cases | Poisson regression  | Agresti Ch. 7.1, 7.2 | TBA | --
 Friday, Nov 19 | -- | -- | -- | -- | [Homework 4](https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/homework/homework-4/homework-4.pdf) due at 11:59pm
 Tue, Nov 23 | 5. GLMs: Special cases | Negative binomial regression  | Agresti Ch. 7.3 | TBA | --
+Thu, Nov 25 | -- | Thanksgiving break | -- | -- | --
+Tue, Nov 30 | 6. Further topics | TBA  | TBA | TBA | --
+Thu, Dec 2 | 6. Further topics | TBA  | TBA | TBA | --
+Tue, Dec 7 | 6. Further topics | TBA  | TBA | TBA | --
+Thu, Dec 9 | 6. Further topics | TBA  | TBA | TBA | --
