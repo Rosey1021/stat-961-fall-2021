@@ -1,0 +1,185 @@
+% (C) Brett Klamer - MIT - http://opensource.org/licenses/MIT
+% Please contact me if you find any errors or make improvements
+% Contact details at brettklamer.com
+
+\documentclass[11pt,letterpaper,english,oneside]{article} % article class is a standard class
+%==============================================================================
+%Load Packages
+%==============================================================================
+\usepackage[left=1in,right=1in,top=1in,bottom=1in]{geometry} % easy page margins
+\usepackage[utf8]{inputenc} % editor uses utf-8 encoding
+\usepackage[T1]{fontenc} % T1 font pdf output
+\usepackage{lmodern} % Latin modern roman font
+\usepackage{bm, bbm} % bold and blackboard bold math symbols
+\usepackage{amsmath, amsfonts, amssymb, amsthm} % math packages
+\usepackage[final]{microtype} % better microtypography
+\usepackage{graphicx} % for easier grahics handling
+\usepackage[hidelinks, colorlinks=true, linkcolor = blue, urlcolor = blue]{hyperref} % to create hyperlinks
+\usepackage{float} % tells floats to stay [H]ere!
+\usepackage{mdframed} % it's better than framed. knitr uses framed so settings won't conflict
+\usepackage{enumitem} % nice lists
+\usepackage{fancyhdr} % nice headers
+\usepackage{caption}  % to control figure and table captions
+\newtheorem{proposition}{Proposition}[section]
+\newtheorem{lemma}[proposition]{Lemma}
+\newtheorem{definition}[proposition]{Definition}
+
+
+
+\captionsetup{width=0.9\textwidth, justification = raggedright}
+
+%==============================================================================
+% Enter name and homework title here
+%==============================================================================
+\title{Unit 5: Generalized linear models: Special cases}
+\author{Eugene Katsevich}
+% \date{August 31, 2021}
+
+%==============================================================================
+% Put title and author in PDF properties
+%==============================================================================
+\makeatletter % change interpretation of @
+\hypersetup{pdftitle={\@title},pdfauthor={\@author}}
+
+
+%==============================================================================
+% Header settings
+%==============================================================================
+\pagestyle{fancy} % turns on fancy header styles
+\fancyhf{} % clear all header and footer fields
+\makeatletter
+\lhead{\@author} % left header
+\chead{\@title} % center header
+\makeatother
+\rhead{Page \thepage} % right header
+\setlength{\headheight}{13.6pt} % fixes minor warning
+\makeatother % change back interpretation of @
+
+%==============================================================================
+% List spacing
+%==============================================================================
+\setlist[itemize]{parsep=0em} % fix itemize spacing
+\setlist[enumerate]{parsep=0em} % fix enumerate spacing
+
+%==============================================================================
+% set knitr options
+%==============================================================================
+% latex (change space before and after knitr kframe; based on framed package)
+\setlength{\OuterFrameSep}{0.3em}
+% R
+<<setup, include=FALSE, cache=FALSE>>=
+library(knitr)
+
+# inline hook to process the output of \Sexpr{} statements to just 2 digits
+inline_hook <- function(x) {
+  if(is.numeric(x)) x <- round(x, 2)
+  paste(as.character(x), collapse=", ")
+}
+knit_hooks$set(inline = inline_hook)
+
+# cache all chunks
+opts_chunk$set(cache = TRUE)
+
+@
+
+\begin{document}
+
+\maketitle
+
+Unit 4 developed a general theory for GLMs. In Unit 5, we specialize this theory to several important cases, including logistic regression and Poisson regression.
+
+\section{Logistic regression} \label{sec:logistic-regression}
+
+\subsection{Model definition and interpretation}
+
+\paragraph{Model definition.} Recall from Unit 4 that the logistic regression model is
+\begin{equation}
+m_i y_i \overset{\text{ind}}\sim \text{Bin}(m_i, \pi_i); \quad \text{logit}(\pi_i) = \log\frac{\pi_i}{1-\pi_i} = \bm x^T_{i*}\bm \beta.
+\end{equation}
+Here we use the canonical logit link function, although other link functions are possible. The interpretation of the parameter $\beta_j$ is that a unit increase in $x_j$---other predictors held constant---is associated with an (additive) increase of $\beta_j$ on the log-odds scale or a multiplicative increase of $e^{\beta_j}$ on the odds scale. Note that logistic regression data come in two formats: \textit{ungrouped} and \textit{grouped}. For ungrouped data, we have $m_1 = \dots = m_n = 1$, so $y_i \in \{0,1\}$ are Bernoulli random variables. For grouped data, we can have several independent Bernoulli observations per predictor $\bm x_{i*}$, which give rise to binomial proportions $y_i \in [0,1]$. This happens most often when all the predictors are discrete. You can always convert grouped data into ungrouped data, but not necessarily vice versa. We'll discuss below that the grouped and ungrouped formulations of logistic regression have the same MLE and standard errors but different deviances.
+
+\paragraph{Generative model equivalent.} Consider the following generative model for $(\bm x, y) \in \mathbb R^{p-1} \times \{0,1\}$:
+\begin{equation}
+y \sim \text{Ber}(\pi); \quad \bm x|y \sim \begin{cases}N(\bm \mu_0, \bm V) \quad \text{if } y = 0 \\ N(\bm \mu_1, \bm V) \quad \text{if } y = 1\end{cases}.
+\end{equation}
+Then, we can derive that $y|\bm x$ follows a logistic regression model (called a \textit{discriminative} model because it conditions on $\bm x$). Indeed,
+\begin{equation}
+\begin{split}
+\text{logit}(p(y = 1|\bm x)) &= \log\frac{p(y = 1)p(\bm x|y = 1)}{p(y = 0)p(\bm x|y = 0)} \\
+&= \log\frac{\pi \exp\left(-\frac12(\bm x - \bm \mu_1)^T\bm V^{-1}(\bm x - \bm \mu_1)\right)}{(1-\pi) \exp\left(-\frac12(\bm x - \bm \mu_0)^T\bm V^{-1}(\bm x - \bm \mu_0)\right)} \\
+&= \beta_0 + \bm x^T \bm V^{-1}(\bm \mu_1 - \bm \mu_0) \\
+&\equiv \beta_0 + \bm x^T \bm \beta_{\text{-}0}.
+\end{split}
+\end{equation}
+This is another natural route to motivating the logistic regression model.
+
+\paragraph{Special case: $2 \times 2$ contingency table.}
+
+Suppose that $x \in \{0,1\}$, and consider the logistic regression model $\text{logit}(\pi_i) = \beta_0 + \beta_1 x_i$. For example, suppose that $x \in \{0,1\}$ encodes treatment (1) and control (0) in a clinical trial, and $y_i \in \{0,1\}$ encodes success (1) and failure (0). We make $n$ observations of $(x_i, y_i)$ in this ungrouped setup. The parameter $e^{\beta_1}$ can be interpreted as the \textit{odds ratio}:
+\begin{equation}
+e^{\beta_1} = \frac{\mathbb P[y = 1|x=1]/\mathbb P[y = 0|x=1]}{\mathbb P[y = 1|x=0]/\mathbb P[y = 0|x=0]}.
+\end{equation}
+This parameter is the multiple by which the odds of success increase when going from control to treatment. We can summarize such data via the $2 \times 2$ \textit{contingency table} (Table~\ref{tab:2-by-2-table}). A grouped version of this data would be $\{(x_1, y_1) = (0, 7/24), (x_2, y_2) = (1, 9/21)\}$. The null hypothesis $H_0: \beta_1 = 0 \Longleftrightarrow H_0: e^{\beta_1} = 1$ states that the success probability in both rows of the table is the same.
+\begin{table}[h!]
+\centering
+\begin{tabular}{c|cc|c}
+ & Success & Failure & Total \\
+ \hline
+ Treatment & 9 & 12 & 21 \\
+ Control & 7 & 17 & 24 \\
+ \hline
+ Total & 16 & 29 & 45
+\end{tabular}
+\caption{An example of a $2 \times 2$ contingency table.}
+\label{tab:2-by-2-table}
+\end{table}
+
+\paragraph{Logistic regression with case-control studies.}
+
+In a prospective study (e.g. a clinical trial), we assign treatment or control (i.e., $x$) to individuals, and then observe a binary outcome (i.e., $y$). Sometimes, the outcome $y$ takes a long time to measure or has highly imbalanced distribution in the population (e.g. the development of lung cancer). In this case, an appealing study design is the \textit{retrospective study}, where individuals are sampled based on their \textit{response values} (e.g. presence of lung cancer) rather than their treatment/exposure status (e.g. smoking). It turns out that a logistic regression model is appropriate for such retrospective study designs as well. Indeed, suppose that $y|\bm x$ follows a logistic regression model. Let's try to figure out the distribution of $y|\bm x$ in the retrospectively gathered sample. Letting $z \in \{0,1\}$ denote the indicator that an observation is sampled, define $\rho_1 \equiv \mathbb P[z = 1|y = 1]$ and $\rho_0 \equiv \mathbb P[z = 1|y = 0]$, and assume that $\mathbb P[z = 1, y, \bm x] = \mathbb P[z = 1 | y]$. The latter assumption states that the predictors $\bm x$ were not used in the retrospective sampling process. Then,
+\begin{equation*}
+\text{logit}(\mathbb P[y = 1|z = 1, \bm x]) = \log \frac{\rho_1 \mathbb P[y = 1|\bm x]}{\rho_0 \mathbb P[y = 0|\bm x]} = \log \frac{\rho_1}{\rho_0} + \text{logit}(\mathbb P[y = 1|\bm x]) = \left(\log \frac{\rho_1}{\rho_0} + \beta_0\right) + \bm x^T \bm \beta_{\text{-}0}.
+\end{equation*}
+Thus, conditioning on retrospective sampling changes only the intercept term, but preserves the coefficients of $\bm x$. Therefore, we can carry out inference for $\bm \beta_{\text{-}0}$ in the same way regardless of whether the study design is prospective or retrospective.
+
+\subsection{Estimation and inference}
+
+\paragraph{Score and Fisher information.}
+
+We recall from Unit 4 that the score is
+\begin{equation}
+\frac{\partial}{\partial \bm \beta}\log \mathcal L(\bm \beta) = \bm X^T\bm D \bm V^{-1}(\bm y - \bm \mu) = \bm X^T \text{diag}\left(\frac{\partial \mu_i/\partial \eta_i}{\text{Var}[y_i]}\right)(\bm y - \bm \mu).
+\end{equation}
+Note that 
+\begin{equation}
+\frac{\partial \mu_i/\partial \eta_i}{\text{Var}[y_i]} = \frac{\partial \mu_i/\partial \theta_i}{\text{Var}[y_i]} = \frac{\ddot \psi(\theta_i)}{\text{Var}[y_i]} = m_i.
+\end{equation}
+Therefore, the score equations are
+\begin{equation}
+0 = \bm X^T \text{diag}\left(m_i\right)(\bm y - \bm{\widehat\mu}) \quad \Longleftrightarrow \quad \sum_{i = 1}^n m_i x_{ij}(y_i-\widehat \pi_i) = 0, \quad j = 0, \dots, p-1.
+\end{equation}
+We can solve these equations using IRLS. The Fisher information is
+\begin{equation}
+\bm I(\bm \beta) = \bm X^T \bm W \bm X, \quad W_{ii} = \frac{(\partial \mu_i/\partial \eta_i)^2}{\text{Var}[y_i]} = \frac{\ddot \psi(\theta_i)^2}{\text{Var}[y_i]} = m_i^2 \text{Var}[y_i] = m_i \pi_i(1-\pi_i). 
+\end{equation}
+
+\paragraph{Wald inference.}
+Using the results in the previous paragraph, we can carry out Wald inference based on the normal approximation
+\begin{equation}
+\bm{\widehat \beta} \overset \cdot \sim N\left(\bm \beta, \left(\bm X^T\text{diag}(m_i \widehat \pi_i(1-\widehat \pi_i))\bm X\right)^{-1}\right).
+\end{equation}
+TBD: Hauck-Donner effect.
+
+\paragraph{Likelihood ratio inference.}
+
+\paragraph{Goodness of fit tests.}
+
+\paragraph{Fisher's exact test.}
+
+\paragraph{Perfect separability.}
+
+\section{Poisson regression} \label{sec:poisson-regression}
+
+\section{Negative binomial regression} \label{sec:nb-regression}
+
+\end{document}
