@@ -79,3 +79,16 @@ if(!file.exists(destination)){
   cat(sprintf("%s already exists.\n", filename))
 }
 
+# blocks data
+filename = "blocks.tsv"
+destination = sprintf("data/%s", filename)
+if(!file.exists(destination)){
+  cat(sprintf("Downloading %s...\n", filename))
+  data("blocks", package="GLMsData")
+  write_tsv(blocks, file = destination)
+} else{
+  cat(sprintf("%s already exists.\n", filename))
+}
+
+
+

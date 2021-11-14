@@ -37,4 +37,17 @@ Tue, Oct 19 | 3. Linear model: Misspecification | Robust hypothesis testing | --
 Thu, Oct 21 | 3. Linear model: Misspecification | R demo | Agresti 3.4 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=f2c80b19-3780-4350-bf5e-adc000248084) | --
 Sun, Oct 24 | -- | -- | -- | -- | [Homework 3](https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/homework/homework-3/homework-3.pdf) due at 11:59pm
 Tue, Oct 26 | 4. GLMs: General theory | Exponential families and GLM definition | Agresti 4.1 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=7aa72123-bd63-4b2e-a955-adca00feaa2d) | --
-Thu, Oct 28 | 4. GLMs: General theory | Maximum likelihood estimation and inference | Agresti 4.2-4.5 | TBA | --
+Thu, Oct 28 | 4. GLMs: General theory | Maximum likelihood estimation and IRLS | Agresti 4.2.1-4.2.3, 4.5 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=ef297513-da5b-491b-93aa-adca013df450) | --
+Tue, Nov 2 | 4. GLMs: General theory | Deviance and inference I | Agresti 4.2.4, 4.3.2, 4.4.1, 4.4.2 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=c2cd5706-6436-4879-a30f-adcf01697b19) | --
+Thu, Nov 4 | 4. GLMs: General theory | Inference II | Agresti 4.3.1, 4.3.5, 4.4.3, 4.4.4 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=8b164bb6-43df-427d-9d93-add40135f0f5)  | --
+Tue, Nov 9 | 4. GLMs: General theory | Inference in GLMs based on EDMs | Agresti Ch. 4.1-4.4 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=35d40a03-cd61-4890-a04e-add70177c070)  | --
+Thu, Nov 11 | 5. GLMs: Special cases | R demo for Unit 4, Logistic regression model | Agresti Ch. 5.2 | TBA | --
+Tue, Nov 16 | 5. GLMs: Special cases | Logistic regression inference | Agresti Ch. 5.3,5.5 | TBA | --
+Thu, Nov 18 | 5. GLMs: Special cases | Poisson regression  | Agresti Ch. 7.1, 7.2 | TBA | --
+Friday, Nov 19 | -- | -- | -- | -- | [Homework 4](https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/homework/homework-4/homework-4.pdf) due at 11:59pm
+Tue, Nov 23 | 5. GLMs: Special cases | Negative binomial regression  | Agresti Ch. 7.3 | TBA | --
+Thu, Nov 25 | -- | Thanksgiving break | -- | -- | --
+Tue, Nov 30 | 6. Further topics | TBA  | TBA | TBA | --
+Thu, Dec 2 | 6. Further topics | TBA  | TBA | TBA | --
+Tue, Dec 7 | 6. Further topics | TBA  | TBA | TBA | --
+Thu, Dec 9 | 6. Further topics | TBA  | TBA | TBA | --

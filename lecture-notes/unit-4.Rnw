@@ -94,76 +94,76 @@ We'll start Unit 4 by introducing exponential family models (Section~\ref{sec:ex
 
 \paragraph{Definition and examples.} Let's start with the Gaussian distribution, taking variance $\sigma^2 = 1$ for simplicity. If $y \sim N(\mu, 1)$, then it has density
 \begin{equation}
-f(y) = \frac{1}{\sqrt{2\pi}}\exp\left(-\frac{1}{2}(y-\mu)^2\right) = \exp\left(\mu y - \frac{1}{2}\mu^2\right) \cdot \frac{1}{\sqrt{2\pi}}\exp\left(-\frac12 y^2\right).
+f(y) = \frac{1}{\sqrt{2\mu}}\exp\left(-\frac{1}{2}(y-\mu)^2\right) = \exp\left(\mu y - \frac{1}{2}\mu^2\right) \cdot \frac{1}{\sqrt{2\mu}}\exp\left(-\frac12 y^2\right).
 \end{equation}
 Here is a way of generalizing this density:
 \begin{equation}
-f_\eta(y) = \exp(\eta y - \psi(\eta))h(y).
+f_\theta(y) = \exp(\theta y - \psi(\theta))h(y).
 \end{equation}
-Here $\eta$ is called the \textit{natural parameter}, $\psi$ is called the \textit{log-partition function}, and $h$ is called the \textit{base measure}. The distribution with density $f_\eta$ is called a \textit{one-parameter natural exponential family}. Therefore, $y \sim N(\mu, 1)$ is in the exponential family with
+Here $\theta$ is called the \textit{natural parameter}, $\psi$ is called the \textit{log-partition function}, and $h$ is called the \textit{base measure}. The distribution with density $f_\theta$ is called a \textit{one-parameter natural exponential family}. Therefore, $y \sim N(\mu, 1)$ is in the exponential family with
 \begin{equation}
-\eta = \mu, \quad \psi(\eta) = -\frac 12 \eta^2, \quad h(y) = \frac{1}{\sqrt{2\pi}}\exp\left(-\frac12 y^2\right).
+\theta = \mu, \quad \psi(\theta) = -\frac 12 \theta^2, \quad h(y) = \frac{1}{\sqrt{2\mu}}\exp\left(-\frac12 y^2\right).
 \end{equation}
-Several other well-known distributions are in the exponential family as well. For example, consider $y \sim \text{Ber}(\pi)$. Then, we have
+Several other well-known distributions are in the exponential family as well. For example, consider $y \sim \text{Ber}(\mu)$. Then, we have
 \begin{equation}
-f(y) = \pi^{y}(1-\pi)^{1-y} = \exp\left(y \log \frac{\pi}{1-\pi} + \log(1-\pi) \right).
+f(y) = \mu^{y}(1-\mu)^{1-y} = \exp\left(y \log \frac{\mu}{1-\mu} + \log(1-\mu) \right).
 \end{equation}
-Therefore, we have $\eta = \log \frac{\pi}{1-\pi}$, so that $\log(1-\pi) = -\log(1+e^\eta)$. It follows that
+Therefore, we have $\theta = \log \frac{\mu}{1-\mu}$, so that $\log(1-\mu) = -\log(1+e^\theta)$. It follows that
 \begin{equation}
-\eta = \log \frac{\pi}{1-\pi}, \quad \psi(\eta) = \log(1+e^\eta), \quad h(y) = 1.
+\theta = \log \frac{\mu}{1-\mu}, \quad \psi(\theta) = \log(1+e^\theta), \quad h(y) = 1.
 \end{equation}
 As another example, consider the Poisson distribution $y \sim \text{Poi}(\mu)$. We have
 \begin{equation}
 f(y) = e^{-\mu}\frac{\mu^y}{y!} = \exp(y \log \mu - \mu)\frac{1}{y!}.
 \end{equation}
-Therefore, we have $\eta = \log \mu$, so that $\mu = e^\eta$. It follows that
+Therefore, we have $\theta = \log \mu$, so that $\mu = e^\theta$. It follows that
 \begin{equation}
-\eta = \log \mu, \quad \psi(\eta) = e^\eta, \quad h(y) = \frac{1}{y!}.
+\theta = \log \mu, \quad \psi(\theta) = e^\theta, \quad h(y) = \frac{1}{y!}.
 \end{equation}
 
 \paragraph{Moments of exponential family distributions.}
 
 It turns out that the derivatives of the log-partition function $\psi$ give the moments of $y$. Indeed, let's start with the relationship
 \begin{equation}
-\int f_\eta(y)dy = \int \exp(\eta y - \psi(\eta))h(y) dy = 1. 
+\int f_\theta(y)dy = \int \exp(\theta y - \psi(\theta))h(y) dy = 1. 
 \end{equation}
-Differentiating in $\eta$ and interchanging the derivative and the integral, we obtain
+Differentiating in $\theta$ and interchanging the derivative and the integral, we obtain
 \begin{equation}
-0 = \frac{d}{d\eta} \int f_\eta(y)dy = \int (y - \dot \psi(\eta))f_\eta(y) dy,
+0 = \frac{d}{d\theta} \int f_\theta(y)dy = \int (y - \dot \psi(\theta))f_\theta(y) dy,
 \end{equation}
 from which it follows that
 \begin{equation}
-\dot \psi(\eta) = \int \dot \psi(\eta)f_{\eta}(y)dy = \int y f_\eta(y)dy = \mathbb E_\eta[y] \equiv \mu_\eta.
+\dot \psi(\theta) = \int \dot \psi(\theta)f_{\theta}(y)dy = \int y f_\theta(y)dy = \mathbb E_\theta[y] \equiv \mu_\theta.
 \label{eq:psi-dot}
 \end{equation}
 Thus, the first derivative of the log partition function is the mean of $y$. Differentiating again, we get
 \begin{equation}
-\ddot \psi(\eta) = \int y(y - \dot \psi(\eta))f_\eta(y) dy = \int y(y - \mu_\eta)f_\eta(y) dy = \int (y - \mu_\eta)^2f_\eta(y) dy = \text{Var}_\eta[y].
+\ddot \psi(\theta) = \int y(y - \dot \psi(\theta))f_\theta(y) dy = \int y(y - \mu_\theta)f_\theta(y) dy = \int (y - \mu_\theta)^2f_\theta(y) dy = \text{Var}_\theta[y].
 \end{equation}
 Thus, the second derivative of the log-partition function is the variance of $y$.
 
 \paragraph{Relationship between mean and natural parameter.}
 
-The log-partition function $\psi$ induces a connection~\eqref{eq:psi-dot} between the natural parameter $\eta$ and the mean $\mu$. Because 
+The log-partition function $\psi$ induces a connection~\eqref{eq:psi-dot} between the natural parameter $\theta$ and the mean $\mu$. Because 
 \begin{equation}
-\frac{d\mu}{d\eta} = \frac{d}{d\eta}\dot \psi(\eta) = \ddot \psi(\eta) = \text{Var}_\eta[y] > 0,
+\frac{d\mu}{d\theta} = \frac{d}{d\theta}\dot \psi(\theta) = \ddot \psi(\theta) = \text{Var}_\theta[y] > 0,
 \end{equation}
-it follows that $\mu$ is a strictly increasing function of $\eta$, so in particular the mapping between $\mu$ and $\eta$ is bijective. Therefore, we can think of equivalently parameterizing the distribution via $\mu$ or $\eta$. In the context of GLMs (see Section~\ref{sec:glm-def}), the mean-variance relationship is quantified in terms of the \textit{canonical link function} $g$, which maps the mean to the natural parameter:
+it follows that $\mu$ is a strictly increasing function of $\theta$, so in particular the mapping between $\mu$ and $\theta$ is bijective. Therefore, we can think of equivalently parameterizing the distribution via $\mu$ or $\theta$. In the context of GLMs (see Section~\ref{sec:glm-def}), the mean-variance relationship is quantified in terms of the \textit{canonical link function} $g$, which maps the mean to the natural parameter:
 \begin{equation}
-\eta = \dot \psi^{-1}(\mu) \equiv g(\mu).
+\theta = \dot \psi^{-1}(\mu) \equiv g(\mu).
 \end{equation}
 
 \paragraph{Relationship between mean and variance.}
 
-Note that the mean of an exponential family distribution determines its variance (since it determines the natural parameter $\eta$). For example, a Poisson random variable with mean $\mu$ has variance $\mu$ and a Bernoulli random variable with mean $\mu$ has variance $\mu(1-\mu)$. The mean-variance relationship turns out to characterize the exponential family distribution, i.e. an exponential family distribution with mean equal to its variance is the Poisson distribution. 
+Note that the mean of an exponential family distribution determines its variance (since it determines the natural parameter $\theta$). For example, a Poisson random variable with mean $\mu$ has variance $\mu$ and a Bernoulli random variable with mean $\mu$ has variance $\mu(1-\mu)$. The mean-variance relationship turns out to characterize the exponential family distribution, i.e. an exponential family distribution with mean equal to its variance is the Poisson distribution. 
 
 \section{Generalized linear models and examples} \label{sec:glm-def}
 
-In this class, the focus is on building models that tie a vector of predictors $(\bm x_{i*})$ to a response $y_i$. For linear regression, the mean of $y$ was modeled as a linear combination of the predictors $\bm x_{i*}^T \bm \beta$: $\mu = \bm x_{i*}^T \bm \beta$. Typically, the ``right'' thing to do is to model the response linearly on the scale of the natural parameter $\eta$ rather than on the scale of the mean parameter $\mu$. It just happens for linear models (where the underlying distribution is Gaussian) that these two parameters coincide. 
+In this class, the focus is on building models that tie a vector of predictors $(\bm x_{i*})$ to a response $y_i$. For linear regression, the mean of $y$ was modeled as a linear combination of the predictors $\bm x_{i*}^T \bm \beta$: $\mu = \bm x_{i*}^T \bm \beta$. Typically, the ``right'' thing to do is to model the response linearly on the scale of the natural parameter $\theta$ rather than on the scale of the mean parameter $\mu$. It just happens for linear models (where the underlying distribution is Gaussian) that these two parameters coincide. 
 
-\paragraph{Definition.} We define $\{(y_i, \bm x_{i*})\}_{i = 1}^n$ as following a generalized linear model based on the exponential family $f_\eta$ if 
+\paragraph{Definition.} We define $\{(y_i, \bm x_{i*})\}_{i = 1}^n$ as following a generalized linear model based on the exponential family $f_\theta$ if 
 \begin{equation}
-y_i \overset{\text{ind}}\sim f_{\eta_i}, \quad \eta_i = \bm x_{i*}^T \bm \beta.
+y_i \overset{\text{ind}}\sim f_{\theta_i}, \quad \theta_i = \bm x_{i*}^T \bm \beta.
 \label{eq:glm-def}
 \end{equation}
 GLMs are often written in terms of their link functions $g$, which relate the mean of $y$ to the linear predictor $\bm x_{i*}^T \bm \beta$. When modeling the natural parameter as a linear function in the predictors, as in the definition~\eqref{eq:glm-def}, we get a GLM with \textit{canonical link function} $g = \dot\psi^{-1}$:
@@ -173,11 +173,11 @@ g(\mathbb E[y_i]) = \dot \psi^{-1}(\mathbb E[y_i]) = \bm x_{i*}^T \bm \beta.
 
 \paragraph{Examples.} For example, \textit{logistic regression} is the GLM based on the Bernoulli distribution:
 \begin{equation}
-y_i \overset{\text{ind}}\sim \text{Ber}(\pi_i); \quad \eta_i = \log\frac{\pi_i}{1-\pi_i} = \bm x_{i*}^T \bm \beta.
+y_i \overset{\text{ind}}\sim \text{Ber}(\mu_i); \quad \theta_i = \log\frac{\mu_i}{1-\mu_i} = \bm x_{i*}^T \bm \beta.
 \end{equation}
 Thus the canonical link function for logistic regression is the \textit{logistic link function} $g(\mu) = \log \frac{\mu}{1-\mu}$. As another example, \textit{Poisson regression} is the GLM based on the Poisson distribution:
 \begin{equation}
-y_i \overset{\text{ind}}\sim \text{Poi}(\mu_i); \quad \eta_i = \log \mu_i = \bm x_{i*}^T \bm \beta.
+y_i \overset{\text{ind}}\sim \text{Poi}(\mu_i); \quad \theta_i = \log \mu_i = \bm x_{i*}^T \bm \beta.
 \end{equation}
 Thus the canonical link function for Poisson regression is the \textit{log link function} $g(\mu) = \log \mu$.
 
@@ -187,11 +187,11 @@ Thus the canonical link function for Poisson regression is the \textit{log link 
 
 Recall that the least squares estimate $\bm{\widehat \beta}$ is also the maximum likelihood estimate. For general GLMs, we also estimate $\bm \beta$ via maximum likelihood. To derive this estimates, let's write down the GLM likelihood and then take a derivative. The GLM likelihood is
 \begin{equation}
-\mathcal L(\bm \beta) = \prod_{i = 1}^n f_{\eta_i}(y_i) = \prod_{i = 1}^n \exp(\eta_i y_i - \psi(\eta_i)) h(y_i).
+\mathcal L(\bm \beta) = \prod_{i = 1}^n f_{\theta_i}(y_i) = \prod_{i = 1}^n \exp(\theta_i y_i - \psi(\theta_i)) h(y_i).
 \end{equation}
 Taking a logarithm, we have
 \begin{equation}
-\log \mathcal L(\bm \beta) = \sum_{i = 1}^n (\eta_i y_i - \psi(\eta_i)) + \sum_{i = 1}^n \log h(y_i) = \sum_{i = 1}^n (\bm x_{i*}^T \bm \beta y_i - \psi(\bm x_{i*}^T \bm \beta)) + \sum_{i = 1}^n \log h(y_i).
+\log \mathcal L(\bm \beta) = \sum_{i = 1}^n (\theta_i y_i - \psi(\theta_i)) + \sum_{i = 1}^n \log h(y_i) = \sum_{i = 1}^n (\bm x_{i*}^T \bm \beta y_i - \psi(\bm x_{i*}^T \bm \beta)) + \sum_{i = 1}^n \log h(y_i).
 \label{eq:glm-log-likelihood}
 \end{equation}
 Taking a gradient in $\bm \beta$, we get
@@ -206,9 +206,9 @@ Setting this expression to zero, we get the normal equations:
 \end{equation}
 Recall that, for least squares, we got the same equation, with $\bm \mu(\bm{\widehat \beta}) = \bm X \bm{\widehat\beta}$. We can interpret the normal equations as stating that $\bm \mu(\bm{\widehat \beta})$ is a projection of $\bm y$ onto the model ``space''
 \begin{equation}
-C_\mu(\bm X) \equiv \{\bm \mu = \dot\psi(\bm \eta) = \dot \psi(\bm X \bm \beta): \bm \beta \in \mathbb R^p\}.
+C_\mu(\bm X) \equiv \{\bm \mu = \dot\psi(\bm \theta) = \dot \psi(\bm X \bm \beta): \bm \beta \in \mathbb R^p\}.
 \end{equation}
-parallel to the columns of $\bm X$. Note that the subscript $\mu$ on $C_\mu(\bm X)$ indicates that we are considering the ``space'' (actually, \textit{set}) of possible $\bm \mu$ as opposed to the space $C_\eta(\bm X)$ of possible $\bm \eta$, which we denoted in Unit 1 simply as $C(\bm X)$. For linear models, it is the case that $C_\mu(\bm X) = C_\eta(\bm X)$, but in general, these two are different. Note that $C_\mu(\bm X)$ in general is a manifold as opposed to a linear subspace of $\mathbb R^n$, while $C_\eta(\bm X)$ is always a linear subspace.
+parallel to the columns of $\bm X$. Note that the subscript $\mu$ on $C_\mu(\bm X)$ indicates that we are considering the ``space'' (actually, \textit{set}) of possible $\bm \mu$ as opposed to the space $C_\theta(\bm X)$ of possible $\bm \theta$, which we denoted in Unit 1 simply as $C(\bm X)$. For linear models, it is the case that $C_\mu(\bm X) = C_\theta(\bm X)$, but in general, these two are different. Note that $C_\mu(\bm X)$ in general is a manifold as opposed to a linear subspace of $\mathbb R^n$, while $C_\theta(\bm X)$ is always a linear subspace.
 
 \paragraph{Log-concavity of GLM likelihood.} Unlike linear regression, in general GLMs the function $\bm \mu(\bm{\beta})$ is nonlinear. Therefore, there is in general no closed-form solution to the GLM normal equations~\eqref{eq:glm-normal-equations}. We must instead iteratively compute the maximum likelihood estimate $\bm{\widehat\beta}$. Before talking about the computation of the MLE $\bm{\widehat\beta}$, we state the important fact that $\log \mathcal L(\bm \beta)$ is a concave function of $\bm \beta$, which implies that this function is ``easy to optimize'', i.e. has no local maxima.
 
@@ -216,7 +216,7 @@ parallel to the columns of $\bm X$. Note that the subscript $\mu$ on $C_\mu(\bm 
 The function $\log \mathcal L(\bm \beta)$ defined in~\eqref{eq:glm-log-likelihood} is concave in $\bm \beta$.
 \end{proposition}
 \begin{proof}
-We claim it suffices to show that $\psi$ is a convex function. Indeed, then $\log \mathcal L(\bm \beta)$ would be the sum of a linear function of $\bm \beta$ and the composition of a concave function with a linear function. To verify that $\psi$ is convex, it suffices to recall that $\ddot \psi(\eta) = \text{Var}_\eta[y] \geq 0$.
+We claim it suffices to show that $\psi$ is a convex function. Indeed, then $\log \mathcal L(\bm \beta)$ would be the sum of a linear function of $\bm \beta$ and the composition of a concave function with a linear function. To verify that $\psi$ is convex, it suffices to recall that $\ddot \psi(\theta) = \text{Var}_\theta[y] \geq 0$.
 \end{proof}
 \noindent Proposition~\eqref{prop:log-concavity} gives us confidence that an iterative algorithm will converge to the global maximum of the likelihood. We present such an iterative algorithm next.
 
@@ -266,9 +266,61 @@ The regression of the \textit{adjusted response variable} $\bm z^{(t)}$ on $\bm 
 \end{equation}
 which we define as our next iterate. It's easy to verify that the IRLS iteration~\eqref{eq:IRLS-iteration} is equivalent to the Newton-Raphson iteration~\eqref{eq:NR-iteration}.
 
+\paragraph{Deviance (definition).}
+
+Suppose that
+\begin{equation}
+y_i \overset{\text{ind}}\sim f_{\theta_i}
+\end{equation}
+for some vector $\bm \theta \in \mathbb R^n$. Then, the log likelihood, expressed as a function of $\bm \mu \in \mathbb R^n$, is
+\begin{equation}
+L(\bm y; \bm \mu) \equiv \sum_{i = 1}^n{\theta_i y_i - \psi(\theta_i)} + \sum_{i = 1}^n \log h(y_i) = \sum_{i = 1}^n {g(\mu_i)y_i - \psi(g(\mu_i))} + \sum_{i = 1}^n \log h(y_i).
+\end{equation}
+When we fit a GLM, we choose
+\begin{equation}
+\bm{\widehat \beta} = \underset{\bm \beta}{\arg \max}\ L(\bm y; \bm \mu(\bm \beta)) \quad \Longleftrightarrow \quad \bm{\widehat \mu} = \underset{\bm \mu \in C_\mu(\bm X)}{\arg \max}\ L(\bm y; \bm \mu).
+\end{equation}
+Thus a GLM can be viewed as a constrained optimization problem over $\bm{\mu} \in C_\mu(\bm X) \subset \mathbb R^n$. What if we were to maximize $L(\bm y; \bm \mu)$ over all $\bm \mu \in \mathbb R^d$? It is easy to see that the $\bm \mu$ we would obtain is $\bm \mu = \bm y$. This model is called the \textit{saturated model}. Inspired by this fact, we define the \textit{deviance} statistic 
+\begin{equation}
+D(\bm y; \bm{\widehat \mu}) \equiv 2(L(\bm y; \bm y) - L(\bm y; \bm{\widehat \mu})) = 2\left(\max_{\bm \mu \in \mathbb R^d} L(\bm y; \bm \mu) - \max_{\bm \mu \in C_{\mu}(\bm X)}L(\bm y; \bm \mu)\right).
+\end{equation}
+We can view $D(\bm y; \bm{\widehat \mu}) \geq 0$ as a measure of the \textit{lack of fit} of a GLM. We could in principle define the deviance for any pair $(\bm y, \bm \mu)$ via
+\begin{equation}
+D(\bm y; \bm \mu) \equiv 2(L(\bm y; \bm y) - L(\bm y; \bm{\mu})) = 2\left(\sum_{i = 1}^n (g(y_i)-g(\mu_i))y_i - (\psi(g(y_i)) - \psi(g(\mu_i)))\right).
+\end{equation}
+Then, it is clear that maximizing the likelihood is equivalent to minimizing the deviance:
+\begin{equation}
+\bm {\widehat \mu} = \underset{\bm \mu \in C_\mu(\bm X)}{\arg \max}\ L(\bm y; \bm \mu) = \underset{\bm \mu \in C_\mu(\bm X)}{\arg \min}\ D(\bm y; \bm \mu).
+\end{equation}
+
+\paragraph{Deviance (examples).} 
+
+Let's first compute the deviance for $\bm y \sim N(\bm \mu, \bm I)$. We have $L(\bm y, \bm \mu) = -\frac{1}{2}\|\bm y - \bm \mu\|^2 - \frac{n}{2}\log 2\mu$ and $L(\bm y, \bm y) = - \frac{n}{2}\log 2\mu$, so 
+\begin{equation}
+D(\bm y; \bm \mu) = \|\bm y - \bm \mu\|^2,
+\end{equation}
+which we recognize as the familiar residual sum of squares (RSS). Therefore, the deviance is a generalization of the RSS. Let's compute the deviance for a Poisson regression, where $\psi(\theta) = e^{\theta}$ and $g(\mu) = \log(\mu)$. We have
+\begin{equation}
+D(\bm y; \bm \mu) = 2\left(\sum_{i = 1}^n (g(y_i)-g(\mu_i))y_i - (\psi(g(y_i)) - \psi(g(\mu_i)))\right) = 2\left(\sum_{i = 1}^n y_i \log \frac{y_i}{\mu_i} - (y_i - \mu_i)\right).
+\end{equation}
+Now, if $\bm{\widehat \mu}$ is the maximum likelihood mean vector for a Poisson regression including an intercept, the normal equations tell us that $\bm 1^T(\bm y - \bm{\widehat \mu}) = 0$, so 
+\begin{equation}
+D(\bm y; \bm{\widehat\mu}) = 2\sum_{i = 1}^n y_i \log \frac{y_i}{\widehat \mu_i}.
+\end{equation}
+This is the lack-of-fit measure that a Poisson regression seeks to minimize.
+
 \section{Inference in GLMs} \label{sec:glm-inf}
 
-\paragraph{Asymptotic normality and GLM standard errors.} Inference in GLMs is based on asymptotic likelihood theory. Using the Hessian computation~\eqref{eq:hessian}, we can compute the Fisher information matrix
+\paragraph{Inferential goals.} There are two types of inferential goals: hypothesis testing and confidence interval construction. Within hypothesis testing, we can test $H_0: \beta_j = 0$ (importance of a single coefficient), $H_0: \bm \beta_S = \bm 0$ for some $S \subset \{0,\dots,p-1\}$ (importance of a group of coefficients), or $H_0: \bm \theta = \bm X \bm \beta$ (goodness of fit). Within confidence intervals, we may want to construct intervals for the coefficients $\beta_j$ or for fitted values $\theta_i$ or $\mu_i$. 
+
+\paragraph{Inferential tools.}
+
+Inference in GLMs is based on asymptotic likelihood theory. Hypothesis tests (and, by inversion, confidence intervals) can be constructed in three asymptotically equivalent ways: Wald tests, likelihood ratio tests (LRT), and score tests. Despite their asymptotic equivalence, in finite samples some tests may be preferable to others. We will discuss the most commonly applied methods for each inferential task, though others are possible as well.
+
+\subsection{Wald tests and confidence intervals}
+
+\paragraph{Asymptotic normality and Wald standard errors.}  
+Wald tests and confidence intervals are based on the large-sample distribution of the MLE, with covariance matrix equal to the Fisher information. Using the Hessian computation~\eqref{eq:hessian}, we can compute the Fisher information matrix
 \begin{equation}
 \bm I(\bm \beta) = -\mathbb E_{\bm \beta}[\nabla^2_{\bm \beta}\log \mathcal L(\bm \beta)] = \bm X^T \bm W(\bm \beta) \bm X,
 \end{equation}
@@ -276,43 +328,312 @@ recalling the definition of $\bm W$ in equation~\eqref{eq:W-def}. Therefore, lik
 \begin{equation}
 \bm{\widehat \beta} \overset \cdot \sim N(\bm \beta, (\bm X^T \bm W(\bm \beta) \bm X)^{-1}).
 \end{equation}
-Using the plug-in variance estimate, we typically construct GLM standard errors based on
+Using the plug-in variance estimate, we can construct Wald standard errors based on
 \begin{equation}
 \widehat{\text{Var}}[\bm{\widehat \beta}] \equiv (\bm X^T \bm W(\bm{\widehat \beta}) \bm X)^{-1}.
 \end{equation}
 
-\paragraph{Confidence intervals.}
+\paragraph{Wald confidence intervals.}
 
-A confidence interval for each coordinate $\beta_j$ can be obtained via
+A Wald confidence interval for each coordinate $\beta_j$ can be obtained via
 \begin{equation}
-\text{CI}(\widehat \beta_j) \equiv \widehat \beta_j \pm 2 \cdot \text{SE}(\widehat \beta_j), \quad \text{where} \quad \text{SE}(\beta_j) \equiv \sqrt{(\bm X^T \bm W(\bm{\widehat \beta}) \bm X)^{-1}_{jj}}.
+\text{CI}(\widehat \beta_j) \equiv \widehat \beta_j \pm 2 \cdot \text{SE}(\widehat \beta_j), \quad \text{where} \quad \text{SE}(\widehat \beta_j) \equiv \sqrt{(\bm X^T \bm W(\bm{\widehat \beta}) \bm X)^{-1}_{jj}}.
 \label{eq:conf-int-beta}
 \end{equation}
-A confidence interval for $\eta_i = \bm x_{i*}^T \bm \beta$ can be obtained via
+A confidence interval for $\theta_i = \bm x_{i*}^T \bm \beta$ can be obtained via
 \begin{equation}
-\text{CI}(\widehat \eta_i) \equiv \bm x_{i*}^T \bm{\widehat\beta} \pm 2 \cdot \text{SE}(\eta_i), \quad \text{where} \quad \text{SE}(\widehat \eta_i) \equiv \sqrt{\bm x_{i*}^T(\bm X^T \bm W(\bm{\widehat \beta}) \bm X)^{-1}\bm x_{i*}}.
+\text{CI}(\widehat \theta_i) \equiv \bm x_{i*}^T \bm{\widehat\beta} \pm 2 \cdot \text{SE}(\theta_i), \quad \text{where} \quad \text{SE}(\widehat \theta_i) \equiv \sqrt{\bm x_{i*}^T(\bm X^T \bm W(\bm{\widehat \beta}) \bm X)^{-1}\bm x_{i*}}.
 \end{equation}
-A confidence interval for $\mu_i \equiv \mathbb E_{\bm \beta}[y_i] = \dot \psi(\eta_i)$ can be obtained by applying the strictly increasing function $\dot \psi$ to the endpoints of the confidence interval for $\eta_i$. Note that the resulting confidence interval may be asymmetric.
+A confidence interval for $\mu_i \equiv \mathbb E_{\bm \beta}[y_i] = \dot \psi(\theta_i)$ can be obtained by applying the strictly increasing function $\dot \psi$ to the endpoints of the confidence interval for $\theta_i$. Note that the resulting confidence interval may be asymmetric.
 
-\paragraph{Testing a single coordinate.}
+\paragraph{Wald test for a single coefficient.}
 
 We can invert the confidence interval~\eqref{eq:conf-int-beta} to get a test of the hypothesis $H_0: \beta_j = \beta_j^0$ for any $\beta_j^0 \in \mathbb R$:
 \begin{equation}
-\phi(\bm X, \bm y) = \mathbbm 1(|z(\bm X, \bm y)| > z_{1-\alpha/2}), \quad \text{where} \quad z(\bm X, \bm y) \equiv \frac{\widehat \beta_j}{\text{SE}(\widehat \beta_j)}.
+\phi(\bm X, \bm y) = \mathbbm 1(|z(\bm X, \bm y)| > z_{1-\alpha/2}), \quad \text{where} \quad z(\bm X, \bm y) \equiv \frac{\widehat \beta_j-\beta_j^0}{\text{SE}(\widehat \beta_j)}.
 \end{equation}
 This is the analog of the $t$-test for a linear regression.
 
-\paragraph{Testing multiple coordinates.}
+\subsection{Likelihood ratio tests and confidence intervals}
 
-Likelihood ratio test, deviances, goodness of fit testing. (TBD)
+\paragraph{Testing one or more coefficients.}
 
-\section{Bells and whistles} \label{sec:bells-and-whistles}
+Suppose that $S \subset \{0, 1, \dots, p-1\}$ and we wish to test the null hypothesis $H_0: \bm \beta_S = \bm 0$. For linear regression, we used an $F$-test for this purpose. In Homework 2, we saw that an $F$-test is related to a likelihood ratio test. The likelihood ratio test can be defined for arbitrary GLMs, and is usually how we test multiple coordinates. To define the likelihood ratio test, let $\bm{\widehat\mu}_{\text{-}S} \in \mathcal R^n$ the maximum likelihood mean vector under the null hypothesis, and let $\bm{\widehat \mu}$ denote the maximum likelihood mean vector without restrictions on $\bm \beta$. Then, the likelihood ratio test statistic is 
+\begin{equation}
+T^{\text{LRT}} \equiv 2(L(\bm y; \bm{\widehat\mu})-L(\bm y; \bm{\widehat\mu}_{\text{-}S})),
+\end{equation}
+and 
+\begin{equation}
+\text{under } H_0, \quad T^{\text{LRT}} \overset d \rightarrow \chi^2_{|S|}.
+\end{equation}
+Note that the LRT test statistic can also be expressed as a difference in deviances:
+\begin{equation}
+T^{\text{LRT}} = D(\bm y; \bm{\widehat \mu}_{\text{-}S}) - D(\bm y; \bm{\widehat \mu}).
+\end{equation}
+We see the connection with the $F$-test, whose numerator is the difference in the RSSs of the partial and full models.
 
-\paragraph{Offsets.}
+\paragraph{LRT-based confidence intervals.}
 
-\paragraph{Exponential dispersion families.}
+Sometimes, Wald confidence intervals do not work very well in finite samples, e.g. if $\bm{\widehat \beta} \rightarrow \infty$. In these cases, the LRT can be inverted to get more reliable confidence intervals, though this is less straightforward conceptually and computationally.
 
-\paragraph{Non-canonical links.}
+\paragraph{Goodness of fit tests.}
 
+In some cases, we want to compare a GLM model to a \textit{saturated model}. In this case, we can use a likelihood ratio test similar to that applied to test multiple coefficients. It turns out that $D(\bm y; \bm{\widehat \mu})$ is exactly the likelihood ratio statistic we want. Under \textit{small dispersion asymptotics}, we can expect it to have a $\chi^2_{n-p}$ distribution under the null.
+
+\subsection{Score tests} \label{sec:score-tests-1}
+
+\paragraph{Goodness of fit tests.}
+
+Score tests are primarily used as alternatives to likelihood ratio tests for testing goodness of fit in GLMs. Score tests are based on the fact that
+\begin{equation}
+\text{under } H_0, \quad \nabla_{\theta}\log \mathcal L(\bm{\widehat\theta_0})I^{-1}(\bm{\widehat\theta_0})\nabla_{\theta}\log \mathcal L(\bm{\widehat \theta_0}) \rightarrow \chi^2_{n-p},
+\end{equation}
+where $\bm{\widehat \theta_0}$ is the maximum likelihood estimate under the null hypothesis. For GLMs, note that
+\begin{equation}
+\nabla_{\theta}\log \mathcal L(\bm \theta) = \bm y - \bm \mu_{\bm \theta} \quad \text{and} \quad I(\bm \theta) = \text{diag}(\ddot \psi(\bm \theta)).
+\end{equation}
+Therefore, we arrive at the statistic
+\begin{equation}
+X^2 \equiv \nabla_{\theta}\log \mathcal L(\bm X \bm{\widehat \beta})I^{-1}(\bm X \bm{\widehat \beta})\nabla_{\theta}\log \mathcal L(\bm X \bm{\widehat \beta}) = (\bm y - \bm{\widehat \mu})^T \bm W^{-1} (\bm y - \bm{\widehat \mu}) = \sum_{i = 1}^n \frac{(y_i - \widehat \mu_i)^2}{\text{var}(\widehat \mu_i)}.
+\end{equation}
+This is Pearson's famous chi-squared statistic, which he proposed in 1900. It was only pointed out that this is a score test many decades later.
+
+
+\section{Further generalizations}
+
+The definitions and theory of GLMs introduced in the previous sections were simplified in several ways for the sake of exposition. Here we discuss a more general definition of GLMs that accounts for (1) a dispersion parameter, (2) offsets, and (3) non-canonical links. These elements will be introduced below.
+
+\subsection{Exponential dispersion models (EDMs)}
+
+\paragraph{Definition.}
+
+An EDM is a generalization of exponential family models that includes a \textit{dispersion parameter}. An EDM $f_{\theta, \phi}$ is parameterized by a natural parameter $\theta \in \mathbb R$ and a dispersion parameter $\phi > 0$:
+\begin{equation}
+f_{\theta, \phi}(y) = \exp\left(\frac{\theta y - \psi(\theta)}{\phi}\right)h(y, \phi).
+\end{equation}
+Sometimes, we parameterize this distribution using its mean and dispersion, writing
+\begin{equation}
+y \sim \text{EDM}(\mu, \phi).
+\end{equation}
+
+\paragraph{Examples.}
+
+For example, the distribution $N(\mu, \sigma^2)$ falls into this class:
+\begin{equation}
+f(y) = \frac{1}{\sqrt{2\mu\sigma^2}}\exp\left(-\frac{1}{2\sigma^2}(y - \mu)^2\right) = \exp\left(\frac{\mu y - \frac{1}{2}\mu^2}{\sigma^2}\right)\cdot \frac{1}{\sqrt{2\mu\sigma^2}}\exp\left(-\frac{1}{2\sigma^2}y^2\right).
+\end{equation}
+Therefore, we have 
+\begin{equation}
+\theta = \mu; \quad \psi(\theta) = \frac{1}{2}\theta^2; \quad \phi = \sigma^2; \quad h(y, \phi) = \frac{1}{\sqrt{2\mu\sigma^2}}\exp\left(-\frac{1}{2\sigma^2}y^2\right).
+\end{equation}
+The Bernoulli and Poisson distributions are special cases with $\phi = 1$, and $\theta$ and $\psi(\theta)$ as derived before. Binomial proportions $y$ such that $my \sim \text{Bin}(m, \mu)$ also have EDM distributions:
+\begin{equation}
+f(y) = {m \choose my}\mu^{my}(1-\mu)^{m(1-y)} = \exp\left(m\left(y \log \frac{\mu}{1-\mu} + \log(1-\mu)\right)\right){m \choose my},
+\end{equation}
+so 
+\begin{equation}
+\theta = \log\frac{\mu}{1-\mu}; \quad \psi(\theta) = \frac{e^{\theta}}{1 + e^{\theta}}; \quad \phi = 1/m; \quad h(y, \phi) = {m \choose my}.
+\end{equation}
+Many other examples fall into this class, including the negative binomial, gamma, and inverse-Gaussian distributions. 
+
+\paragraph{Mean and variance.}
+
+We can employ similar tricks as before to derive the mean and variance of an EDM:
+\begin{equation}
+\mu = \mathbb E_\theta[y] = \dot \psi(\theta); \quad \text{Var}_{\theta}[y] = \phi \cdot \ddot \psi(\theta).
+\end{equation}
+There are the same relationships we found before, except the variance function has an extra factor of $\phi$.
+
+\subsection{GLMs based on EDMs}
+
+\paragraph{Definition.}
+
+We define a GLM based on an EDM as follows:
+\begin{equation}
+y_i \overset{\text{ind}} \sim \text{EDM}(\mu_i, \phi/w_i), \quad \eta_i \equiv g(\mu_i) = o_i + \bm x^T_{i*}\bm \beta.
+\end{equation}
+Here, $w_i$ are known \textit{observation weights}, $g$ is the \textit{link function}, $\eta_i$ is the \textit{linear predictor}, and $o_i$ are \textit{offsets} (known terms contributing additively to the linear predictor). The parameters $\bm \beta$ are unknown, and $\phi$ might or might not be known. For example, in Poisson regression $\phi$ is known to be 1 but in linear regression $\phi = \sigma^2$ is unknown. For example, consider logistic regression with \textit{grouped data}:
+\begin{equation}
+n_i y_i \sim \text{Bin}(n_i, \mu_i); \quad \eta_i = \log \frac{\mu_i}{1-\mu_i} = o_i + \bm x^T_{i*}\bm \beta.
+\end{equation}
+Here, $\phi = 1$ and $w_i = n_i$. 
+
+\paragraph{Deviance.}
+
+The log-likelihood of a GLM is
+\begin{equation}
+\log \mathcal L(\bm \beta) = \sum_{i = 1}^n \frac{\theta_i y_i - \psi(\theta_i)}{\phi/w_i} + \sum_{i = 1}^n \log h(y_i, \phi/w_i).
+\end{equation}
+Expressing this in terms of $\bm \mu$, we have
+\begin{equation}
+L(\bm y; \bm \mu) = \sum_{i = 1}^n \frac{\dot \psi^{-1}(\mu_i) y_i - \psi(\dot \psi^{-1}(\mu_i))}{\phi/w_i} + \sum_{i = 1}^n \log h(y_i, \phi/w_i).
+\end{equation}
+We define the deviance $D(\bm y; \bm \mu)$ via
+\begin{equation}
+2(L(\bm y; \bm y)-L(\bm y; \bm \mu)) = \frac{1}{\phi}\sum_{i = 1}^n w_i\left((\dot \psi^{-1}(y_i)-\dot \psi^{-1}(\mu_i))y_i - (\psi(\dot \psi^{-1}(y_i)) - \psi(\dot \psi^{-1}(\mu_i)))\right) \equiv \frac{1}{\phi}D(\bm y; \bm \mu).
+\end{equation}
+
+\paragraph{Estimation of $\bm \beta$.}
+
+Taking a gradient in $\bm \beta$ using the chain rule, we obtain:
+\begin{equation}
+\frac{\partial \log \mathcal L(\bm \beta)}{\partial \bm \beta} = \frac{\partial \log \mathcal L(\bm \beta)}{\partial \bm \theta}\frac{\partial \bm \theta}{\partial \bm \mu} \frac{\partial \bm \mu}{\partial \bm \eta}\frac{\partial \bm \eta}{\partial \bm \beta} =  (\bm y - \bm \mu)^T \text{diag}(\phi/w_i)^{-1} \cdot \text{diag}(\ddot \psi(\theta_i))^{-1} \cdot \text{diag}\left(\frac{\partial\mu_i}{\partial \eta_i}\right) \cdot \bm X.
+\end{equation}
+Transposing and setting to zero, we get the normal equations
+\begin{equation}
+0 = \left(\frac{\partial \log \mathcal L(\bm \beta)}{\partial \bm \beta}\right)^T = \bm X^T \text{diag}\left(\frac{\partial\mu_i}{\partial \eta_i}\right) \text{diag}\left(\frac{\phi}{w_i}\ddot \psi( \theta_i)\right)^{-1} (\bm y - \bm \mu) \equiv \bm X^T \bm D \bm V^{-1}(\bm y - \bm \mu).
+\end{equation}
+Here, $\bm D = \text{diag}(\partial\mu_i/\partial \eta_i)$ and $\bm V = \text{diag}\left(\frac{\phi}{w_i}\ddot \psi(\bm \theta)\right) = \text{diag}(\text{Var}[y_i])$. We can solve these normal equations using a generalized version of iteratively reweighted least squares. Notably, the dispersion parameter $\phi$ cancels from the normal equations, so estimation of $\phi$ is not required to estimate $\bm \beta$.
+
+\paragraph{Estimation of $\phi$.}
+
+While sometimes the parameter $\phi$ is known (e.g. for binomial or Poisson GLMs), in other cases $\phi$ must be estimated (e.g. for the normal linear model). It turns out that we can generalize the linear model estimator $\widehat \sigma^2 = \frac{1}{n-p}\|\bm y - \bm{\widehat \mu}\|^2$ to
+\begin{equation}
+\widehat \phi = \frac{1}{n-p}D(\bm y; \bm{\widehat \mu}).
+\end{equation}
+This estimator performs decently well.
+
+\paragraph{Wald inference.} Let's first compute the Fisher information matrix:
+\begin{equation}
+\begin{split}
+\bm I(\bm \beta) &= \text{Var}\left[\left(\frac{\partial \log \mathcal L(\bm \beta)}{\partial \bm \beta}\right)^T\right] \\
+&= \text{Var}[\bm X^T \bm D \bm V^{-1}(\bm y - \bm \mu)] \\
+&= \bm X^T \bm D \bm V^{-1}\text{Var}[\bm y] \bm V^{-1} \bm D \bm X \\
+&= \bm X^T \bm D \bm V^{-1}\bm V \bm V^{-1} \bm D \bm X \\
+&= \bm X^T \bm D^2 \bm V^{-1} \bm X \\
+&\equiv \bm X^T \bm W \bm X.
+\end{split}
+\end{equation}
+Here, 
+\begin{equation}
+\bm W = \text{diag}\left(\frac{(\partial \mu_i/\partial \eta_i)^2}{\text{Var}[y_i]}\right).
+\end{equation}
+Therefore, once again we have
+\begin{equation}
+\bm{\widehat \beta} \overset \cdot \sim N(\bm \beta, (\bm X^T\bm W \bm X)^{-1}).
+\end{equation}
+Using the plug-in principle (including plugging in an estimator of $\phi$ if this parameter is unknown), we define
+\begin{equation}
+\widehat{\text{Var}}[\bm{\widehat \beta}] \equiv (\bm X^T\bm{\widehat W} \bm X)^{-1},
+\end{equation}
+based on which we can conduct Wald tests and construct Wald  confidence intervals. If a plug-in estimate is used for $\phi$, then in small samples $t_{n-p}$ is a better approximation of the null distribution than $N(0,1)$.
+
+\paragraph{Likelihood ratio test inference.}
+
+Suppose we want to test $H_0: \bm \beta_{S} = \bm 0$. Then, asymptotic theory tells us that under the null,
+\begin{equation}
+2(L(y; \bm{\widehat \mu})-L(y; \bm{\widehat \mu}_{\text{-}S})) = \frac{D(\bm y; \bm{\widehat \mu}_{\text{-}S})-D(\bm y; \bm{\widehat \mu})}{\phi} \rightarrow \chi^2_{|S|}.
+\end{equation}
+If $\phi$ is known, then we can construct a chi-square test directly based on the above asymptotic null distribution. If $\phi$ is unknown, we can estimate it as discussed above, and construct an $F$-statistic as follows:
+\begin{equation}
+F \equiv \frac{(D(\bm y; \bm{\widehat \mu}_{\text{-}S})-D(\bm y; \bm{\widehat \mu}))/|S|}{\widehat \phi} = \frac{(D(\bm y; \bm{\widehat \mu}_{\text{-}S})-D(\bm y; \bm{\widehat \mu}))/|S|}{D(\bm y; \bm{\widehat \mu})/(n-p)}.
+\end{equation}
+In normal linear model theory, the null distribution of $F$ is \textit{exactly} $F_{|S|, n-p}$. For GLMs, the null distribution of $F$ is \textit{approximately} $F_{|S|, n-p}$. For $\phi$ known, we can also construct a goodness of fit test:
+This includes comparing the GLM to a saturated model, to get a goodness of fit test via
+\begin{equation}
+\frac{D(\bm y; \bm{\widehat \mu})}{\phi} \rightarrow \chi^2_{n-p},
+\end{equation}
+assuming the saturated model can be estimated relatively well (small dispersion asymptotics).
+
+\paragraph{Score test inference.}
+
+By the same exact logic as in Section~\ref{sec:score-tests-1}, we get that
+\begin{equation*}
+X^2 \equiv \nabla_{\theta}\log \mathcal L(\bm X \bm{\widehat \beta})I^{-1}(\bm X \bm{\widehat \beta})\nabla_{\theta}\log \mathcal L(\bm X \bm{\widehat \beta}) = (\bm y - \bm{\widehat \mu})^T \text{diag}(\ddot \psi(\bm \theta))^{-1} (\bm y - \bm{\widehat \mu}) = \sum_{i = 1}^n \frac{(y_i - \widehat \mu_i)^2}{\frac{1}{\phi}\text{var}(\widehat \mu_i)}.
+\end{equation*}
+the one difference being the extra factor of $\phi$. Under small-dispersion asymptotics, this test statistic has null distribution $\chi^2_{n-p}$.
+
+\section{R demo}
+
+Let's revisit the crime data from Homework 2, this time fitting a logistic regression to it.
+<<message = FALSE>>=
+# read crime data
+crime_data = read_tsv("../data/Statewide_crime.dat")
+
+# read and transform population data
+population_data = read_csv("../data/state-populations.csv")
+population_data = population_data %>%
+  filter(State != "Puerto Rico") %>% 
+  select(State, Pop) %>%
+  rename(state_name = State, state_pop = Pop)
+
+# collate state abbreviations
+state_abbreviations = tibble(state_name = state.name, 
+                             state_abbrev = state.abb) %>%
+  add_row(state_name = "District of Columbia", state_abbrev = "DC")
+
+# add CrimeRate to crime_data
+crime_data = crime_data %>%
+  mutate(STATE = ifelse(STATE == "IO", "IA", STATE)) %>%
+  rename(state_abbrev = STATE) %>%
+  filter(state_abbrev != "DC") %>%       # remove outlier
+  left_join(state_abbreviations, by = "state_abbrev") %>%
+  left_join(population_data, by = "state_name") %>%
+  mutate(CrimeRate = Violent/state_pop) %>%
+  select(state_abbrev, CrimeRate, Metro, HighSchool, Poverty, state_pop)
+
+crime_data
+@
+
+We can fit a GLM using the \verb|glm| command, specifying as additional arguments the observation weights as well as the exponential dispersion model. In this case, the weights are the state populations and the family is binomial:
+<<>>=
+glm_fit = glm(CrimeRate ~ Metro + HighSchool + Poverty, 
+              weights = state_pop,
+              family = "binomial",
+              data = crime_data)
+@
+
+We can print the summary table as usual:
+<<>>=
+summary(glm_fit)
+@
+Amazingly, everything is very significant! This is because the weights for each observation (the state populations) are very high, effectively making the sample size very high. 
+
+We can test individual coefficients or groups of coefficients using the likelihood ratio test, via \verb|anova|. For example, let's take a look at the p-value for \verb|Metro|:
+<<>>=
+glm_fit_partial = glm(CrimeRate ~ HighSchool + Poverty, 
+                      weights = state_pop,
+                      family = "binomial",
+                      data = crime_data)
+
+anova_fit = anova(glm_fit_partial, glm_fit, test = "LRT")
+anova_fit
+@
+We can manually carry out the LRT as a sanity check:
+<<>>=
+deviance_partial = deviance(glm_fit_partial)
+deviance_full = deviance(glm_fit)
+lrt_stat = deviance_partial - deviance_full
+p_value = pchisq(lrt_stat, df = 1, lower.tail = FALSE)
+tibble(lrt_stat, p_value)
+@
+
+We can get Wald confidence intervals for the coefficients using \verb|confint|:
+<<>>=
+confint(glm_fit)
+@
+Or for the fitted values on the log-odds (natural parameter) scale using \verb|predict|:
+<<>>=
+ci_log_odds = predict(glm_fit, 
+                      newdata = crime_data %>% 
+                        column_to_rownames(var = "state_abbrev"), 
+                      se.fit = TRUE) %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "state") %>%
+  as_tibble() %>%
+  select(state, fit, se.fit)
+ci_log_odds
+@
+Or for the fitted values on the probability scale by applying the logistic transformation to the endpoints of the above intervals:
+<<>>=
+logistic = function(x)(exp(x)/(1+exp(x)))
+ci_probability = ci_log_odds %>% 
+  mutate(lower = logistic(fit-2*se.fit),
+         upper = logistic(fit + 2*se.fit)) %>%
+  select(state, lower, upper)
+ci_probability
+@
+
+R code for goodness of fit testing will be provided in Unit 5.
 
 \end{document}
