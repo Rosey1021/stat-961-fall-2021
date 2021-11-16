@@ -168,15 +168,49 @@ Using the results in the previous paragraph, we can carry out Wald inference bas
 \begin{equation}
 \bm{\widehat \beta} \overset \cdot \sim N\left(\bm \beta, \left(\bm X^T\text{diag}(m_i \widehat \pi_i(1-\widehat \pi_i))\bm X\right)^{-1}\right).
 \end{equation}
-TBD: Hauck-Donner effect.
+This approximation holds for $\sum_{i = 1}^n m_i \rightarrow \infty$. Unfortunately, Wald inference in finite samples does not always perform very well. The Wald test above is known to be conservative due to the \textit{Hauck-Donner effect}. As an example, consider testing $H_0: \beta_0 = 0.5$ in the intercept-only model 
+\begin{equation}
+ny \sim \text{Bin}(n, \pi); \quad \text{logit}(\pi) = \beta_0.  
+\end{equation}
+The Wald test statistic is $z \equiv \widehat \beta/\text{SE} = \text{logit}(y)\sqrt{ny(1-y)}$. This test statistic actually tends to \textit{decrease} as $y \rightarrow 1$, since the standard error grows faster than the estimate itself. For example, take $n = 25$. Then, $z = 3.3$ for $n = 23/25$ but $z = 3.1$ for $n = 24/25$. So the test statistic becomes less significant as we go further away from the null!
+
+\paragraph{Perfect separability.}
+
+If we have a situation where a hyperplane in covariate space separates observations with $y_i = 0$ from those with $y_i = 1$, we have \textit{perfect separability}. It turns out that some of the maximum likelihood estimates are infinite in this case. The Wald test completely fails in this case, since it uses the parameter estimates as test statistics. 
 
 \paragraph{Likelihood ratio inference.}
 
+Let's first compute the deviance of a logistic regression model. We have
+\begin{equation}
+L(\bm y; \bm \pi) = \sum_{i = 1}^n m_i y_i \log \pi_i + m_i(1-y_i) \log(1-\pi_i),
+\end{equation}
+so
+\begin{equation}
+D(\bm y; \bm{\widehat\pi}) = 2(L(\bm y; \bm y) - L(\bm y; \bm{\widehat \pi})) = 2\sum_{i = 1}^n \left(m_i y_i \log \frac{y_i}{\widehat \pi_i} + m_i(1-y_i) \log\frac{1-y_i}{1-\widehat \pi_i}\right).
+\label{eq:logistic-deviance}
+\end{equation}
+Letting $\bm{\widehat \pi}_0$ and $\bm{\widehat \pi}_1$ be the MLEs from two nested models, we can then express the likelihood ratio statistic as 
+\begin{equation}
+T^{\text{LRT}} = 2(L(\bm y; \bm{\widehat \pi}_1) - L(\bm y; \bm{\widehat \pi}_0)) = 2\sum_{i = 1}^n \left(m_i y_i \log \frac{\widehat \pi_{i1}}{\widehat \pi_{i0}} + m_i(1-y_i) \log\frac{1-\widehat \pi_{i1}}{1-\widehat \pi_{i0}}\right).
+\end{equation}
+We can then construct a likelihood ratio test in the usual way. Likelihood ratio inference can give nontrivial conclusions in cases when Wald inference cannot, e.g. in the case of perfect separability. Indeed, suppose that 
+\begin{equation}
+m_i y_i \sim \text{Bin}(m_i, \pi_i), \quad \text{logit}(\pi_i) = \beta_0 + \beta_1 x_i, \quad i = 1,2.
+\end{equation}
+We would like to test $H_0: \beta_1 = 0$. Suppose that we observe $(x_1, y_1) = (0, 0)$, $(x_2, y_2) = (1, 1)$, giving us complete separability. Can we still get a meaningful test of $H_0$? We can write out the likelihood ratio test statistic, which is 
+\begin{equation*}
+D(\bm y; \bm{\widehat\pi}) = 2\left(m_1 \log\frac{1}{1-\frac{m_2}{m_1 + m_2}} + m_2 \log \frac{1}{\frac{m_2}{m_1 + m_2}}\right) = 2\left(m_1 \log\frac{m_1 + m_2}{m_1} + m_2 \log \frac{m_1 + m_2}{m_2}\right).
+\end{equation*}
+This is a number that we can compare to the $\chi^2_1$ distribution to get a $p$-value, as usual.
+
 \paragraph{Goodness of fit tests.}
 
-\paragraph{Fisher's exact test.}
+We can test goodness of fit in the grouped logistic regression model by comparing the deviance statistic~\eqref{eq:logistic-deviance} to the asymptotic null distribution $\chi^2_{n-p}$. We can alternatively use the score test, which gives us Pearson's $X^2$ statistic:
+\begin{equation}
+X^2 = \sum_{i = 1}^n \frac{(y_i - \widehat \pi_i)^2}{\widehat \pi_i(1-\widehat \pi_i)/m_i}.
+\end{equation}
 
-\paragraph{Perfect separability.}
+\paragraph{Fisher's exact test.}  
 
 \section{Poisson regression} \label{sec:poisson-regression}
 
