@@ -210,10 +210,104 @@ We can test goodness of fit in the grouped logistic regression model by comparin
 X^2 = \sum_{i = 1}^n \frac{(y_i - \widehat \pi_i)^2}{\widehat \pi_i(1-\widehat \pi_i)/m_i}.
 \end{equation}
 
-\paragraph{Fisher's exact test.}  
+\paragraph{Fisher's exact test.}
+
+As an alternative to asymptotic tests for logistic regression, in the case of $2 \times 2$ tables there is an \textit{exact} test of $H_0: \beta_1 = 0$. Suppose we have 
+\begin{equation}
+s_1 = m_1y_1 \sim \text{Bin}(m_1, \pi_1) \quad and \quad s_2 = m_2y_2 \sim \text{Bin}(m_2, \pi_2).
+\end{equation}
+The trick is to conduct inference \textit{conditional on} $s_1 + s_2$. Note that under $H_0: \pi_1 = \pi_2$, we have
+\begin{equation}
+\begin{split}
+\mathbb P[s_1 = t | s_1+s_2 = v] &= \mathbb P[s_1 = t | s_1 + s_2 = v] \\
+&= \frac{\mathbb P[s_1 = t, s_2 = v-t]}{\mathbb P[s_1 + s_2 = v]} \\
+&= \frac{{m_1 \choose t}\pi^{t}(1-\pi)^{m_1 - t}{m_2 \choose v-t}\pi^{v-t}(1-\pi)^{m_2 - (v-t)}}{{m_1 + m_2 \choose v}\pi^v (1-\pi)^{m_1 + m_2 - v}} \\
+&= \frac{{m_1 \choose t}{m_2 \choose v-t}}{{m_1 + m_2 \choose v}}.
+\end{split}
+\end{equation}
+Therefore, a finite-sample $p$-value to test $H_0: \pi_1 = \pi_2$ versus $H_1: \pi_1 > \pi_2$ is $\mathbb P[s_1 \geq t | s_1 + s_2]$, which can be computed exactly based on the formula above.
 
 \section{Poisson regression} \label{sec:poisson-regression}
 
+The Poisson regression model (with offsets) is
+\begin{equation}
+y_i \overset{\text{ind}}\sim \text{Poi}(\mu_i); \quad \log \mu_i = o_i + \bm x_{i*}^T \bm \beta.
+\label{eq:poisson-with-offsets}
+\end{equation}
+Because the log of the mean is linear in the predictors, Poisson regression models are often called \textit{loglinear models}. We have seen in Unit 4 how to carry out inference for this model based on the Wald, likelihood ratio, and score tests. Recall, for example, that the deviance of this model is
+\begin{equation}
+D(\bm y; \bm{\widehat \mu}) = \sum_{i = 1}^n y_i \log\frac{y_i}{\widehat \mu_i}.
+\end{equation}
+
+\subsection{Modeling rates}
+
+One cool feature of the Poisson model is that rates can be easily modeled with the help of offsets. Let's say that the count $y_i$ is collected over the course of a time interval of length $t_i$, or a spatial region with area $t_i$, or a population of size $t_i$, etc. Then, it is meaningful to model
+\begin{equation}
+y_i \overset{\text{ind}} \sim \text{Poi}(\pi_i t_i), \quad \log \pi_i = \bm x^T_{i*}\bm \beta,
+\end{equation}
+where $\pi_i$ represents the rate of events per day / per square mile / per capita, etc. In other words,
+\begin{equation}
+y_i \overset{\text{ind}} \sim \text{Poi}(\mu_i), \quad \log \mu_i = \log t_i + \bm x^T_{i*}\bm \beta,
+\end{equation}
+which is exactly equation~\eqref{eq:poisson-with-offsets} with offsets $o_i = \log t_i$. For example, in single cell RNA-sequencing, $y_i$ is the number of reads aligning to a gene in cell $i$ and $t_i$ is the total number of reads measured in the cell, a quantity called the \textit{sequencing depth}. We might use a Poisson regression model to carry out a \textit{differential expression analysis} between two cell types.
+
+\subsection{Relationship between Poisson and multinomial distributions}
+
+Suppose that $y_i \overset{\text{ind}}\sim \text{Poi}(\mu_i)$ for $i = 1, \dots, n$. Then,
+\begin{equation}
+\begin{split}
+\mathbb P\left[y_1 = m_1, \dots, y_n = m_n \left| \sum_{i}y_i = m\right.\right] &= \frac{\mathbb P[y_1 = m_1, \dots, y_n = m_n]}{\mathbb P[\sum_{i}y_i = m]} \\
+&= \frac{\prod_{i = 1}^n e^{-\mu_i}\frac{\mu_i^{y_i}}{y_i!}}{e^{-\sum_i \mu_i}\frac{(\sum_i \mu_i)^m}{m!}} \\
+&= {m \choose m_1, \dots, m_n}\prod_{i = 1}^n \pi_i^{y_i}; \quad \pi_i \equiv \frac{\mu_i}{\sum_{i' = 1}^n \mu_{i'}}.
+\end{split}
+\end{equation}
+We recognize the last expression as the probability mass function of the multinomial distribution with parameters $(\pi_1, \dots, \pi_n)$ summing to one. In words, the joint distribution of a set of independent Poisson distributions conditional on their sum is a multinomial distribution.
+
+\subsection{Poisson model for $2 \times 2$ contingency tables}
+
+Let's say that we have two binary random variables $x_1, x_2 \in \{0,1\}$ with joint distribution $\mathbb P(x_1 = j, x_2 = k) = \pi_{jk}$ for $j,k \in \{0,1\}$. We collect a total of $n$ samples from this joint distribution and summarize the counts in a $2 \times 2$ table, where $y_{jk}$ is the number of times we observed $(x_1, x_2) = (j,k)$. Our primary question is whether these two random variables are independent, i.e. $\pi_{jk} = \pi_{j+}\pi_{+k}$, where $\pi_{j+} = \mathbb P[x_1 = j] = \pi_{j1} + \pi_{j2}$ and $\pi_{+k} = \mathbb P[x_2 = k] = \pi_{1k} + \pi_{2k}$. Note that
+\begin{equation}
+(y_{00}, y_{01}, y_{10}, y_{11})|n \sim \text{Mult}(n, (\pi_{00}, \pi_{01}, \pi_{10}, \pi_{11})). 
+\end{equation}
+Now, suppose that $n \sim \text{Poi}(\mu)$. Then, 
+\begin{equation}
+(y_{00}, y_{01}, y_{10}, y_{11}) \sim \text{Poi}(\mu\pi_{00}) \times \text{Poi}(\mu \pi_{01}) \times \text{Poi}(\mu\pi_{10}) \times \text{Poi}(\mu\pi_{11}). 
+\end{equation}
+Let us rewrite $\mu \pi_{jk} = \mu \pi_{j+}\pi_{+k}\frac{\pi_{jk}}{\pi_{j+}\pi_{+k}}$, so that 
+\begin{equation}
+\log(\mu\pi_{jk}) = \log \mu + \log \pi_{j+} + \log \pi_{+k} + \log \frac{\pi_{jk}}{\pi_{j+}\pi_{+k}}.
+\end{equation}
+Let $i \in 1,2,3,4$ index the four pairs $(x_1, x_2) \in \{(0,0), (0,1), (1,0), (1,1)\}$, so that
+\begin{equation}
+y_i \overset{\text{ind}}\sim \text{Poi}(\mu_i); \quad \log \mu_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \beta_{12}x_{i1} x_{i2}, \quad i = 1, \dots, 4,
+\end{equation}
+where
+\begin{equation}
+\beta_0 = \log \mu; \quad \beta_1 = \log \frac{\pi_{1+}}{\pi_{0+}}; \quad \beta_2 = \log \frac{\pi_{+1}}{\pi_{+0}}; \quad \beta_{12} = \frac{\pi_{11}\pi_{00}}{\pi_{10}\pi_{01}}.
+\end{equation}
+Note that the independence hypothesis $H_0: \pi_{ij} = \pi_{i+}\pi_{+j}$ reduces to the hypothesis $H_0: \beta_{12} = 0$. So the presence of an interaction in the Poisson regression is equivalent to a lack of independence between $x_1$ and $x_2$. We can therefore test the independence hypothesis using our standard tools for Poisson regression. For example, we can use the Pearson $X^2$ goodness of fit test. To apply this test, we must find the fitted means under the null hypothesis. The normal equations give
+\begin{equation}
+\widehat \mu = y_{++}; \quad \widehat \mu \widehat \pi_{j+} = y_{j+}; \quad \widehat \mu \widehat \pi_{+k} = y_{+k},
+\end{equation}
+so 
+\begin{equation}
+\widehat \mu_{jk} = \widehat \mu \widehat \pi_{j+}\widehat \pi_{+k} = y_{++}\frac{y_{j+}}{y_{++}}\frac{y_{+k}}{y_{++}} = \frac{y_{j+}y_{+k}}{y_{++}}. 
+\end{equation}
+Hence, we have
+\begin{equation}
+X^2 = \sum_{j,k = 0}^1 \frac{(y_{jk} - \widehat \mu_{jk})^2}{\widehat \mu_{jk}}.
+\end{equation}
+
+\subsection{Equivalence among Poisson and multinomial regressions}
+
+TBD.
+
+\subsection{Poisson models for $I \times J$ contingency tables}
+
+TBD.
+
 \section{Negative binomial regression} \label{sec:nb-regression}
+
+TBD.
 
 \end{document}
