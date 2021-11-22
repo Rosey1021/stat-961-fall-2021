@@ -26,7 +26,7 @@
 %==============================================================================
 % Enter name and homework title here
 %==============================================================================
-\author{Name}
+\author{Sam Rosenberg}
 \title{STAT 961: Homework 4}
 \date{Due Friday, November 19 at 11:59pm}
 
@@ -76,6 +76,39 @@ innerbottommargin=4pt}
 % \newenvironment{prob}{\begin{mdframed}\begin{problem}\hspace{0pt}}{\end{problem}\end{mdframed}}
 \newenvironment{prob}{\clearpage \begin{problem}\hspace{0pt}}{\end{problem}}
 \newenvironment{sol}{\begin{solution}\hspace{0pt}}{\end{solution}}
+
+%==============================================================================
+% New commands
+%==============================================================================
+
+\newcommand{\bbetahatmle}{\widehat{\bm{\beta}}^{\text{MLE}}}
+\newcommand{\betahatmle}{\widehat{\beta}^{\text{MLE}}}
+\newcommand{\muhatmle}{\widehat{\mu}^{\text{MLE}}}
+\newcommand{\bmuhatmle}{\widehat{\bm{\mu}}^{\text{MLE}}}
+\newcommand{\bbetahatconst}{\widehat{\bm{\beta}}^{\text{const}}}
+\newcommand{\betahatconst}{\widehat{\beta}_{0}^{\text{const}}}
+\newcommand{\muhatconst}{\widehat{\mu}^{\text{const}}}
+\newcommand{\bmuhatconst}{\widehat{\bm{\mu}}^{\text{const}}}
+\newcommand{\epsilonhat}{\widehat{\bm{\epsilon}}}
+
+\newcommand{\Var}{\text{Var}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Tr}{\text{Tr}}
+\newcommand{\diag}{\text{diag}}
+\newcommand{\id}{\bm{I}_n}
+
+\newcommand{\CI}{\text{CI}}
+\newcommand{\SE}{\text{SE}}
+\newcommand{\LRT}{\text{LRT}}
+\newcommand{\R}{\mathbb{R}}
+
+\newcommand{\bbeta}{\bm{\beta}}
+\newcommand{\bW}{\bm{W}}
+\newcommand{\bx}{\bm{x}}
+\newcommand{\bX}{\bm{X}}
+\newcommand{\by}{\bm{y}}
+\newcommand{\bmu}{\bm{\mu}}
+\newcommand{\bzero}{\bm{0}}
 
 %==============================================================================
 % set knitr options
@@ -162,6 +195,143 @@ where $x_i \in \{0,1\}$ is an indicator for your academic inbox. Your goal is to
 
 \begin{sol}
 
+\begin{enumerate}
+\item[(a)] We know that the unrestricted MLE $\bbetahatmle = \begin{pmatrix} \betahatmle_0 \\ \betahatmle_1 \end{pmatrix}$ solves $\bX^T[\by - \bmu(\bbetahatmle)] = \bzero$. Here, we have that
+\[\bX = \begin{pmatrix} 1 & x_1 \\ 1 & x_2 \end{pmatrix} = \begin{pmatrix} 1 & 1 \\ 1 & 0 \end{pmatrix}, \ \by = \begin{pmatrix} y_1 \\ y_2 \end{pmatrix}, \ \mu_i = \exp[\bx_{i*}^T \bbetahatmle].\]
+So,
+\begin{align*}
+  \bzero &= \bX^T[\by - \bmu(\bbetahatmle)] \\
+  &= \begin{pmatrix} 1 & 1 \\ 1 & 0 \end{pmatrix} \bigg[\begin{pmatrix} y_1 \\ y_2 \end{pmatrix} - \begin{pmatrix} \exp[\betahatmle_0 + \betahatmle_1] \\ \exp[\betahatmle_0] \end{pmatrix}\bigg] \\
+  &= \begin{pmatrix} 1 & 1 \\ 1 & 0 \end{pmatrix} \begin{pmatrix} y_1 - \exp[\betahatmle_0 + \betahatmle_1] \\ y_2 - \exp[\betahatmle_0] \end{pmatrix} \\
+  &= \begin{pmatrix} 1 & 1 \\ 1 & 0 \end{pmatrix} \begin{pmatrix} y_1' \\ y_2' \end{pmatrix} \\
+  &= \begin{pmatrix} y_1' + y_2' \\ y_1' \end{pmatrix}.
+\end{align*}
+Then we must have $0 = y_1' = y_2'$. 
+
+As a result, $\log y_i = \betahatmle_0 + \betahatmle_1 x_i$ and $\betahatmle_1 = \log y_1 - \log y_2 = \log(y_1/y_2)$. 
+
+Finally, we obtain that 
+\[\betahatmle_0 = \log y_2, \ \betahatmle_1 = \log y_1 - \log y_2 = \log(y_1/y_2).\]
+
+Then
+\begin{align*}
+  \muhatmle_i &= \exp[\bx_{i*}^T \bbetahatmle] \\
+  &= \exp[\betahatmle_0 + \betahatmle_1 x_i] \\
+  &= \exp[\log y_2 + x_i(\log y_1 - \log y_2)] \\
+  &= \exp[\log y_i] \\
+  &= y_i.
+\end{align*}
+
+Suppose we now restrict the model space such that $\beta_1$ is fixed at $\beta_1^0 \in \R$ and we wish to find the constrained maximum likelihood estimate $\bbetahatconst = (\betahatconst, \beta_1^0)$. Then our log-likelihood is
+\[\log \mathcal{L} (\bbeta) = \sum_{i=1}^2 [\bx_{i*}^T \bbeta y_i - \psi(\bx_{i*}^T \bbeta)] + \log h(y_i)\]
+and the partial derivative with respect to $\beta_0$ is 
+\begin{align*}
+  \frac{\partial}{\partial \beta_0} \log \mathcal{L}(\bbeta) &= \frac{\partial}{\partial \beta_0} \bigg[\sum_{i=1}^2 [\bx_{i*}^T \bbeta y_i - \psi(\bx_{i*}^T \bbeta)] + \log h(y_i)\bigg] \\
+  &= \sum_{i=1}^2 \frac{\partial}{\partial \beta_0} [(\beta_0 + \beta_1^0 x_i) y_i - \psi(\beta_0 + \beta_1^0 x_i)] \\
+  &= \sum_{i=1}^2 y_i - \dot{\psi}(\bx_{i*}^T \bbeta).
+\end{align*}
+
+We know from properties of GLMs that $\dot{\psi}(\bx_{i*}^T \bbeta) = \mu_i$, so
+\begin{align*}
+  \frac{\partial}{\partial \beta_0} \log \mathcal{L}(\bbeta) &= \sum_{i=1}^2 y_i - \dot{\psi}(\bx_{i*}^T \bbeta) \\
+  &= y_1 + y_2 - \sum_{i=1}^2 \exp[\bx_{i*}^T \bbeta] \\
+  &= y_1 + y_2 - \exp[\beta_0 + \beta_1^0] - \exp[\beta_0] \\
+  &= y_1 + y_2 - \exp[\beta_0][\exp[\beta_1^0] + 1]. 
+\end{align*}
+
+Then the constrained MLE $\betahatconst$ satisfies
+\[\frac{\partial}{\partial \beta_0} \log \mathcal{L}(\bbeta)|_{\betahatconst} = 0,\]
+so 
+\[\betahatconst = \log\bigg(\frac{y_1 + y_2}{\exp[\beta_1^0] + 1}\bigg).\]
+
+The corresponding means are
+\begin{align*}
+  \muhatconst_i &= \exp[\bx_{i*}^T \bbeta] \\
+  &= \exp[\betahatconst + \beta_1^0 x_i] \\
+  &= \exp[\betahatconst] \exp[\beta_1^0 x_i] \\
+  &= (y_1 + y_2) \bigg(\frac{\exp[\beta_1^0 x_i]}{\exp[\beta_1^0] + 1}\bigg)
+\end{align*}
+
+When $\beta_1^0 = 0$, we have $\muhatconst_1 = \muhatconst_2 = \frac{y_1 + y_2}{2}$. Intuitively, $\beta_1^0 = 0$ means that $\mu_i$ is independent of $x_i$, so our best guess for the (equal) mean of the two inboxes is their sample mean.
+
+\item[(b)] We know from large-sample asymptotics that $\bbetahatmle \dot{\sim} N(\bbeta, \widehat{\Var}[\bbetahatmle])$. Further, 
+\[\widehat{\Var}[\bbetahatmle]) = (\bX^T \bW(\bbetahatmle) \bX)^{-1} = \bigg[\begin{pmatrix} 1 & 1 \\ 1 & 0 \end{pmatrix} \bW(\bbetahatmle) \begin{pmatrix} 1 & 1 \\ 1 & 0 \end{pmatrix}\bigg]^{-1}.\]
+
+Recall that since we are dealing with a Poisson model, the mean of $y_i$ is equal to its variance. Thus,
+\begin{align*}
+  \bW(\bbetahatmle) &= \diag(\Var_{\bbetahatmle}[y_i]) \\
+  &= \diag(\muhatmle_i) \\
+  &= \begin{pmatrix} \muhatmle_1 & 0 \\ 0 & \muhatmle_2 \end{pmatrix} \\
+  &= \begin{pmatrix} y_1 & 0 \\ 0 & y_2 \end{pmatrix}.
+\end{align*}
+
+So, 
+\begin{align*}
+  \bX^T \bW(\bbetahatmle) \bX &= \begin{pmatrix} 1 & 1 \\ 1 & 0 \end{pmatrix} \bW(\bbetahatmle) \begin{pmatrix} 1 & 1 \\ 1 & 0 \end{pmatrix} \\
+  &= \begin{pmatrix} 1 & 1 \\ 1 & 0 \end{pmatrix} \begin{pmatrix} y_1 & 0 \\ 0 & y_2 \end{pmatrix} \begin{pmatrix} 1 & 1 \\ 1 & 0 \end{pmatrix} \\
+  &= \begin{pmatrix} y_1 & y_2 \\ y_1 & 0 \end{pmatrix} \begin{pmatrix} 1 & 1 \\ 1 & 0 \end{pmatrix} \\
+  &= \begin{pmatrix} y_1 + y_2 & y_1 \\ y_1 & y_1 \end{pmatrix}.
+\end{align*}
+
+This means that
+\begin{align*}
+  \widehat{\Var}[\bbetahatmle]) &= (\bX^T \bW(\bbetahatmle) \bX)^{-1} \\
+  &= \bigg[\begin{pmatrix} y_1 + y_2 & y_1 \\ y_1 & y_1 \end{pmatrix}\bigg]^{-1} \\
+  &= \frac{1}{y_1(y_1+y_2)-y_1^2} \begin{pmatrix} y_1 & -y_1 \\ -y_1 & y_1+y_2 \end{pmatrix} \\
+  &= \begin{pmatrix} y_2^{-1} & -y_2^{-1} \\ -y_2^{-1} & y_1^{-1} + y_2^{-1} \end{pmatrix}.
+\end{align*}
+
+As a result, the Wald CI for $\beta_1$ is  
+\begin{align*}
+  \CI(\beta_1) &= \betahatmle_1 \pm Q_{1-\alpha/2}[N(0,1)] \SE(\betahatmle_1) \\
+  &= \betahatmle_1 \pm Q_{1-\alpha/2}[N(0,1)] \sqrt{\widehat{\Var}[\bbetahatmle]_{22}} \\
+  &= \log(y_1/y_2) \pm Q_{1-\alpha/2}[N(0,1)] \sqrt{y_1^{-1} + y_2^{-1}}.
+\end{align*}
+
+Transforming the endpoints, we get a Wald CI for $\exp[\beta_1]$:
+\[\CI(\exp[\beta_1]) = \bigg(\frac{y_1}{y_2}\bigg) \exp\bigg[\pm Q_{1-\alpha/2}[N(0,1)] \sqrt{y_1^{-1} + y_2^{-1}}\bigg].\]
+
+
+\item[(c)] We have that the test statistic for the likelihood ratio test is given by a difference in deviances: $T^\LRT_{\beta_1^0} = D(y; \bmuhatconst) - D(y; \bmuhatmle) \dot{\sim} \chi_1^2$.
+
+Note that in a Poisson model with intercept, 
+\[D(y; \bmuhatmle) = 2 \bigg[\sum_{i=1}^2 y_i \log\bigg(\frac{y_i}{\muhatmle_i}\bigg) = 2 \bigg[\sum_{i=1}^2 y_i \log(1) \bigg] = 0.\]
+
+For the constrained Poisson, we have
+\begin{align*}
+  D(y; \bmuhatconst) &= 2\bigg[\sum_{i=1}^2 y_i \log\bigg(\frac{y_i}{\muhatconst_i}\bigg) - (y_i - \muhatconst_i)\bigg] \\
+  &= 2 \bigg[\sum_{i=1}^2 y_i \log\bigg(\frac{y_i}{\muhatconst_i}\bigg)\bigg] - 2\bigg[(y_1 + y_2) - (y_1 + y_2)\bigg(\frac{\exp[\beta_1^0] + 1}{\exp[\beta_1^0] + 1}\bigg)\bigg] \\
+  &= 2 \bigg[\sum_{i=1}^2 y_i \log\bigg(\frac{y_i}{\muhatconst_i}\bigg)\bigg] \\
+  &= 2 \bigg[\sum_{i=1}^2 y_i \log\bigg[\bigg(\frac{y_i}{y_1 + y_2}\bigg) \bigg(\frac{\exp[\beta_1^0] + 1}{\exp[\beta_1^0 x_i]}\bigg) \bigg]\bigg] \\
+  &= 2 \bigg[\sum_{i=1}^2 y_i[\log y_i - \log(y_1 + y_2) + \log[\exp\beta_1^0 + 1] - \beta_1^0 x_i] \bigg] \\
+  &= 2 [y_1 \log y_1 + y_2 \log y_2 - (y_1 + y_2) \log(y_1 + y_2) + (y_1 + y_2) \log(\exp[\beta_1^0] + 1) - \beta_1^0] \\.
+\end{align*}
+
+So, our confidence region for $\exp[\beta_1^0]$ is 
+\begin{align*} 
+  \CI(\exp[\beta_1^0] = \{\exp[\beta_1^0] : &2 [y_1 \log y_1 + y_2 \log y_2 - (y_1 + y_2) \log(y_1 + y_2) + \\ &(y_1 + y_2) \log(\exp[\beta_1^0] + 1) - \beta_1^0] < Q_{1-\alpha}[\chi_1^2]\}.
+\end{align*}
+
+
+\item[(d)] The null hypothesis is $H_0: \widehat{\theta}_0 = (\betahatconst, \beta_1^0)$ and the alternative hypothesis is $H_1: \widehat{\theta} = (\betahatmle_0, \betahatmle_1)$. Because we are using a Poisson model, we know that test statistic is 
+\begin{align*}
+  X^2 &= \sum_{i=1}^2 \frac{(y_i - \muhatconst_i)^2}{\muhatconst_i} \\
+  &= \sum_{i=1}^2 y_i^2/\muhatconst_i - 2y_i + \muhatconst_i \\
+  &= y_1^2/\muhatconst_1 + y_2^2/\muhatconst_2 - 2(y_1 + y_2) + \muhatconst_1 + \muhatconst_2 \\
+  &= y_1^2/\muhatconst_1 + y_2^2\muhatconst_2 - (y_1 + y_2) \\
+  &= y_1^2 \bigg(\frac{\exp[\beta_1^0] + 1}{\exp[\beta_1^0] (y_1+y_2)}\bigg) + y_2^2 \bigg(\frac{\exp[\beta_1^0] + 1}{(y_1+y_2)}\bigg) - (y_1 + y_2) \\
+  &= \frac{y_1^2(1 + \exp[-\beta_1^0]) + y_2^2(1 + \exp[\beta_1^0]) - (y_1 + y_2)^2}{y_1 + y_2} \\
+  &= \frac{y_1^2 \exp[-\beta_1^0] - 2 y_1 y_2 + y_2^2 \exp[\beta_1^0]}{y_1 + y_2} \\
+  &= \frac{(y_1 \exp[-\frac{1}{2} \beta_1^0] - y_2 \exp[\frac{1}{2} \beta_1^0])^2}{y_1 + y_2}.
+\end{align*}
+
+So, our confidence region is defined by
+\begin{align*}
+  \{\beta_1^0: X^2 < Q_{1-\alpha}[\chi_1^2]\} &= \bigg\{\beta_1^0: \frac{(y_1 \exp[-\frac{1}{2} \beta_1^0] - y_2 \exp[\frac{1}{2} \beta_1^0])^2}{y_1 + y_2} < Q_{1-\alpha}[\chi_1^2]\bigg\} \\
+  &= \bigg\{\beta_1^0: y_1 \exp\bigg[-\frac{1}{2} \beta_1^0\bigg] - y_2 \exp\bigg[\frac{1}{2} \beta_1^0\bigg] < \sqrt{(y_1 + y_2) Q_{1-\alpha}[\chi_1^2]}\bigg\}.
+\end{align*}
+\end{enumerate}
+
 \end{sol}
 
 \begin{prob} \label{prob:ci-simulation}\textbf{Comparing the three confidence interval constructions from Problem~\ref{prob:ci-calculation}.} \\
@@ -183,7 +353,246 @@ where $x_i \in \{0,1\}$ is an indicator for your academic inbox. Your goal is to
 \end{prob}
 
 \begin{sol}
+\begin{enumerate}
+  \item[(a)]
+<<>>=
+# Function to compute Wald CI
+get_ci_wald <- function(y_1, y_2, alpha){
+  # If undefined, return (-infinty, infinity)
+  if(y_1 == 0 || y_2 == 0){
+    ci <- c(-Inf, Inf)
+  }
+  # Else, return the defined Wald CI
+  else{
+    bnd1 <- (y_1/y_2) * exp(qnorm(1-alpha/2)*sqrt(1/y_1 + 1/y_2))
+    bnd2 <- (y_1/y_2) * exp(-qnorm(1-alpha/2)*sqrt(1/y_1 + 1/y_2))
+  
+    ci <- c(min(bnd1, bnd2), max(bnd1, bnd2))
+  }
+  
+  return(ci)
+}
 
+# Function to approximate LRT CI
+get_ci_lrt <- function(y_1, y_2, alpha){
+  # Sequence of betas to test 
+  test_beta <- seq(from=-5, to=5, by=0.01)
+  
+  # Calculate test statistic for each test beta
+  t_lrt <- 
+    2*(y_1 * (log(y_1) - log(y_1+y_2) + log(1 + exp(-test_beta))) + 
+       y_2 * (log(y_2) - log(y_1+y_2) + log(exp(test_beta) + 1)))
+  
+  # Get subset of betas that exceed quantile of null distribution
+  con_reg <- test_beta[t_lrt > qchisq(1-alpha, df=1)]
+  
+  # The MLE for beta
+  mle <- log(y_1/y_2)
+  
+  # Get min and max betas from confidence region as approximate CI bounds
+  ci <- 
+    c(max(con_reg[con_reg <= mle]), 
+      min(con_reg[con_reg >= mle]))
+  
+  # Return exponentiated CI
+  return(exp(ci))
+}
+
+# Function to approximate score test CI
+get_ci_score <- function(y_1, y_2, alpha){
+  # Sequence of betas to test 
+  test_beta <- seq(from=-5, to=5, by=0.01)
+  
+  # Calculate test statistic for each beta
+  X_2 <- (y_1*exp(-test_beta/2) - y_2*exp(test_beta/2))^2 / (y_1+y_2)
+  
+  # Get subset of betas that exceed quantile of null distribution
+  con_reg <- test_beta[X_2 > qchisq(1-alpha, df=1)]
+  
+  # The MLE for beta
+  mle <- log(y_1/y_2)
+  
+  # Get min and max betas from confidence region as approximate CI bounds
+  ci <- 
+    c(max(con_reg[con_reg <= mle]), 
+      min(con_reg[con_reg >= mle]))
+  
+  # Return exponentiated CI
+  return(exp(ci))
+}
+@
+  
+  % TODO
+  \item[(b)]
+<<>>=
+# Significance level
+alpha <- 0.05
+
+# Dataframe to hold all info
+ci_comparison <-
+  data.frame(y_1 = round(10^seq(from=1, to=5, by=0.5))) %>%
+  mutate(y_2 = y_1) %>%
+  mutate(
+    wald_lower = 0,
+    wald_upper = 0,
+    lrt_lower = 0,
+    lrt_upper = 0,
+    score_lower = 0,
+    score_upper = 0)
+
+# For each row, get and store CIs
+for(i in 1:nrow(ci_comparison)){
+#for(i in 1:1){
+  # Get CIs
+  wald_ci <- 
+    get_ci_wald(
+      ci_comparison$y_1[i], 
+      ci_comparison$y_2[i], 
+      alpha)
+  lrt_ci <- 
+    get_ci_lrt(
+      ci_comparison$y_1[i], 
+      ci_comparison$y_2[i], 
+      alpha)
+  score_ci <- 
+    get_ci_score(
+      ci_comparison$y_1[i], 
+      ci_comparison$y_2[i], 
+      alpha)
+  
+  
+  # Store results
+  ci_comparison[i, c("wald_lower", "wald_upper",
+                    "lrt_lower", "lrt_upper",
+                    "score_lower", "score_upper")] <-
+    c(wald_ci[1], wald_ci[2], 
+      lrt_ci[1], lrt_ci[2],
+      score_ci[1], score_ci[2])
+}
+
+ci_plt <-
+  ci_comparison %>%
+    ggplot() +
+      geom_point(aes(x=y_1, y=wald_lower, color="Wald CI")) +
+      geom_point(aes(x=y_1, y=wald_upper, color="Wald CI")) +
+      geom_point(aes(x=y_1, y=lrt_lower, color="LRT CI")) +
+      geom_point(aes(x=y_1, y=lrt_upper, color="LRT CI")) +
+      geom_point(aes(x=y_1, y=score_lower, color="Score CI")) +
+      geom_point(aes(x=y_1, y=score_upper, color="Score CI")) +
+      # MLE for e^(beta_1) is 1 for every pair since y_1 = y_2
+      geom_hline(aes(yintercept=1, color="MLE"), linetype="dashed") +
+      ylab("CI Bounds") +
+      xlab("$y_1$") 
+      
+@
+  
+In general, the widths get narrower as $y_1$ increases, converging around the MLE. We have that the Wald CI is generally narrower than the other two methods which have comparable widths.
+
+  % TODO
+  \item[(c)]
+<<>>=
+# Values of mu for simulation
+# Only using up to mu = 2.5 because exp(10^mu) "=" Inf for mu > 2.5
+mu <- 10^seq(from=1, to=2.5, by=0.5)
+  
+# Function to run simulation
+do_sim <- function(mu, n=5000, alpha=0.05){
+  # Vectors to store widths and coverage
+  wald_widths <- c()
+  lrt_widths <- c()
+  score_widths <- c()
+  
+  wald_coverages <- c()
+  lrt_coverages <- c()
+  score_coverages <- c()
+  
+  # Runs simulation n times
+  for(i in 1:n){
+    # Sample y_1, y_2
+    y_1 <- rpois(1, lambda=exp(mu))
+    y_2 <- rpois(1, lambda=exp(mu))
+    
+    # Get CIs
+    wald_ci <- 
+      get_ci_wald(y_1, y_2, alpha)
+    lrt_ci <- 
+      get_ci_lrt(y_1, y_2, alpha)
+    score_ci <- 
+      get_ci_score(y_1, y_2, alpha)
+  
+    # Get CI widths
+    wald_width <- wald_ci[2]-wald_ci[1]
+    lrt_width <- lrt_ci[2]-lrt_ci[1]
+    score_width <- score_ci[2]-score_ci[1]
+  
+    # True beta_1 = 0 since mu_1 = mu_2 and log is injective
+    beta_1 <- 0
+  
+    # Get CI coverage
+    wald_coverage <- (wald_ci[1] <= 0 & wald_ci[2] >= 0)
+    lrt_coverage <- (lrt_ci[1] <= 0 & wald_ci[2] >= 0)
+    score_coverage <- (score_ci[1] <= 0 & score_ci[2] >= 0) 
+    
+    # Only store results if CI finite
+    if(!any(is.infinite(wald_ci))){
+      wald_widths <- c(wald_widths, wald_width)
+      wald_coverages <- c(wald_coverages, wald_coverage)
+    }
+    if(!any(is.infinite(lrt_ci))){
+      lrt_widths <- c(lrt_widths, lrt_width)
+      lrt_coverages <- c(lrt_coverages, lrt_coverage)
+    }
+    if(!any(is.infinite(score_ci))){
+      score_widths <- c(score_widths, score_width)
+      score_coverages <- c(score_coverages, score_coverage)
+    }
+  }
+  
+  # Compute average widths
+  wald_avg_width <- mean(wald_widths)
+  lrt_avg_width <- mean(lrt_widths)
+  score_avg_width <- mean(score_widths)
+  
+  # Compute coverages
+  wald_coverage <- mean(wald_coverages)
+  lrt_coverage <- mean(lrt_coverages)
+  score_coverage <- mean(score_coverages)
+  
+  # Combine results in dataframe
+  results <- 
+    data.frame(
+      mu_1 = rep(mu, times=3),
+      mu_2 = rep(mu, times=3),
+      avg_width = c(wald_avg_width, lrt_avg_width, score_avg_width),
+      coverage = c(wald_coverage, lrt_coverage, score_coverage),
+      Method=c("Wald", "LRT", "Score"))
+}
+
+# Run simulation
+sim_results <- lapply(X=mu, FUN=do_sim)
+
+# Convert results to dataframe
+sim_df <- do.call(rbind, sim_results)
+
+# Coverage plot
+coverage_plt <-
+  sim_df %>%
+    ggplot(aes(x=mu_1, y=coverage, color=Method)) +
+    geom_point() +
+    ylab("CI coverage")
+
+# Width plot
+width_plt <-
+  sim_df %>%
+    ggplot(aes(x=mu_1, y=avg_width, color=Method)) +
+    geom_point() +
+    ylab("Average CI width")
+@
+  
+  
+  % TODO
+  \item[(d)]
+\end{enumerate}
 \end{sol}
 
 
@@ -213,8 +622,100 @@ print(blocks_data, n = 5)
 \end{prob}
 
 \begin{sol}
+\begin{enumerate}
+% TODO
+\item[(a)]
+% TODO: Add plot
+<<scatter plot>>=
+scatter_plt <-
+  blocks_data %>%
+    ggplot(aes(y=Number, x=Age)) +
+    geom_count() + 
+    ylim(0, ceiling(max(blocks_data$Number)/5)*5) +
+    ylab("Number of blocks") +
+    xlab("Child's age")
+@
 
+Note that the dependent variable of interest, the number of blocks, is a nonnegative integer. As a result, it makes sense to model the number of blocks using either a Poisson or NBD distribution , as these have support on the nonnegative integers. For model parsimony, we propose using a Poisson distribution; i.e. if $y_i$ is the number of blocks used by the $i$-th child and $x_i$ is the corresponding child's age then
+\[y_i \stackrel{\text{ind}}{\sim} \text{Poi}(\mu_i); \ \log \mu_i = \beta_0 + \beta_1 x_i.\]
 
+% TODO
+\item[(b)]
+<<glm>>=
+# Fit Poisson regression
+glm_fit <- 
+  glm(Number ~ Age, family=poisson, data=blocks_data)
+@
+
+The fitted model is 
+\[y_i \stackrel{\text{ind}}{\sim} \text{Poi}(\mu_i); \ \log \mu_i = 1.3447 + 0.1415 x_i.\]
+
+% TODO: Add table
+<<>>=
+# Extract coefficient standard errors
+coeff_summary <- 
+  summary(glm_fit)$coefficients[, c("Estimate", "Std. Error")]
+
+wald_ci <-
+  confint.default(glm_fit)
+
+coeff_tbl <-
+  cbind(coeff_summary, wald_ci)
+@
+
+% TODO
+\item[(c)]
+<<wald test>>=
+wald_result <-
+  summary(glm_fit)$coefficients
+@
+
+% TODO: Add table for LRT
+<<lrt>>=
+# Get fit for model without age
+glm_fit_partial <-
+  glm(Number ~ 1, family=poisson, data=blocks_data)
+
+# Do LRT
+anova_fit <-
+  anova(glm_fit_partial, glm_fit, test="LRT")
+@
+
+Based on both the LRT and Wald test, we have that the age variable seems to be significant at the $\alpha = 0.01$ level, indicating that age does seem necessary to the model.
+
+% TODO
+\item[(d)]
+% TODO: Fix coloring
+<<fitted plot>>=
+blocks_fitted <-
+  predict(
+    glm_fit,
+    newdata = blocks_data %>% select(Number, Age),
+    se.fit=TRUE,
+    type="response") %>%
+  as.data.frame() %>%
+  as_tibble() %>%
+  select(-residual.scale) %>%
+  rename(Fitted = fit) %>%
+  mutate(
+    Number = blocks_data$Number,
+    Age= blocks_data$Age,
+    `CI lower` = Fitted-qnorm(1-0.05/2) * se.fit,
+    `CI upper` = Fitted+qnorm(1-0.05/2) * se.fit)
+
+scatter_plt_ext <-
+  blocks_fitted %>%
+    ggplot() +
+    geom_count(aes(x=Age, y=Number)) + 
+    geom_smooth(method="lm", aes(x=Age, y=Number, color="$E[x_{i*}^T \\beta]$"), formula=(y ~ exp(coeff_tbl[1,1] + coeff_tbl[1,2] * x)), se=FALSE) +
+    geom_ribbon(aes(x=Age, y=Fitted, ymin=`CI lower`, ymax=`CI upper`, color="95% CB"), alpha = 0.2) +
+    ylim(min(blocks_fitted$Number)-1, max(blocks_fitted$Number)+1) +
+    ylab("Number of blocks") +
+    xlab("Child's age")
+
+@
+
+\end{enumerate}
 \end{sol}
 
 

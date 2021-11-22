@@ -146,6 +146,11 @@ if(!dir.exists("figures")){
 The \texttt{tidyverse} paradigm for data manipulation (\texttt{dplyr}) and plotting (\texttt{ggplot2}) are strongly encouraged, but points will not be deducted for using base \texttt{R}. 
 <<message=FALSE, cache = FALSE>>=
 library(tidyverse)
+library(MASS)
+library(latex2exp)
+library(sandwich)
+library(lmtest)
+library(broom)
 @
 
 \paragraph{Grading.} Each sub-part of each problem will be worth 3 points: 0 points for no solution or completely wrong solution; 1 point for some progress; 2 points for a mostly correct solution; 3 points for a complete and correct solution modulo small flaws. The presentation quality of the solution for each problem (as exemplified by the guidelines in Section 3 of the \href{https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/getting-started/preparing-reports.pdf}{preparing reports guide}) will be evaluated out of an additional 3 points.
@@ -256,15 +261,8 @@ Intuitively, as the absolute effect size of the omitted variable tends toward in
 
 Because ${}_{p}\gamma_{p-1}$ is the projection of $\bx_{*p}$ onto $C(\bX_{-p})$, we intuitively have that the exclusion of $\beta_p$ has no impact on our Type-I error when $x_{*p}$ is uncorrelated with (equivalently, is orthogonal to) $C(\bX_{-p})$. When ${}_{p}\gamma_{p-1} > 0$ and $\beta_p \rightarrow \infty$, we have that the mean of $t_{p-1}$ is shifted right towards $\infty$, so the Type-I error increases toward 1. Likewise when ${}_{p}\gamma_{p-1} < 0$ and $\beta_p \rightarrow \infty$, the mean of $t_{p-1}$ is shifted left toward $-\infty$ and so the Type-I error decreases toward 0.
 
-% TODO
 \item[(e)] 
 <<numerical sim, results='hide', warning=FALSE>>=
-### Package management
-library(pacman)
-p_load("MASS")
-p_load("latex2exp")
-
-
 ### Set simulation parameters
 # n: number of data points
 n <- 100
@@ -325,11 +323,15 @@ for(rho_sim in rho){
     # Get matrix for postulated model
     X_minusp <- X[, 1:p]
     
-    # Compute coefficient matrix for auxillary regression of x_{p} on X_{-p}
-    p_gamma <- solve(t(X_minusp) %*% X_minusp) %*% t(X_minusp) %*% X[, p+1] %*% beta_p_sim
+    ## Compute true bias based on 1(a)
+    # Bias vector is (X_{-p}^T X_{-p})^{-1} X_{-p}^T x_{*p} beta_p
+    bias_vector = 
+      solve(t(X_minusp) %*% X_minusp) %*% 
+      t(X_minusp) %*% 
+      X[, p+1] %*% 
+      beta_p_sim
     
-    # Extract x_{p-1} coefficient from auxillary regression
-    p_gamma_p_1 <- p_gamma[p]
+    bias_beta_p_1 <- bias_vector[p]
     
     
     # Total error from all draws of y
@@ -387,23 +389,12 @@ for(rho_sim in rho){
       
       # Compute actual Type-I error
       type_i_error <- 
-        pnorm(q = z_1_alpha - t_p_1/beta_hat_p_1 * p_gamma_p_1 * beta_p_sim, 
+        pnorm(q = z_1_alpha - t_p_1/beta_hat_p_1 * bias_beta_p_1 * beta_p_sim, 
               lower.tail=FALSE)
       
       # Add computed Type-I error to list
       type_i_errors <- c(type_i_errors, type_i_error)
     }
-    
-    
-    ## Compute true bias based on 1(a)
-    # Bias vector is (X_{-p}^T X_{-p})^{-1} X_{-p}^T x_{*p} beta_p
-    bias_vector = 
-      solve(t(X_minusp) %*% X_minusp) %*% 
-      t(X_minusp) %*% 
-      X[, p+1] %*% 
-      beta_p_sim
-    
-    bias_beta_p_1 <- bias_vector[p]
     
     
     # Compute simulated bias
@@ -537,7 +528,7 @@ print(covid_data, n = 3)
 \begin{sol}
 
 \item[(a)]
-<<2a>>=
+<<2a, cache=FALSE>>=
 # Create linear model
 lm_full <- 
   lm(case_fatality_rate ~ . - county - state, covid_data)
@@ -573,7 +564,7 @@ The proportion of variation in the response explained by the predictors is the $
 The details of the coefficients that are significant at $\alpha = 0.05$ after a multiple testing correction are shown in Table~\ref{tab:sig_feat_tbl}.
 
 \item[(b)]
-<<2b>>=
+<<2b, cache=FALSE>>=
 png("figures/resid_fitted_plt.png")
 plot(lm_full, which=1)
 dev.off()
@@ -602,7 +593,7 @@ There do not seem to be any point with unduly high Cook's distance in the plot o
 \end{figure}
 
 \item[(c)]
-<<2c plot>>=
+<<2c plot, cache=FALSE>>=
 # Extract standardized residuals
 std_res <- stdres(lm_full)
 
@@ -615,7 +606,7 @@ std_res_state_plt <-
       xlab("Standardized residuals")
 
 ggsave("figures/std_res_state_plt.png", std_res_state_plt,
-       width=12, height=8)
+       width=8, height=6)
 @
 
 Looking at the distribution of standardized residuals by state, the fact that different states have different widths of the whiskers for their respective plots suggests that the variance within each state; i.e. we may have a grouped correlation structure.
@@ -627,13 +618,7 @@ Looking at the distribution of standardized residuals by state, the fact that di
 \label{fig:std_res_state_plt}
 \end{figure}
 
-<<2c test>>=
-# Load sandwich package
-p_load("sandwich")
-
-# Load lmtest package
-p_load("lmtest")
-
+<<2c test, cache=FALSE>>=
 # Create a model that includes state fixed effect
 lm_w_state <-
   lm(case_fatality_rate ~ . - county, covid_data)
@@ -680,9 +665,7 @@ Note that the $p$-value from the robust F-test is extremely small, indicating th
 \item[(d)]
 To account for the effect of the state variable, we first perform robust $t$-tests with multiple testing corrections using LZ standard errors, with clusters defined by state and variable descriptions provided in the Appendix.
 
-<<2d analysis 1>>=
-library(broom)
-
+<<2d analysis 1, cache=FALSE>>=
 # Robust t-test using LZ standard errors, clustering by state
 robust_t_lz <- coeftest(lm_full, vcov.=lz_sigma_hat)
 
@@ -724,7 +707,7 @@ The results of the robust $t$-test from the first analysis are provided in Table
 
 Our second robust analysis will use HW standard errors obtained from the model that includes state as a predictor, then uses a robust $t$-test.
 
-<<2d analysis 2>>=
+<<2d analysis 2, cache=FALSE>>=
 # Get HW covariance estimate
 hw_sigma_hat <- vcovHC(lm_w_state)
 
@@ -772,7 +755,7 @@ The results of the robust $t$-test from the second analysis are provided in Tabl
 
 A benefit of (1) is the ability to (somewhat) account for geographical effects into account by assuming correlated errors within states. One negative part of approach (1) is that it cannot account for geographical correlations between adjacent counties in different states; here a moving blocks bootstrap would be more appropriate. On the flip side, a con of (2) is the fact that it assumes a consistent state fixed effect size for all counties in a given state, only allowing variability to occur from the socioeconomic covariates and uncorrelated errors. In the case of COVID however, this is not necessarily a bad thing as many intervention policies (e.g. lockdowns) were implemented at the state level and so were relatively consistent across all counties in a given state.
 
-<<2e>>=
+<<2e, cache=FALSE>>=
 # Get SEs from (a)
 nonrobust_t_se <-
   feat_summary %>%
@@ -810,14 +793,15 @@ se_inflation_hist <-
       geom_histogram(aes(x=`SE inflation factor`, fill=Method)) +
     ylab("Count")
 
-ggsave("figures/se_inflation_hist.png", se_inflation_hist)
+ggsave("figures/se_inflation_hist.png", se_inflation_hist,
+       height=4, width=5)
 @
 
 We plot the distribution across features of the factor by which SEs were increased from part (a) using the robust analysis. 
 
 \begin{figure}[h!]
 \centering
-\includegraphics[width = 1\textwidth]{figures/se_inflation_hist.png}
+\includegraphics[width = .6\textwidth]{figures/se_inflation_hist.png}
 \caption{Distribution of factor by which SEs were increased with robust analysis.}
 \label{fig:se_inflation_hist}
 \end{figure}
