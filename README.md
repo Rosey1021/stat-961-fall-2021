@@ -41,9 +41,9 @@ Thu, Oct 28 | 4. GLMs: General theory | Maximum likelihood estimation and IRLS |
 Tue, Nov 2 | 4. GLMs: General theory | Deviance and inference I | Agresti 4.2.4, 4.3.2, 4.4.1, 4.4.2 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=c2cd5706-6436-4879-a30f-adcf01697b19) | --
 Thu, Nov 4 | 4. GLMs: General theory | Inference II | Agresti 4.3.1, 4.3.5, 4.4.3, 4.4.4 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=8b164bb6-43df-427d-9d93-add40135f0f5)  | --
 Tue, Nov 9 | 4. GLMs: General theory | Inference in GLMs based on EDMs | Agresti Ch. 4.1-4.4 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=35d40a03-cd61-4890-a04e-add70177c070)  | --
-Thu, Nov 11 | 5. GLMs: Special cases | R demo for Unit 4, Logistic regression model | Agresti Ch. 5.2 | TBA | --
-Tue, Nov 16 | 5. GLMs: Special cases | Logistic regression inference | Agresti Ch. 5.3,5.5 | TBA | --
-Thu, Nov 18 | 5. GLMs: Special cases | Poisson regression  | Agresti Ch. 7.1, 7.2 | TBA | --
+Thu, Nov 11 | 5. GLMs: Special cases | R demo for Unit 4, Logistic regression model | Agresti Ch. 5.2 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=ace4bec3-9c89-4576-abcd-adda00f2f5c9) | --
+Tue, Nov 16 | 5. GLMs: Special cases | Logistic regression inference | Agresti Ch. 5.3,5.5 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=cd4eebea-a82f-46e9-94f6-adde014f23df) | --
+Thu, Nov 18 | 5. GLMs: Special cases | Poisson regression  | Agresti Ch. 7.1, 7.2 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=6042fca6-f849-4652-a2d4-adde0164d435) | --
 Friday, Nov 19 | -- | -- | -- | -- | [Homework 4](https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/homework/homework-4/homework-4.pdf) due at 11:59pm
 Tue, Nov 23 | 5. GLMs: Special cases | Negative binomial regression  | Agresti Ch. 7.3 | TBA | --
 Thu, Nov 25 | -- | Thanksgiving break | -- | -- | --
