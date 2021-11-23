@@ -265,46 +265,125 @@ We recognize the last expression as the probability mass function of the multino
 
 \subsection{Poisson model for $2 \times 2$ contingency tables}
 
-Let's say that we have two binary random variables $x_1, x_2 \in \{0,1\}$ with joint distribution $\mathbb P(x_1 = j, x_2 = k) = \pi_{jk}$ for $j,k \in \{0,1\}$. We collect a total of $n$ samples from this joint distribution and summarize the counts in a $2 \times 2$ table, where $y_{jk}$ is the number of times we observed $(x_1, x_2) = (j,k)$. Our primary question is whether these two random variables are independent, i.e. $\pi_{jk} = \pi_{j+}\pi_{+k}$, where $\pi_{j+} = \mathbb P[x_1 = j] = \pi_{j1} + \pi_{j2}$ and $\pi_{+k} = \mathbb P[x_2 = k] = \pi_{1k} + \pi_{2k}$. Note that
+Let's say that we have two binary random variables $x_1, x_2 \in \{0,1\}$ with joint distribution $\mathbb P(x_1 = j, x_2 = k) = \pi_{jk}$ for $j,k \in \{0,1\}$. We collect a total of $n$ samples from this joint distribution and summarize the counts in a $2 \times 2$ table, where $y_{jk}$ is the number of times we observed $(x_1, x_2) = (j,k)$, so that  
 \begin{equation}
 (y_{00}, y_{01}, y_{10}, y_{11})|n \sim \text{Mult}(n, (\pi_{00}, \pi_{01}, \pi_{10}, \pi_{11})). 
 \end{equation}
-Now, suppose that $n \sim \text{Poi}(\mu)$. Then, 
+Our primary question is whether these two random variables are independent, i.e. 
 \begin{equation}
-(y_{00}, y_{01}, y_{10}, y_{11}) \sim \text{Poi}(\mu\pi_{00}) \times \text{Poi}(\mu \pi_{01}) \times \text{Poi}(\mu\pi_{10}) \times \text{Poi}(\mu\pi_{11}). 
+\pi_{jk} = \pi_{j+}\pi_{+k}, \quad \text{where} \quad \pi_{j+} \equiv \mathbb P[x_1 = j] = \pi_{j1} + \pi_{j2}; \quad \pi_{+k} \equiv \mathbb P[x_2 = k] = \pi_{1k} + \pi_{2k}.
+\label{eq:null-product-formulation}
 \end{equation}
-Let us rewrite $\mu \pi_{jk} = \mu \pi_{j+}\pi_{+k}\frac{\pi_{jk}}{\pi_{j+}\pi_{+k}}$, so that 
+We can express this equivalently as
 \begin{equation}
-\log(\mu\pi_{jk}) = \log \mu + \log \pi_{j+} + \log \pi_{+k} + \log \frac{\pi_{jk}}{\pi_{j+}\pi_{+k}}.
+\pi_{00}(\pi_{00} + \pi_{01} + \pi_{10} + \pi_{11}) = \pi_{00} = \pi_{0+}\pi_{+0} = (\pi_{00} + \pi_{01})(\pi_{00} + \pi_{10}) \quad \Longleftrightarrow \quad \pi_{00}\pi_{11} = \pi_{01}\pi_{10}.
+\end{equation}
+In other words, we can express the independence hypothesis concisely as
+\begin{equation}
+H_0: \frac{\pi_{11}\pi_{00}}{\pi_{10}\pi_{01}} = 1.
+\label{eq:independence}
+\end{equation}
+Let's arbitrarily assume that, additionally, $n \sim \text{Poi}(\mu_{++})$. Then, 
+\begin{equation}
+(y_{00}, y_{01}, y_{10}, y_{11}) \sim \text{Poi}(\mu_{++}\pi_{00}) \times \text{Poi}(\mu_{++} \pi_{01}) \times \text{Poi}(\mu_{++}\pi_{10}) \times \text{Poi}(\mu_{++}\pi_{11}). 
 \end{equation}
 Let $i \in 1,2,3,4$ index the four pairs $(x_1, x_2) \in \{(0,0), (0,1), (1,0), (1,1)\}$, so that
 \begin{equation}
 y_i \overset{\text{ind}}\sim \text{Poi}(\mu_i); \quad \log \mu_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \beta_{12}x_{i1} x_{i2}, \quad i = 1, \dots, 4,
+\label{eq:2-by-2-Poisson-reg}
 \end{equation}
 where
 \begin{equation}
-\beta_0 = \log \mu; \quad \beta_1 = \log \frac{\pi_{1+}}{\pi_{0+}}; \quad \beta_2 = \log \frac{\pi_{+1}}{\pi_{+0}}; \quad \beta_{12} = \frac{\pi_{11}\pi_{00}}{\pi_{10}\pi_{01}}.
+\beta_0 = \log \mu_{++} + \log \pi_{00}; \quad \beta_1 = \log \frac{\pi_{10}}{\pi_{00}}; \quad \beta_2 = \log \frac{\pi_{01}}{\pi_{00}}; \quad \beta_{12} = \log\frac{\pi_{11}\pi_{00}}{\pi_{10}\pi_{01}}.
 \end{equation}
-Note that the independence hypothesis $H_0: \pi_{ij} = \pi_{i+}\pi_{+j}$ reduces to the hypothesis $H_0: \beta_{12} = 0$. So the presence of an interaction in the Poisson regression is equivalent to a lack of independence between $x_1$ and $x_2$. We can therefore test the independence hypothesis using our standard tools for Poisson regression. For example, we can use the Pearson $X^2$ goodness of fit test. To apply this test, we must find the fitted means under the null hypothesis. The normal equations give
+Note that the independence hypothesis~\eqref{eq:independence} reduces to the hypothesis $H_0: \beta_{12} = 0$:
 \begin{equation}
-\widehat \mu = y_{++}; \quad \widehat \mu \widehat \pi_{j+} = y_{j+}; \quad \widehat \mu \widehat \pi_{+k} = y_{+k},
+H_0: \frac{\pi_{11}\pi_{00}}{\pi_{10}\pi_{01}} = 1 \quad \Longleftrightarrow \quad H_0: \beta_{12} = 0.
 \end{equation}
-so 
+So the presence of an interaction in the Poisson regression is equivalent to a lack of independence between $x_1$ and $x_2$. We can test the latter hypothesis using our standard tools for Poisson regression. For example, we can use the Pearson $X^2$ goodness of fit test. To apply this test, we must find the fitted means under the null hypothesis. The normal equations state that the observed cell counts equal those that would have been expected under the null hypothesis. Using the formulation~\eqref{eq:null-product-formulation}, we obtain 
 \begin{equation}
-\widehat \mu_{jk} = \widehat \mu \widehat \pi_{j+}\widehat \pi_{+k} = y_{++}\frac{y_{j+}}{y_{++}}\frac{y_{+k}}{y_{++}} = \frac{y_{j+}y_{+k}}{y_{++}}. 
+y_{jk} = \mathbb E[y_{jk}] = \widehat \mu_{++} \widehat \pi_{j+}\widehat \pi_{+k},
+\end{equation}
+so that
+\begin{equation}
+\widehat \mu = y_{++}; \quad \widehat \mu_{++} \widehat \pi_{j+} = y_{j+}; \quad \widehat \mu_{++} \widehat \pi_{+k} = y_{+k},
+\end{equation}
+from which it follows that
+\begin{equation}
+\widehat \mu_{jk} = \widehat \mu_{++} \widehat \pi_{j+}\widehat \pi_{+k} = y_{++}\frac{y_{j+}}{y_{++}}\frac{y_{+k}}{y_{++}} = \frac{y_{j+}y_{+k}}{y_{++}}. 
 \end{equation}
 Hence, we have
 \begin{equation}
 X^2 = \sum_{j,k = 0}^1 \frac{(y_{jk} - \widehat \mu_{jk})^2}{\widehat \mu_{jk}}.
 \end{equation}
+Alternatively, we can use the likelihood ratio test, which gives
+\begin{equation}
+G^2 = \sum_{j,k = 0}^1 y_{jk}\log\frac{y_{jk}}{\widehat \mu_{jk}}.
+\end{equation}
 
-\subsection{Equivalence among Poisson and multinomial regressions}
+\subsection{Inference is the same regardless of conditioning on margins}
 
-TBD.
+Now, our data might actually have been collected such that $n \sim \text{Poi}(\mu)$, or maybe $n$ was fixed in advance. Is the Poisson inference proposed above actually valid in the latter case? In fact, it is! To see this, we claim that the likelihood ratio statistic is the same for the Poisson and multinomial models. Indeed, let's write the Poisson likelihood as follows:
+\begin{equation}
+p_{\bm \mu}(\bm y) = p_{\mu_{++}}(y_{++} = n)p_{\bm \pi}(\bm y|y_{++} = n).
+\end{equation}
+Note that the fitted parameter $\widehat \mu_{++}$ is the same under the null and alternative hypotheses: $\widehat \mu^0_{++} = \widehat \mu^{1}_{++}$, so we have
+\begin{equation}
+\frac{p_{\bm{\widehat\mu}^1}(\bm y)}{p_{\bm{\widehat\mu}^0}(\bm y)} = \frac{p_{\widehat\mu^1_{++}}(y_{++} = n)p_{\bm{\widehat\pi}^1}(\bm y|y_{++} = n)}{p_{\widehat\mu^0_{++}}(y_{++} = n)p_{\bm{\widehat\pi}^0}(\bm y|y_{++} = n)} = \frac{p_{\bm{\widehat\pi}^1}(\bm y|y_{++} = n)}{p_{\bm{\widehat\pi}^0}(\bm y|y_{++} = n)}.
+\end{equation}
+The latter expression is the likelihood ratio statistic for the multinomial model. The same argument shows that conditioning on the row or column totals (as opposed to the overall total) also yields the same exact inference. Therefore, regardless of the sampling mechanism, we can always conduct an independence test in a $2 \times 2$ table via a Poisson regression.
 
-\subsection{Poisson models for $I \times J$ contingency tables}
+\subsection{Equivalence among Poisson and logistic regressions}
 
-TBD.
+We've talked above two ways to view a $2 \times 2$ contingency table. In the logistic regression view, we thought about one variable as a predictor and the other as a response, seeking to test whether the predictor has an impact on the response. In the Poisson regression view, we thought about the two variables symmetrically, seeking to test independence. It turns out that these two perspectives are equivalent. Note that under the Poisson model, we have
+\begin{equation}
+\text{logit }\mathbb P[x_2 = 1|x_1 = 0] = \log \frac{\pi_{01}}{\pi_{00}} = \beta_2
+\end{equation}
+and
+\begin{equation}
+\text{logit }\mathbb P[x_2 = 1|x_1 = 1] = \log \frac{\pi_{11}}{\pi_{10}} = \log \frac{\pi_{01}}{\pi_{00}} + \log\frac{\pi_{11}\pi_{00}}{\pi_{10}\pi_{01}} = \beta_2 + \beta_{12}. 
+\end{equation}
+In other words,
+\begin{equation}
+\text{logit }\mathbb P[x_2 = 1|x_1] = \beta_2 + \beta_{12}x_1.
+\label{eq:2-by-2-logistic-reg}
+\end{equation}
+Therefore, the $\beta_{12}$ parameter for the Poisson regression~\eqref{eq:2-by-2-Poisson-reg} is the same as it is for the logistic regression~\eqref{eq:2-by-2-logistic-reg}.
+
+\subsection{Poisson models for $J \times K$ contingency tables}
+
+Suppose now that $x_1 \in \{1, \dots, J\}$ and $x_2 \in \{1, \dots, K\}$. Then, we denote $\mathbb P[x_1 = j, x_2 = k] = \pi_{jk}$. We still are interested in testing for independence between $j$ and $k$, which amounts to a goodness-of-fit test for the Poisson model
+\begin{equation}
+y_{jk} \overset{\text{ind}}\sim\text{Poi}(\mu_{jk}); \quad \log \mu_{jk} = \beta_0 + \beta^1_j + \beta^2_k.
+\end{equation}
+The Pearson statistic for this test is
+\begin{equation}
+\sum_{j = 1}^J \sum_{k = 1}^K \frac{(y_{ij} - \widehat \mu_{ij})^2}{\widehat \mu_{ij}}; \quad \widehat \mu_{ij} = \widehat y_{++}\frac{y_{i+}}{y_{++}}\frac{y_{+j}}{y_{++}}.
+\end{equation}
+Like with the $2 \times 2$ case, the test is the same regardless if we condition on the row sums, column sums, total count, or if we do not condition at all. The degrees of freedom in the full model is $JK$, while the degrees of freedom in the partial model is $J+K-1$, so the degrees of freedom for the goodness-of-fit test is $JK - J - K + 1 = (J-1)(K-1)$. Pearson erroneously concluded that the test had $JK-1$ degrees of freedom, which when Fisher corrected created a lot of animosity between these two statisticians.
+
+\subsection{Poisson models for $J \times K \times L$ contingency tables}
+
+These ideas can be extended to multi-way tables, for example three-way tables. If we have $x_1 \in \{1, \dots, J\}, x_2 \in \{1, \dots, K\}, x_3 \in \{1, \dots, L\}$, then we might be interested in testing several kinds of null hypotheses:
+\begin{itemize}
+\item Mutual independence: $H_0: x_1 \perp \!\!\! \perp x_2 \perp \!\!\! \perp x_3$. 
+\item Joint independence: $H_0: x_1 \perp \!\!\! \perp (x_2, x_3)$.
+\item Conditional independence: $H_0: x_1 \perp \!\!\! \perp x_2 \mid x_3$.
+\end{itemize}
+These three null hypotheses can be shown to be equivalent to the Poisson regression model
+\begin{equation}
+y_{jkl} \overset{\text{ind}}\sim \text{Poi}(\mu_{jkl}),
+\end{equation}
+where
+\begin{equation}
+\log \mu_{ijk} = \beta_0 + \beta^1_{j} + \beta^2_k + \beta^3_l \quad \text{(mutual independence)};
+\end{equation}
+\begin{equation}
+\log \mu_{ijk} = \beta_0 + \beta^1_{j} + \beta^2_k + \beta^3_l + \beta^{2,3}_{kl} \quad \text{(joint independence)};
+\end{equation}
+\begin{equation}
+\log \mu_{ijk} = \beta_0 + \beta^1_{j} + \beta^2_k + \beta^3_l + \beta^{1,2}_{jk} + \beta^{1,3}_{jl} \quad \text{(mutual independence)}.
+\end{equation}
 
 \section{Negative binomial regression} \label{sec:nb-regression}
 
