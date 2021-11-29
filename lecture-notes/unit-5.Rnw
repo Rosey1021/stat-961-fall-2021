@@ -387,6 +387,203 @@ where
 
 \section{Negative binomial regression} \label{sec:nb-regression}
 
-TBD.
+\paragraph{Overdispersion.} A pervasive issue with Poisson regression is \textit{overdispersion}: that the variances of observations are greater than the corresponding means. A common cause of overdispersion is omitted variable bias. Suppose that $y \sim \text{Poi}(\mu)$, where $\log \mu = \beta_0 + \beta_1 x_1 + \beta_2 x_2$. However, we omitted variable $x_2$ and are considering the GLM based on $\log \mu = \beta_0 + \beta_1 x_1$. If $\beta_2 \neq 0$ and $x_2$ is correlated with $x_1$, then we have a confounding issue. Let's consider the more benign situation that $x_2$ is independent of $x_1$. Then, we have
+\begin{equation}
+\mathbb E[y|x_1] = \mathbb E[\mathbb E[y|x_1, x_2]|x_1] = \mathbb E[e^{\beta_0 + \beta_1 x_1 + \beta_2 x_2}|x_1] = e^{\beta_0 + \beta_1 x_1}\mathbb E[e^{\beta_2 x_2}] = e^{\beta'_0 + \beta_1 x_1}.
+\end{equation}
+So in the model for the mean of $y$, the impact of omitted variable $x_2$ seems only to have impacted the intercept. Let's consider the variance of $y$:
+\begin{equation}
+\text{Var}[y|x_1] = \mathbb E[\text{Var}[y|x_1, x_2]|x_1] + \text{Var}[\mathbb E[y|x_1, x_2]|x_1] = e^{\beta'_0 + \beta_1 x_1} + e^{2(\beta'_0 + \beta_1 x_1)}\text{Var}[e^{\beta_2 x_2}] > e^{\beta'_0 + \beta_1 x_1} = \mathbb E[y|x_1].
+\end{equation}
+So indeed, the variance is larger than what we would have expected under the Poisson model.
+
+\paragraph{Hierarchical Poisson regression.} Let's say that $y|\bm x \sim \text{Poi}(\lambda)$, where $\lambda|\bm x$ is random due to the fluctuations of the omitted variables. A common distribution used to model nonnegative random variables is the \textit{gamma} distribution $\Gamma(\mu, k)$, parameterized by a mean $\mu > 0$ and a \textit{shape} $k > 0$. This distribution has probability density function
+\begin{equation}
+f(\lambda; k, \mu) = \frac{(k/\mu)^k}{\Gamma(k)}e^{-k\lambda/\mu}\lambda^{k-1},
+\end{equation}
+with mean and variance given by
+\begin{equation}
+\mathbb E[\lambda] = \mu; \quad \text{Var}[\lambda] = \mu^2/k.
+\end{equation}
+Therefore, it makes sense to augment the Poisson regression model as follows:
+\begin{equation}
+\lambda|\bm x \sim \Gamma(\mu, k), \quad \log \mu = \bm x^T \bm \beta, \quad y | \lambda \sim \text{Poi}(\lambda).
+\label{eq:nb-hierarchical}
+\end{equation}
+
+\paragraph{Negative binomial distribution.} 
+
+A simpler way to write the hierarchical model~\eqref{eq:nb-hierarchical} would be to marginalize out $\lambda$. Doing so leaves us with a count distribution called the \textit{negative binomial distribution}:
+\begin{equation}
+\lambda \sim \Gamma(\mu, k),\  y | \lambda \sim \text{Poi}(\lambda) \quad \Longrightarrow \quad y \sim \text{NegBin}(\mu, k).
+\end{equation}
+The negative binomial probability mass function is
+\begin{equation}
+p(y; \mu, k) = \int_0^\infty \frac{(k/\mu)^k}{\Gamma(k)}e^{-k\lambda/\mu}\lambda^{k-1}e^{-\lambda}\frac{\lambda^y}{y!}d\lambda = \frac{\Gamma(y+k)}{\Gamma(k)\Gamma(y+1)}\left(\frac{\mu}{\mu + k}\right)^{y}\left(\frac{k}{\mu + k}\right)^{k}.
+\end{equation}
+This random variable has mean and variance given by
+\begin{equation}
+\mathbb E[y] = \mathbb E[\lambda] = \mu \quad \text{and} \quad \text{Var}[y] = \mathbb E[\lambda] + \text{Var}[\lambda] = \mu + \frac{\mu^2}{k}.
+\end{equation}
+
+\paragraph{Negative binomial as exponential dispersion model.} 
+
+If we treat $k$ as known, then the negative binomial distribution is in the exponential family:
+\begin{equation}
+p(y; \mu, k) = \exp\left(y \log \frac{\mu}{\mu + k} - k \log \frac{\mu + k}{k}\right)\frac{\Gamma(y+k)}{\Gamma(k)\Gamma(y+1)}.
+\end{equation}
+We can read off that
+\begin{equation}
+\theta = \log \frac{\mu}{\mu + k}, \quad \psi(\theta) = k\log \frac{\mu + k}{k} = -k\log(1-e^{\theta}).
+\label{eq:neg-bin-exp-fam}
+\end{equation}
+This is a regular exponential family model, and not an exponential dispersion model. Given the extra parameter $k$ controlling the variance, we may have been expecting to see an EDM. We can arrive at the EDM form by putting $1/k$ in the denominator:
+\begin{equation}
+p(y; \mu, k) = \exp\left(\frac{\frac{y}{k} \log \frac{\mu}{\mu + k} - \log \frac{\mu + k}{k}}{1/k}\right)\frac{\Gamma(y+k)}{\Gamma(k)\Gamma(y+1)}.
+\end{equation}
+Note that the ``normalized'' variable $y/k$ has the EDM distribution rather than the count variable $y$; this parallels our modeling of the binomial \textit{proportion} (rather than the binomial count) as an EDM. We then see that $y/k$ has the dispersion parameter $\phi = 1/k$. An alternate parameterization of the negative binomial model is via $\gamma = \phi = 1/k$. Here, $\gamma$ is called the negative binomial \textit{dispersion}.
+
+\paragraph{Negative binomial regression.}
+
+Let's revisit the hierarchical model~\eqref{eq:nb-hierarchical}, writing it more succinctly in terms of the negative binomial distribution:
+\begin{equation}
+y_i \overset{\text{ind}}\sim \text{NegBin}(\mu_i, \gamma), \quad \log \mu_i = \bm x^T \bm \beta.
+\end{equation}
+Notice that we typically assume that all observations share the same dispersion parameter $\gamma$. Reading off from equation~\eqref{eq:neg-bin-exp-fam}, we see that the canonical link function for the negative binomial distribution is $\mu \mapsto \log \frac{\mu}{\mu + k}$. However, typically for negative binomial regression we use the log link $g(\mu) = \log \mu$ instead. This is our first example of a non-canonical link! 
+
+\paragraph{Estimation in negative binomial regression.}
+
+Negative binomial regression is an EDM when $\gamma$ is known, but typically the dispersion parameter is unknown. Note that there is a dependency in $\psi$ on $k$ (i.e. on $\gamma$), which complicates things. It means that the estimate $\bm{\widehat \beta}$ depends on the parameter $\gamma$ (this does not happen, for example, in the normal linear model case).\footnote{Having said that, the dependency between $\bm{\widehat \beta}$ and $\widehat \gamma$ is weak, as the two are asymptotically independent parameters.} Therefore, estimation in negative binomial regression is typically an iterative procedure, where at each step $\bm \beta$ is estimated for the current value of $\gamma$ and then $\gamma$ is estimated based on the updated value of $\bm \beta$. Let's discuss each of these tasks in turn. Given a value of $\gamma$, we have the normal equations
+\begin{equation}
+0 = \bm X^T \text{diag}\left(\frac{\partial \mu_i/\partial \eta_i}{\text{Var}[y_i]}\right)(\bm y - \bm \mu) = \bm X^T \text{diag}\left(\frac{\mu_i}{\mu_i + \gamma \mu_i^2}\right)(\bm y - \bm \mu) = \bm X^T \text{diag}\left(\frac{1}{1 + \gamma \mu_i}\right)(\bm y - \bm \mu).
+\end{equation}
+This reduces to the Poisson normal equations when $\gamma = 0$. Solving these equations for a fixed value of $\gamma$ can be done via IRLS, as usual. Estimating $\gamma$ for a fixed value of $\bm \beta$ can be done in several ways, including setting to zero the derivative of the likelihood with respect to $\gamma$. This results in a nonlinear equation (not given here) that must be solved iteratively.
+
+\paragraph{Wald inference.}
+
+Note that
+\begin{equation}
+\bm W_{ii} = \frac{(\partial \mu_i/\partial \eta_i)^2}{\text{Var}[y_i]} = \frac{\mu_i^2}{\mu_i + \gamma \mu_i^2} = \frac{\mu_i}{1 + \gamma \mu_i}.
+\end{equation}
+Hence, Wald inference is based on
+\begin{equation}
+\widehat{\text{Var}}[\bm{\widehat \beta}] = (\bm X^T \bm{\widehat W} \bm X)^{-1}, \quad \text{where} \quad \bm{\widehat W} = \text{diag}\left(\frac{\widehat \mu_i}{1 + \widehat\gamma \widehat\mu_i}\right).
+\end{equation}
+
+\paragraph{Likelihood ratio test inference.}
+
+The negative binomial deviance is
+\begin{equation}
+D(\bm y; \bm{\widehat \mu}) = 2\sum_{i = 1}^n \left(y_i \log \frac{y_i}{\widehat \mu_i} - \left(y_i + \frac{1}{\widehat \gamma}\right)\log \frac{1 + \widehat \gamma y_i}{1 + \widehat \gamma \widehat \mu_i}\right). 
+\end{equation}
+We can use this for comparing nested models and for goodness of fit testing, as usual.
+
+\paragraph{Testing for overdispersion.}
+
+It is reasonable to want to test for overdispersion, i.e. to test the null hypothesis $H_0: \gamma = 0$. This is somewhat of a tricky task, because $\gamma = 0$ is at the edge of the parameter space. There are formal tests of this hypothesis, but they are beyond the scope of this course. Another approach is to simply fit a negative binomial model and get a confidence interval for $\gamma$. It is probably not particularly reliable for small values of $\gamma$, but if it is far away from zero then likely we have some overdispersion on our hands. Finally, if goodness of fit tests in the Poisson model are significant, this may be an indication of overdispersion. It may also be an indication of omitted variable bias (e.g. you forgot to include an interaction), so it's somewhat tricky.
+
+\paragraph{Overdispersion in logistic regression.}
+
+Note that overdispersion is potentially an issue not only in Poisson regression models, but in logistic regression models as well. Dealing with overdispersion in the latter case is more tricky, because the analog of the negative binomial model (the beta-binomial model) is not an exponential family. An alternate route to dealing with overdispersion is quasi-likelihood modeling, but this topic is beyond the scope of the course.
+
+\section{R demo} \label{sec:r-demo}
+
+<<message = FALSE>>=
+library(tidyverse)
+@
+\noindent Here we are again, face to face with the crime data, with one last chance to get the analysis right. Let's load and preprocess it, as before.
+<<message = FALSE>>=
+# read crime data
+crime_data = read_tsv("../data/Statewide_crime.dat")
+
+# read and transform population data
+population_data = read_csv("../data/state-populations.csv")
+population_data = population_data %>%
+  filter(State != "Puerto Rico") %>% 
+  select(State, Pop) %>%
+  rename(state_name = State, state_pop = Pop)
+
+# collate state abbreviations
+state_abbreviations = tibble(state_name = state.name, 
+                             state_abbrev = state.abb) %>%
+  add_row(state_name = "District of Columbia", state_abbrev = "DC")
+
+# add CrimeRate to crime_data
+crime_data = crime_data %>%
+  mutate(STATE = ifelse(STATE == "IO", "IA", STATE)) %>%
+  rename(state_abbrev = STATE) %>%
+  filter(state_abbrev != "DC") %>%       # remove outlier
+  left_join(state_abbreviations, by = "state_abbrev") %>%
+  left_join(population_data, by = "state_name") %>%
+  select(state_abbrev, Violent, Metro, HighSchool, Poverty, state_pop)
+
+crime_data
+@
+\noindent Let's recall the logistic regression we ran on these data in Unit 4:
+<<>>=
+bin_fit = glm(Violent/state_pop ~ Metro + HighSchool + Poverty,
+              weights = state_pop,
+              family = "binomial",
+              data = crime_data)
+@
+\noindent Recall that everything was significant:
+<<>>=
+summary(bin_fit)
+@
+\noindent But there were already signs of trouble in this regression summary. The summary tells us that the residual deviance is 11742 on 46  degrees of freedom. This is a measure of the goodness of fit of the model, as the residual deviance should have a chi-square distribution with 46 degrees of freedom if the model fits well. But this distribution has a mean of 46, so having a value of 11742 seems way too large. We can confirm this suspicion with a formal deviance-based goodness of fit test:
+<<>>=
+pchisq(bin_fit$deviance, 
+       df = bin_fit$df.residual, 
+       lower.tail = FALSE)
+@
+\noindent Wow, we get a $p$-value of zero! Let's try doing a score-based (i.e. Pearson) goodness of fit test:
+<<>>=
+pchisq(sum(resid(bin_fit, "pearson")^2), 
+       df = bin_fit$df.residual, 
+       lower.tail = FALSE)
+@
+\noindent Here the code \verb|sum(resid(bin_fit, "pearson")^2)| extracts the sum of the squares of the Pearson residuals, which we did not discuss, but which gives us Pearson's $X^2$ statistic. So in this case, we again get a $p$-value of zero! So this model definitely does not fit well. We have therefore omitted some important variables and/or we have serious overdispersion on our hands. 
+
+\noindent We haven't discussed in any detail how to deal with overdispersion in logistic regression models, so let's try a Poisson model instead. The natural way to model rates using Poisson distributions is via offsets:
+<<>>=
+pois_fit = glm(Violent ~ Metro + HighSchool + Poverty + offset(log(state_pop)),
+               family = "poisson",
+               data = crime_data)
+summary(pois_fit)
+@
+\noindent Again, everything is significant, and again, the regression summary shows that we have a huge residual deviance. This was to be expected, given that $\text{Bin}(m, \pi) \approx \text{Poi}(m\pi)$ for large $m$ and small $\pi$. So, the natural thing to try is a negative binomial regression! Negative binomial regression is not implemented in the regular \verb|glm| package, but \verb|glm.nb()| from the \verb|MASS| package is a dedicated function for this task. Let's see what we get:
+<<>>=
+nb_fit = MASS::glm.nb(Violent ~ Metro + HighSchool + Poverty + offset(log(state_pop)),
+                data = crime_data)
+summary(nb_fit)
+@
+\noindent Aha! Things are not looking so significant anymore! And the residual deviance is not as huge! The estimated value of $\gamma$ (confusingly called $\theta$ in the summary) is significantly different from zero, indicating overdispersion. Now it appears that this model fits. Finally! Let's do a deviance-based goodness of fit test to make sure:
+<<>>=
+pchisq(nb_fit$deviance, 
+       df = nb_fit$df.residual, 
+       lower.tail = FALSE)
+@
+\noindent Ok, great. Now that we have a well-fitting model, we can do inference within this model that we can trust. For example, we can get Wald confidence intervals:
+<<>>=
+confint.default(nb_fit)
+@
+\noindent Or we can get LRT-based (i.e. profile) confidence intervals:
+<<>>=
+confint(nb_fit)
+@
+\noindent Or we can get confidence intervals for the predicted means:
+<<>>=
+predict(nb_fit,
+        newdata = crime_data %>% column_to_rownames(var = "state_abbrev"),
+        type = "response",
+        se.fit = TRUE)
+@
+\noindent We can carry out some hypothesis tests as well, e.g. to test $H_0: \beta_{\text{Metro}} = 0$:
+<<>>=
+nb_fit_partial = MASS::glm.nb(Violent ~ HighSchool + Poverty + offset(log(state_pop)),
+                     data = crime_data)
+anova_fit = anova(nb_fit_partial, nb_fit)
+anova_fit
+@
 
 \end{document}
