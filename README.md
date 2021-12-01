@@ -45,10 +45,10 @@ Thu, Nov 11 | 5. GLMs: Special cases | R demo for Unit 4, Logistic regression mo
 Tue, Nov 16 | 5. GLMs: Special cases | Logistic regression inference | Agresti Ch. 5.3,5.5 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=cd4eebea-a82f-46e9-94f6-adde014f23df) | --
 Thu, Nov 18 | 5. GLMs: Special cases | Poisson regression  | Agresti Ch. 7.1, 7.2 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=6042fca6-f849-4652-a2d4-adde0164d435) | --
 Friday, Nov 19 | -- | -- | -- | -- | [Homework 4](https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/homework/homework-4/homework-4.pdf) due at 11:59pm
-Tue, Nov 23 | 5. GLMs: Special cases | Negative binomial regression  | Agresti Ch. 7.3 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=7c09ca84-4b40-4c45-aafb-ade40148be64) | --
+Tue, Nov 23 | 5. GLMs: Special cases | Poisson regression  | Agresti Ch. 7.1, 7.2 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=7c09ca84-4b40-4c45-aafb-ade40148be64) | --
 Thu, Nov 25 | -- | Thanksgiving break | -- | -- | --
-Tue, Nov 30 | 6. Further topics | TBA  | TBA | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=3ac4acd3-122a-47ac-a24a-ade40166df45) | --
-Thu, Dec 2 | 6. Further topics | TBA  | TBA | TBA | --
+Tue, Nov 30 | 5. GLMs: Special cases | Negative binomial regression  | Agresti Ch. 7.3 | [Link](https://upenn.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=3ac4acd3-122a-47ac-a24a-ade40166df45) | --
+Thu, Dec 2 | 6. Further topics | Multiple testing  | Agresti Ch. 3.5 | TBA | --
 Tue, Dec 7 | 6. Further topics | TBA  | TBA | TBA | --
 Thu, Dec 9 | 6. Further topics | TBA  | TBA | TBA | --
 Friday, Dec 10 | -- | -- | -- | -- | [Homework 5](https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/homework/homework-5/homework-5.pdf) due at 11:59pm
