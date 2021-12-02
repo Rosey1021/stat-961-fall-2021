@@ -1,0 +1,235 @@
+% (C) Brett Klamer - MIT - http://opensource.org/licenses/MIT
+% Please contact me if you find any errors or make improvements
+% Contact details at brettklamer.com
+
+\documentclass[11pt,letterpaper,english,oneside]{article} % article class is a standard class
+%==============================================================================
+%Load Packages
+%==============================================================================
+\usepackage[left=1in,right=1in,top=1in,bottom=1in]{geometry} % easy page margins
+\usepackage[utf8]{inputenc} % editor uses utf-8 encoding
+\usepackage[T1]{fontenc} % T1 font pdf output
+\usepackage{lmodern} % Latin modern roman font
+\usepackage{bm, bbm} % bold and blackboard bold math symbols
+\usepackage{amsmath, amsfonts, amssymb, amsthm} % math packages
+\usepackage[final]{microtype} % better microtypography
+\usepackage{graphicx} % for easier grahics handling
+\usepackage[hidelinks, colorlinks=true, linkcolor = blue, urlcolor = blue]{hyperref} % to create hyperlinks
+\usepackage{float} % tells floats to stay [H]ere!
+\usepackage{mdframed} % it's better than framed. knitr uses framed so settings won't conflict
+\usepackage{enumitem} % nice lists
+\usepackage{fancyhdr} % nice headers
+\usepackage{caption}  % to control figure and table captions
+\newtheorem{proposition}{Proposition}[section]
+\newtheorem{lemma}[proposition]{Lemma}
+\newtheorem{definition}[proposition]{Definition}
+
+
+
+\captionsetup{width=0.9\textwidth, justification = raggedright}
+
+%==============================================================================
+% Enter name and homework title here
+%==============================================================================
+\title{Unit 6: Further Topics}
+\author{Eugene Katsevich}
+% \date{August 31, 2021}
+
+%==============================================================================
+% Put title and author in PDF properties
+%==============================================================================
+\makeatletter % change interpretation of @
+\hypersetup{pdftitle={\@title},pdfauthor={\@author}}
+
+
+%==============================================================================
+% Header settings
+%==============================================================================
+\pagestyle{fancy} % turns on fancy header styles
+\fancyhf{} % clear all header and footer fields
+\makeatletter
+\lhead{\@author} % left header
+\chead{\@title} % center header
+\makeatother
+\rhead{Page \thepage} % right header
+\setlength{\headheight}{13.6pt} % fixes minor warning
+\makeatother % change back interpretation of @
+
+%==============================================================================
+% List spacing
+%==============================================================================
+\setlist[itemize]{parsep=0em} % fix itemize spacing
+\setlist[enumerate]{parsep=0em} % fix enumerate spacing
+
+%==============================================================================
+% set knitr options
+%==============================================================================
+% latex (change space before and after knitr kframe; based on framed package)
+\setlength{\OuterFrameSep}{0.3em}
+% R
+<<setup, include=FALSE, cache=FALSE>>=
+library(knitr)
+
+# inline hook to process the output of \Sexpr{} statements to just 2 digits
+inline_hook <- function(x) {
+  if(is.numeric(x)) x <- round(x, 2)
+  paste(as.character(x), collapse=", ")
+}
+knit_hooks$set(inline = inline_hook)
+
+# cache all chunks
+opts_chunk$set(cache = TRUE)
+
+@
+
+\begin{document}
+
+\maketitle
+
+Units 1-5 focused on estimation and inference in linear models and generalized linear models. In Unit 6, we explore further topics (the exact topics are still TBD).
+
+\section{Multiple testing}
+
+In this class, we have talked a lot about hypothesis testing, e.g. testing the significance of a coefficient in a (generalized) linear model. But frequently, there are multiple hypotheses we care about testing; let us denote these null hypotheses by $H_1, \dots, H_m$. After obtaining $p$-values for each null hypothesis---denote these by $p_1, \dots, p_m$---we may want to answer questions about this entire collection of hypotheses. In particular:
+\begin{itemize}
+\item Global testing: Test the \textit{global null hypothesis} $H_0: H_1 \cap \cdots \cap H_m$.
+\item Multiple testing: Find a subset $S \subseteq \{1, \dots, m\}$ of null hypotheses to reject so that the set $S$ satisfies some notion of Type-I error.
+\end{itemize}
+We discuss global testing in Section~\ref{sec:global-testing} and multiple testing in Section~\ref{sec:multiple-testing}.
+
+\subsection{Global testing} \label{sec:global-testing}
+
+\paragraph{Global testing problem setup.} Here we want to test whether \textit{any} of the null hypotheses $H_1, \dots, H_m$ is false. For example, suppose that $H_j: \beta_j = 0$, where $\beta_j$ are the coefficients in a GLM. Then, $H_0: \beta_1 = \cdots = \beta_m = 0$. We recognize this hypothesis as something we would test using an $F$-test or, more generally, a likelihood ratio test. Here we are concerned with the more general problem of aggregating $m$ $p$-values for individual hypotheses (whatever these hypotheses may be) into one $p$-value (i.e. one test) for the global null. A level-$\alpha$ test $\phi(p_1, \dots, p_m)$ of the global null must satisfy
+\begin{equation}
+\mathbb E_{H_0}[\phi(p_1, \dots, p_m)] \leq \alpha.
+\label{eq:global-test-type-1-error}
+\end{equation}
+
+\paragraph{The multiplicity problem.} A naive test would separately test the $m$ hypotheses, and then reject if any are significant:
+\begin{equation}
+\phi_{\text{naive}}(p_1, \dots, p_m) = \mathbbm 1\left(p_j \leq \alpha \text{ for some } j = 1, \dots, m\right).
+\end{equation}
+This test does not control the Type-I error. In fact, assuming the input $p$-values are independent, we have
+\begin{equation}
+\mathbb E_{H_0}[\phi_{\text{naive}}(p_1, \dots, p_m)] = 1-(1-\alpha)^m \rightarrow 1 \quad \text{as} \quad m \rightarrow \infty.
+\end{equation}
+This is an illustration of \textit{the multiplicity problem}: The more hypotheses we test, the more likely one of them is going to appear significant just by chance. This is related to data-snooping and the issue of selection bias. If we had chosen just one hypothesis a priori, then we can compare its $p$-value to the nominal level of $\alpha$. If we chose the hypothesis by looking (``snooping'') at the $p$-values of $m$ hypotheses and choosing the most significant, we have incurred selection bias that must be corrected for. See Figure~\ref{fig:spurious-correlation}.
+\begin{figure}
+\includegraphics[width = \textwidth]{figures/spurious-correlation.png}
+\caption{A spurious correlation resulting from data snooping.}
+\label{fig:spurious-correlation}
+\end{figure}
+There are several ways of properly correcting for this selection bias, i.e. several valid global tests in the sense of definition~\eqref{eq:global-test-type-1-error}. Here we highlight two:
+\begin{itemize}
+\item Fisher combination test: Powerful against many weak signals.
+\item Bonferroni test: Powerful against few strong signals.
+\end{itemize}
+
+\subsubsection{Fisher combination test}
+
+Suppose that $p_1, \dots, p_m$ are independent (though this is a strong assumption that is often violated). Then, the Fisher combination test is
+\begin{equation}
+\phi(p_1, \dots, p_m) \equiv \mathbbm 1\left(-2\sum_{j = 1}^m \log p_j \geq Q_{1-\alpha}[\chi^2_{2m}]\right).
+\end{equation}
+Type-I error control~\eqref{eq:global-test-type-1-error} is based on the fact that
+\begin{equation}
+\text{if } p_1, \dots, p_m \overset{\text{i.i.d.}}\sim U[0,1], \text{ then } -2\sum_{j = 1}^m \log p_j \sim \chi^2_{2m}.
+\end{equation}
+If we have $X_j \sim N(\mu_j, 1)$ and the $p$-values are defined via $p_j = 2\Phi(-|X_j|)$, then 
+\begin{equation}
+-2\log p_j \approx X_j^2.
+\end{equation}
+Therefore, 
+\begin{equation}
+-2\sum_{j = 1}^m \log p_j \approx \sum_{j = 1}^m X_j^2.
+\end{equation}
+This helps us build intuition for what the Fisher combination test is doing. It's averaging the strengths of the signal across hypotheses. 
+
+\subsubsection{Bonferroni test}
+
+Instead of averaging the signal across $p$-values, we might want to find the \textit{strongest} signal among the $p$-values. It makes sense that such a strategy would be powerful against sparse alternatives. We define the Bonferroni test via
+\begin{equation}
+\phi(p_1, \dots, p_m) \equiv \mathbbm 1\left(\min_{1 \leq j \leq m} p_j \leq \alpha/m\right).
+\end{equation}
+The Bonferroni global test rejects if any of the $p$-values crosses the \textit{multiplicity-adjusted} or \textit{Bonferroni-adjusted} significance threshold of $\alpha/m$. The more hypotheses we test, the more stringent the significance threshold must be. We can verify the Type-I error control of the Bonferroni test via a union bound:
+\begin{equation}
+\mathbb P_{H_0}\left[\min_{1 \leq j \leq m} p_j \leq \alpha/m\right] \leq \sum_{j = 1}^m \mathbb P_{H_0}\left[p_j \leq \alpha/m\right] = m \cdot \alpha/m = \alpha.
+\end{equation}
+Importantly, while the Fisher combination test is valid only for independent $p$-values, \textit{the Bonferroni test is valid for arbitrary $p$-value dependency structures.} However, the Bonferroni bound derived above is tightest for independent $p$-values. For example, if the $p$-values are perfectly dependent, then no multiplicity correction is required at all.
+
+\subsection{Multiple testing} \label{sec:multiple-testing}
+
+While global testing seeks to detect the presence of \textit{any} signals, multiple testing seeks to \textit{localize} these signals, i.e. find a subset $S$ of the null hypotheses that are false. Let $\{1, \dots, m\} = \mathcal H_0 \cup \mathcal H_1$, where $\mathcal H_0, \mathcal H_1$ are the sets of null hypotheses that are true and false, respectively. Ideally, we would like to have $S = \mathcal H_1$, but of course we typically cannot do this. We design methods such outputting sets $S$ satisfying satisfying some Type-I error control criterion, and compare their performance based on their power, e.g. as quantified by $\mathbb E[|S \cap \mathcal H_1|/|\mathcal H_1|]$. There are several Type-I error control criteria of interest, but we highlight the two most important ones:
+\begin{itemize}
+\item Family-wise error rate (FWER), defined 
+\begin{equation}
+\text{FWER} \equiv \mathbb P[S \cap \mathcal H_0 \neq \varnothing].
+\end{equation}
+\item False discovery rate (FDR), defined
+\begin{equation}
+\text{FDR} \equiv \mathbb E\left[\frac{|S \cap \mathcal H_0|}{|S|}\right], \quad \text{where} \quad \frac{0}{0} \equiv 0.
+\label{eq:fdr-def}
+\end{equation}
+\end{itemize}
+The random quantity $\frac{|S \cap \mathcal H_0|}{|S|}$ is called the \textit{false discovery proportion} (FDP). Note that the FWER is a stricter error rate than the FDR. Controlling the FWER at level $\alpha$ implies that, with probability $1-\alpha$, the set $S$ contains no false discoveries at all. Controlling the FDR at level $q$ means that, on average, at most a proportion $q$ of the set $S$ can be false discoveries. Many methods have been proposed to control each of these error rates, but we highlight one each. 
+
+\subsubsection{The Bonferroni procedure for FWER control}
+
+We discussed the Bonferroni test for the global null. This test can be extended to an FWER-controlling procedure: 
+\begin{equation}
+S \equiv \{j: p_j \leq \alpha/m\}.
+\end{equation}
+Note that not all global tests can be extended to FWER-controlling procedures in this way. For example, the Fisher combination test does not single out any of the hypotheses, as it only aggregates the $p$-values. By contrast, the Bonferroni test searches for $p$-values that are individually very small, allowing for it to double as an FWER-controlling procedure. It is easy to verify that the Bonferroni procedure controls the FWER:
+\begin{equation}
+\mathbb P[S \cap \mathcal H_0 \neq \varnothing] = \mathbb P\left[\min_{j \in \mathcal H_0} p_j \leq \alpha/m\right] \leq \sum_{j \in \mathcal H_0} \mathbb P[p_j \leq \alpha/m] = \frac{|\mathcal H_0|}{m}\alpha \leq \alpha.
+\end{equation}
+Note that the FWER is actually controlled at the level $\frac{|\mathcal H_0|}{m}\alpha \leq \alpha$, making the Bonferroni test conservative to the extent that $|\mathcal H_0| < m$. The null proportion $\frac{|\mathcal H_0|}{m}$ has such an effect on the performance of many multiple testing procedures.
+
+\subsubsection{The Benjamini-Hochberg procedure for FDR control}
+
+Designing procedures with FDR control, as well as verifying the latter property, is typically harder than for FWER control. It is harder to decouple the effects of the individual hypotheses, as the denominator $|S|$ in the FDR definition~\eqref{eq:fdr-def} couples them together. Both the FDR criterion and the most popular FDR-controlling procedure were proposed by Benjamini and Hochberg in 1995. 
+
+\paragraph{Procedure.} To define the BH procedure, consider thresholding the $p$-values at $t \in [0,1]$. We would expect $\mathbb E[|\{j: p_j \leq t\} \cap \mathcal H_0|] = |\mathcal H_0|t$ false discoveries among $\{j: p_j \leq t\}$. Since $|\mathcal H_0|$ is unknown, we can bound it from above by $mt$. This leads to the FDP estimate
+\begin{equation}
+\widehat{\text{FDP}}(t) \equiv \frac{mt}{|\{j: p_j \leq t\}|}.
+\end{equation}
+The BH procedure is then defined via 
+\begin{equation}
+S \equiv \{j: p_j \leq \widehat t\}, \quad \text{where} \quad \widehat t = \max\{t \in [0,1]: \widehat{\text{FDP}}(t) \leq q\}.
+\end{equation}
+In words, we choose the most liberal $p$-value threshold for which the estimated FDP is below the nominal level $q$. Note that the set over which the above maximum is taken is always nonempty because it at least contains 0: $\widehat{\text{FDP}}(0) = \frac{0}{0} \equiv 0$. 
+
+\paragraph{FDR control under independence.} Benjamini and Hochberg established that their procedure controls the FDR if the $p$-values are independent. Here we present an alternative argument due to Storey, Taylor, and Siegmund (2004).
+
+\begin{proof}
+We have
+\begin{equation}
+\begin{split}
+\text{FDR} = \mathbb E\left[\text{FDP}(\widehat t)\right] &= \mathbb E\left[\frac{|\{j \in \mathcal H_0: p_j \leq \widehat t\}|}{|\{j: p_j \leq \widehat t\}|}\right] \\
+&= \mathbb E\left[\frac{|\{j \in \mathcal H_0: p_j \leq \widehat t\}|}{m\widehat t}\widehat{\text{FDP}}(\widehat t)\right] \leq q \cdot \mathbb E\left[\frac{|\{j \in \mathcal H_0: p_j \leq \widehat t\}|}{m\widehat t}\right].
+\end{split}
+\end{equation}
+To prove that the last expectation is bounded above by 1, note that 
+\begin{equation}
+M(t) \equiv \frac{|\{j \in \mathcal H_0: p_j \leq t\}|}{m t}
+\end{equation}
+is a backwards martingale with respect to the filtration
+\begin{equation}
+\mathcal F_t = \sigma(\{p_j: j \in \mathcal H_1\}, |\{j \in \mathcal H_0: p_j \leq t'\}| \text{ for } t' \geq t),
+\end{equation}
+with $t$ running backwards from 1 to 0. Indeed, for $s < t$ we have 
+\begin{equation}
+\mathbb E[M(s)|\mathcal F_t] = \mathbb E\left[\left.\frac{|\{j \in \mathcal H_0: p_j \leq s\}|}{m s} \right| \mathcal F_t\right] = \frac{\frac{s}{t}|\{j \in \mathcal H_0: p_j \leq t\}|}{m s} = \frac{|\{j \in \mathcal H_0: p_j \leq t\}|}{m t} = M(t).
+\end{equation}
+The threshold $\widehat t$ is a stopping time with respect to this filtration, so by the optional stopping theorem, we have
+\begin{equation}
+\mathbb E\left[\frac{|\{j \in \mathcal H_0: p_j \leq \widehat t\}|}{m\widehat t}\right] = \mathbb E[M(\widehat t)] \leq \mathbb E[M(1)] = \frac{|\mathcal H_0|}{m} \leq 1.
+\end{equation}
+This completes the proof.
+\end{proof}
+
+\paragraph{FDR control under dependence.}
+
+The BH procedure has empirically been shown to control the FDR for a wide variety of dependency structures besides independence. However, theoretical FDR control results for the BH procedure are available only for a few dependency structures. A notable example is a type of positive dependency called \textit{positive regression dependence on a subset}, or PRDS. Benjamini and Yekutieli proved FDR control for BH under PRDS in 2001. This theoretical condition is somewhat hard to verify in practice, however. The simplest example of a set of PRDS $p$-values is when $\bm x \sim N(\bm \mu, \bm \Sigma) \in \mathbb R^m$ where $\bm \Sigma$ has all positive entries and the $p$-values are derived based on one-sided tests. Outside of this special case, there are few known instances of PRDS $p$-values.
+
+\end{document}

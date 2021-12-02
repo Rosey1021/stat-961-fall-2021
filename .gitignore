@@ -1,6 +1,7 @@
 *.tex
 *.gz
 *.log
+*.yml
 .Rproj.user
 */cache/
 .DS_Store

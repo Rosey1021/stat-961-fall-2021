@@ -1,0 +1,291 @@
+% (C) Brett Klamer - MIT - http://opensource.org/licenses/MIT
+% Please contact me if you find any errors or make improvements
+% Contact details at brettklamer.com
+
+\documentclass[11pt,letterpaper,english,oneside]{article} % article class is a standard class
+%==============================================================================
+%Load Packages
+%==============================================================================
+\usepackage[left=1in,right=1in,top=1in,bottom=1in]{geometry} % easy page margins
+\usepackage[utf8]{inputenc} % editor uses utf-8 encoding
+\usepackage[T1]{fontenc} % T1 font pdf output
+\usepackage{lmodern} % Latin modern roman font
+\usepackage{bm, bbm} % bold and blackboard bold math symbols
+\usepackage{amsmath, amsfonts, amssymb, amsthm} % math packages
+\usepackage[final]{microtype} % better microtypography
+\usepackage{graphicx} % for easier grahics handling
+\usepackage[hidelinks, colorlinks=true, linkcolor = blue, urlcolor = blue]{hyperref} % to create hyperlinks
+\usepackage{float} % tells floats to stay [H]ere!
+\usepackage{mdframed} % it's better than framed. knitr uses framed so settings won't conflict
+\usepackage{enumitem} % nice lists
+\usepackage{fancyhdr} % nice headers
+% \usepackage{caption}  % to control figure and table captions
+\usepackage{subcaption}
+
+% \captionsetup{width=0.9\textwidth, justification = raggedright}
+
+%==============================================================================
+% Enter name and homework title here
+%==============================================================================
+\author{Name}
+\title{STAT 961: Homework 5}
+\date{Due Friday, December 10 at 11:59pm}
+
+%==============================================================================
+% Put title and author in PDF properties
+%==============================================================================
+\makeatletter % change interpretation of @
+\hypersetup{pdftitle={\@title},pdfauthor={\@author}}
+
+
+%==============================================================================
+% Header settings
+%==============================================================================
+\pagestyle{fancy} % turns on fancy header styles
+\fancyhf{} % clear all header and footer fields
+\makeatletter
+\lhead{\@author} % left header
+\chead{\@title} % center header
+\makeatother
+\rhead{Page \thepage} % right header
+\setlength{\headheight}{13.6pt} % fixes minor warning
+\makeatother % change back interpretation of @
+
+%==============================================================================
+% List spacing
+%==============================================================================
+\setlist[itemize]{parsep=0em} % fix itemize spacing
+\setlist[enumerate]{parsep=0em} % fix enumerate spacing
+
+%==============================================================================
+% Float spacing (changes spacing of tables, graphs, etc)
+%==============================================================================
+%\setlength{\textfloatsep}{3pt}
+%\setlength{\intextsep}{3pt}
+
+%==============================================================================
+% Define Problem and Solution Environments
+%==============================================================================
+\theoremstyle{definition} % use definition's look
+\newtheorem{problem}{Problem}
+\newtheorem{solution}{Solution}
+\mdfsetup{ % box margin fix for mdframe and how it plays with parskip and others.
+innerleftmargin=4pt,
+innerrightmargin=4pt,
+innertopmargin=-1pt,
+innerbottommargin=4pt}
+% \newenvironment{prob}{\begin{mdframed}\begin{problem}\hspace{0pt}}{\end{problem}\end{mdframed}}
+\newenvironment{prob}{\clearpage \begin{problem}\hspace{0pt}}{\end{problem}}
+\newenvironment{sol}{\begin{solution}\hspace{0pt}}{\end{solution}}
+
+%==============================================================================
+% set knitr options
+%==============================================================================
+% latex (change space before and after knitr kframe; based on framed package)
+\setlength{\OuterFrameSep}{0.3em}
+% R
+<<setup, include=FALSE, cache=FALSE>>=
+library(knitr)
+# inline hook to process the output of \Sexpr{} statements to just 2 digits
+inline_hook <- function(x) {
+  if(is.numeric(x)) x <- round(x, 2)
+  paste(as.character(x), collapse=", ")
+}
+knit_hooks$set(inline = inline_hook)
+
+# cache all chunks
+opts_chunk$set(cache = TRUE)
+
+# create directory for figures
+if(!dir.exists("figures")){
+  dir.create("figures")
+}
+@
+
+\begin{document}
+
+
+\maketitle
+
+\section{Instructions}
+
+\paragraph{Setup.} Pull the latest version of this assignment from Github and set your working directory to \texttt{stat-961-fall-2021/homework/homework-5}. Consult the \href{https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/getting-started/getting-started.pdf}{getting started guide} if you need to brush up on \texttt{R}, \texttt{LaTeX}, or \texttt{Git}.
+
+\paragraph{Collaboration.} The collaboration policy is as stated on the Syllabus:
+
+\begin{quote}
+``Students are permitted to work together on homework assignments, but solutions must be written up and submitted individually. Students must disclose any sources of assistance they received; furthermore, they are prohibited from verbatim copying from any source and from consulting solutions to problems that may be available online and/or from past iterations of the course.''
+\end{quote}
+
+\noindent In accordance with this policy, \\
+
+\noindent \textit{Please list anyone you discussed this homework with:} \\
+
+\noindent \textit{Please list what external references you consulted (e.g. articles, books, or websites):} 
+
+\paragraph{Writeup.} Use this document as a starting point for your writeup, adding your solutions between \verb|\begin{sol}| and \verb|\end{sol}|. See the \href{https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/getting-started/preparing-reports.pdf}{preparing reports guide} for guidance on compilation, creation of figures and tables, and presentation quality. Show all the code you wrote to produce your numerical results, and include complete derivations typeset in LaTeX for the mathematical questions. 
+
+\paragraph{Programming.}
+
+The \texttt{tidyverse} paradigm for data manipulation (\texttt{dplyr}) and plotting (\texttt{ggplot2}) are strongly encouraged, but points will not be deducted for using base \texttt{R}. 
+<<message=FALSE, cache = FALSE>>=
+library(tidyverse)
+@
+
+\paragraph{Grading.} Each sub-part of each problem will be worth 3 points: 0 points for no solution or completely wrong solution; 1 point for some progress; 2 points for a mostly correct solution; 3 points for a complete and correct solution modulo small flaws. The presentation quality of the solution for each problem (as exemplified by the guidelines in Section 3 of the \href{https://github.com/Katsevich-Teaching/stat-961-fall-2021/blob/main/getting-started/preparing-reports.pdf}{preparing reports guide}) will be evaluated out of an additional 3 points.
+
+\paragraph{Submission.} Compile your writeup to PDF and submit to \href{https://www.gradescope.com/courses/284562}{Gradescope}.
+
+\clearpage
+
+
+\begin{prob} \label{prob:ci-testing}\textbf{Conditional independence testing in $J \times K \times L$ tables.} \\
+
+\noindent Suppose that
+\begin{equation*}
+(x_1, x_2, x_3) \in \{0, \dots, J-1\} \times \{0, \dots, K-1\} \times \{0, \dots, L-1\} \end{equation*}
+are jointly distributed discrete random variables, with 
+\begin{equation*}
+\mathbb P[x_1 = j, x_2 = k, x_3 = l] = \pi_{jkl}, \quad \text{where} \quad \sum_{j,k,l}\pi_{jkl} = 1.
+\end{equation*}
+In this problem, we will explore tests of the conditional independence null hypothesis
+\begin{equation*}
+H_0: x_1 \perp \! \! \! \perp x_2 \mid x_3
+\end{equation*}
+based on data 
+\begin{equation*}
+y_{jkl} \overset{\text{ind}}\sim \text{Poi}(\mu_{jkl}); \quad \mu_{jkl} = \mu_{0}\pi_{jkl}.
+\end{equation*}
+\begin{enumerate}
+
+\item[(a)] Suppose we parametrize
+\begin{equation*}
+\log \mu_{jkl} = \beta_0 + \beta^1_j + \beta^2_k + \beta^3_l + \beta^{12}_{jk} + \beta^{13}_{jl} + \beta^{23}_{kl} + \beta^{123}_{jkl},
+\end{equation*}
+constraining
+\begin{equation*}
+\beta^1_0 = \beta^2_0 = \beta^3_0 = \beta^{12}_{j0} = \beta^{12}_{0k} = \beta^{13}_{j0} = \beta^{13}_{0l} = \beta^{23}_{k0} = \beta^{23}_{0l} = \beta^{123}_{jk0} = \beta^{123}_{j0l} = \beta^{123}_{0kl} = 0.
+\end{equation*}
+Show that 
+\begin{equation}
+H_0: x_1 \perp \! \! \! \perp x_2 \mid x_3 \quad \Longleftrightarrow \quad H_0: \beta^{12}_{jk} = \beta^{123}_{jkl} = 0 \ \text{for all } j,k,l.
+\end{equation}
+
+\item[(b)] What are the maximum likelihood estimates $\widehat \mu_{jkl}$ under $H_0$? What is the relationship between these estimates and the maximum likelihood estimates under independence in $J \times K$ tables? Intuitively, why is this the case?
+
+\item[(c)] What is the Pearson $X^2$ statistic for testing $H_0$, and what is its asymptotic null distribution? How do this statistic and its asymptotic null distribution relate to the corresponding quantities for testing independence in $J \times K$ tables?
+\end{enumerate}
+
+\noindent The test derived in part (c) is asymptotic, and may not be well-calibrated when the counts in the table are small. Ideally we would find a way to exactly calibrate the test statistic in finite samples. Maybe we can generalize Fisher's exact test to this more complicated setting? Let's try to do so in parts (d) and (e) below. 
+
+\begin{enumerate}
+
+\item[(d)] Let's first recall Fisher's exact test for $H_0: x_1 \perp \! \! \! \perp x_2$, where $J = K = 2$. Letting $y_{jk}\ (j,k \in \{0,1\}$) be the counts in the $2 \times 2$ contingency table (Figure~\ref{fig:2-by-2-format}), Fisher's exact test is based on the null hypergeometric distribution 
+\begin{equation}
+\mathbb P[y_{11} = t \mid y_{11} + y_{01} = v, y_{11} + y_{10} = m_1, y_{00} + y_{01} = m_0] = \frac{{m_1 \choose t}{m_0 \choose v -t}}{{m_1 + m_0 \choose v}}.
+\label{eq:hypergeometric}
+\end{equation}
+A different way of obtaining the null distribution of $y_{11}$ is by considering all permutations of the $x_2$ column in Figure~\ref{fig:long-format} (the long-format equivalent of Figure~\ref{fig:2-by-2-format}). Prove that the permutation-based null distribution of $y_{11}$ is the same as the hypergeometric null distribution~\eqref{eq:hypergeometric}.
+
+\item[(e)] For general $J \times K$ tables, both the test statistic and its sampling distribution under the null are harder to work with analytically. Nevertheless, propose an exact permutation-based test inspired by the result in part (d) to generalize Fisher's exact test to $J \times K$ tables. Returning to the $J \times K \times L$ problem, generalize the above test to test conditional independence. This exact test is called the \textit{conditional permutation test}.
+\end{enumerate}
+
+\begin{figure}[h!]
+\begin{subfigure}[b]{.5\textwidth}\centering
+\begin{tabular}{c|cc|c}
+ & $x_2 = 1$ & $x_2 = 0$ & total \\
+ \hline
+$x_1 = 1$ & $y_{11}$ & $y_{10}$ & $m_1$ \\
+$x_1 = 0$ & $y_{01}$ & $y_{00}$ & $m_0$ \\
+\hline
+total & $v$ & $m_1 + m_0 - v$ & $m_1 + m_2$
+\end{tabular}
+\caption{$2 \times 2$ table format} \label{fig:2-by-2-format}
+\end{subfigure}%
+\begin{subfigure}[b]{.5\textwidth}\centering
+\begin{tabular}{c|c}
+$x_1$ & $x_2$ \\
+ \hline
+0 & 0 \\
+$\cdots$ & $\cdots$ \\
+0 & 0 \\
+0 & 1 \\
+$\cdots$ & $\cdots$ \\
+0 & 1 \\
+1 & 0 \\
+$\cdots$ & $\cdots$ \\
+1 & 0 \\
+1 & 1 \\
+$\cdots$ & $\cdots$ \\
+1 & 1
+\end{tabular}
+  \caption{Long format} \label{fig:long-format}
+\end{subfigure}
+\caption{Two representations of cross-tabulated binary data.}
+\end{figure}
+
+\end{prob}
+
+\begin{sol}
+
+\end{sol}
+
+\begin{prob} \label{prob:gaining-power}\textbf{Testing for association between income and job satisfaction, given gender.} \\
+
+\noindent Consider the job satisfaction data below, which cross-tabulate income, job satisfaction, and gender:
+<<message = FALSE>>=
+job_satisfaction = read_tsv("../../data/job_satisfaction.tsv")
+print(job_satisfaction, n = 5)
+@
+\noindent We'd like to test whether there is a relationship between income and job satisfaction, conditional on gender.
+
+\begin{enumerate}
+\item[(a)] Create a plot to visualize the relationship between income and job satisfaction for males and females, making sure to respect the natural orderings of the income and job satisfaction variables. Comment on the trends you observe in this plot.
+\item[(b)] Implement the test from Problem~\ref{prob:ci-testing}c on the \verb|job_satisfaction| data. You may use the \verb|glm()| function but not more specialized functions for conditional independence testing. What $p$-value do you obtain, and what is the corresponding conclusion?
+\item[(c)] Why may the test implemented in part (b) be underpowered? Propose a test statistic that may be able to more sensitively pick up the relationship between income and job satisfaction. 
+\item[(d)] Note that the conditional permutation test from Problem~\ref{prob:ci-testing}e can be applied to calibrate \textit{any} test statistic, not just the Pearson $X^2$ statistic. Implement the conditional permutation test to calibrate the statistic you proposed in part (c). What is the resulting $p$-value? What is your conclusion about the relationship between income and job satisfaction, controlling for gender?
+\item[(e)] Suppose you applied a regular permutation test to search for association between income and job satisfaction, ignoring the gender variable. Would this result in a valid $p$-value for testing independence between income and job satisfaction, conditional on gender? Why or why not?
+\end{enumerate}
+
+\end{prob}
+
+\begin{sol}
+
+\end{sol}
+
+\begin{prob} \label{prob:bradley-terry}\textbf{Bradley-Terry model for the NBA.} \\
+
+\noindent The NBA has 30 teams, and each team plays a total of 82 games during the regular season. If the game between team $j$ and team $k$ takes place in team $j$'s arena, then team $j$ is said to be the ``home'' team and team $k$ is said to be the ``away'' team. Suppose that each team $j \in \{1, \dots 30\}$ has an associated parameter $\beta_j$ representing how good the team is, and $\beta_0$ is a parameter representing ``home court advantage.'' Then, a simple model for the outcome of the match between team $j$ and team $k$ is
+\begin{equation}
+\text{logit}(\mathbb P[\text{home team } j \text{ beats away team } k]) = \beta_0 + \beta_j - \beta_k. 
+\end{equation}
+This model is called the \textit{Bradley-Terry model}. In this problem, we'll be fitting the Bradley-Terry model to data from the NBA 2017-2018 season:
+<<message = FALSE>>=
+nba_data = read_tsv("../../data/nba_data.tsv")
+print(nba_data, n = 5)
+@
+
+\begin{enumerate}
+
+\item[(a)] (Identifiability) This model suffers from an identifiability issue. State the issue and how you could restrict the parameters to resolve this issue. A more subtle identifiability issue would arise if the teams could be split into two groups such that games were played only within groups. Discuss why the latter issue would arise and check whether this issue is a concern in the given data.
+
+\item[(b)] (Model fitting) Reformulate the Bradley-Terry model as an ungrouped logistic regression model (i.e. what are the predictors and the response)? Based on this reformulation, transform the data into the format expected by \verb|glm()|, print the resulting tibble (no need for a kable table), and then call \verb|glm()| on this tibble to obtain fitted model parameters.
+
+\item[(c)] (Home court advantage) Produce a point estimate and Wald confidence interval for the factor by which the odds of winning increase with home court advantage. Comment on the direction and magnitude of the effect. Produce a scatter plot of home game win percentage versus away game win percentage (this plot should contain 30 points, one per team), and comment on what this plot says about home court advantage.
+
+\item[(d)] (Team rankings) Produce a table with 30 rows and four columns: team, win percentage for home games, win percentage for away games, and estimated value of $\beta_j$. Order the columns in descending order of $\widehat \beta_j$. Comment on the degree of concordance or discordance between the columns in this table. Intuitively, what might be a reason why a team has a relatively higher win percentage but a relatively lower value of $\widehat \beta_j$?
+
+\item[(e)] (NBA finals prediction) The NBA finals in 2017-2018 were between the Golden State Warriors (GS) and the Cleveland Cavaliers (CLE). The first two games were in Oracle Arena (Oakland, California) while the last two games were in Quicken Loans Arena (Cleveland, Ohio). Golden State won all four of these games and the NBA championship. For each of these four games, what are point estimates and Wald confidence intervals for the probability that Golden State won?
+
+\end{enumerate}
+
+\end{prob}
+
+\begin{sol}
+
+
+
+\end{sol}
+
+
+\end{document}
