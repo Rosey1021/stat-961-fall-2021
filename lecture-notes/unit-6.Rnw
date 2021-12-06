@@ -86,16 +86,16 @@ opts_chunk$set(cache = TRUE)
 
 \maketitle
 
-Units 1-5 focused on estimation and inference in linear models and generalized linear models. In Unit 6, we explore further topics (the exact topics are still TBD).
+Units 1-5 focused on estimation and inference in linear models and generalized linear models. In Unit 6, we explore further topics: multiple testing (Section~\ref{sec:multiple-testing}) and high-dimensional inference under the model-X assumption (Section~\ref{sec:model-x}).
 
-\section{Multiple testing}
+\section{Multiple testing} \label{sec:multiple-testing}
 
 In this class, we have talked a lot about hypothesis testing, e.g. testing the significance of a coefficient in a (generalized) linear model. But frequently, there are multiple hypotheses we care about testing; let us denote these null hypotheses by $H_1, \dots, H_m$. After obtaining $p$-values for each null hypothesis---denote these by $p_1, \dots, p_m$---we may want to answer questions about this entire collection of hypotheses. In particular:
 \begin{itemize}
 \item Global testing: Test the \textit{global null hypothesis} $H_0: H_1 \cap \cdots \cap H_m$.
 \item Multiple testing: Find a subset $S \subseteq \{1, \dots, m\}$ of null hypotheses to reject so that the set $S$ satisfies some notion of Type-I error.
 \end{itemize}
-We discuss global testing in Section~\ref{sec:global-testing} and multiple testing in Section~\ref{sec:multiple-testing}.
+We discuss global testing in Section~\ref{sec:global-testing} and multiple testing in Section~\ref{subsec:multiple-testing}.
 
 \subsection{Global testing} \label{sec:global-testing}
 
@@ -157,7 +157,7 @@ The Bonferroni global test rejects if any of the $p$-values crosses the \textit{
 \end{equation}
 Importantly, while the Fisher combination test is valid only for independent $p$-values, \textit{the Bonferroni test is valid for arbitrary $p$-value dependency structures.} However, the Bonferroni bound derived above is tightest for independent $p$-values. For example, if the $p$-values are perfectly dependent, then no multiplicity correction is required at all.
 
-\subsection{Multiple testing} \label{sec:multiple-testing}
+\subsection{Multiple testing} \label{subsec:multiple-testing}
 
 While global testing seeks to detect the presence of \textit{any} signals, multiple testing seeks to \textit{localize} these signals, i.e. find a subset $S$ of the null hypotheses that are false. Let $\{1, \dots, m\} = \mathcal H_0 \cup \mathcal H_1$, where $\mathcal H_0, \mathcal H_1$ are the sets of null hypotheses that are true and false, respectively. Ideally, we would like to have $S = \mathcal H_1$, but of course we typically cannot do this. We design methods such outputting sets $S$ satisfying satisfying some Type-I error control criterion, and compare their performance based on their power, e.g. as quantified by $\mathbb E[|S \cap \mathcal H_1|/|\mathcal H_1|]$. There are several Type-I error control criteria of interest, but we highlight the two most important ones:
 \begin{itemize}
@@ -231,5 +231,65 @@ This completes the proof.
 \paragraph{FDR control under dependence.}
 
 The BH procedure has empirically been shown to control the FDR for a wide variety of dependency structures besides independence. However, theoretical FDR control results for the BH procedure are available only for a few dependency structures. A notable example is a type of positive dependency called \textit{positive regression dependence on a subset}, or PRDS. Benjamini and Yekutieli proved FDR control for BH under PRDS in 2001. This theoretical condition is somewhat hard to verify in practice, however. The simplest example of a set of PRDS $p$-values is when $\bm x \sim N(\bm \mu, \bm \Sigma) \in \mathbb R^m$ where $\bm \Sigma$ has all positive entries and the $p$-values are derived based on one-sided tests. Outside of this special case, there are few known instances of PRDS $p$-values.
+
+\section{High-dimensional inference under Model-X} \label{sec:model-x}
+
+All of the statistical inference done so far in this class was \textit{low-dimensional}: we assumed that the number of predictors $p$ was fixed and at most equal to the sample size $n$. However, some modern applications fall outside of this regime and therefore require new statistical methodology. We discuss here a line of work initiated by Candès, E., Fan, Y., Janson, L., \& Lv, J. (2018). Panning for gold: `model-X’ knockoffs for high dimensional controlled variable selection. Journal of the Royal Statistical Society: Series B (Statistical Methodology), 80(3), 551–577.
+
+\subsection{Motivation and problem statement}
+
+All statistical inference requires assumptions, and inherently difficult problems like high-dimensional inference require strong assumptions. One such assumption is the 
+\begin{equation}
+\textit{Model-X assumption:} \text{ That the joint distribution of } (x_1, \dots, x_p) \text{ is known}. 
+\end{equation}
+This assumption is in some sense the opposite of what we have been considering in this class so far: Usually we assume nothing about the joint distribution of covariates (we treat these as fixed anyways), and assume instead that $y|(x_1, \dots, x_p)$ follows a generalized linear model. Notably, this assumption is stronger than correct specification of a parametric model for $(x_1, \dots, x_p)$; it states that we know not only a model for this distribution but all of its parameters as well. Below we discuss the motivation for this assumption, and the inference problem that grows out of it. 
+\paragraph{Motivation: Genome-wide association studies (GWAS).}
+
+In GWAS, $x_1, \dots, x_p \in \{0,1,2\}$ represent \textit{genotypes} of an individual at $p$ genomic locations. Suppose that humans typically have either an A or a T at genomic location $j$, where A is more common. Since we have two sets of chromosomes (one maternal and one paternal), the \textit{genotype} at this location can either be AA, AT, or TT. The allele T is called the \textit{minor allele} because it is less common, and $x_j$ is defined as the number of minor alleles an individual has at location $j$: AA implies $x_j = 0$, AT implies $x_j = 1$, TT implies $x_j = 2$. We collect this genotype information at $p$ genomic locations from each individual, as well as a response variable $y$, like disease status. The goal is to find the genomic locations whose genotypes are associated with the response. The nice thing in this application is that the joint distribution $(x_1, \dots, x_p)$ has been studied extensively in the field of population genetics, and is well-approximated by a \textit{hidden Markov model}. This motivates the model-X assumption. 
+
+\paragraph{Problem statement.}
+
+It turns out that if we have a model for the joint distribution of the predictors, we need not make any assumptions on the distribution of the response given the predictors. But this leaves us with the following awkward question: If we have no parametric model for the response, then what even are the hypotheses we are testing? Well, for each genomic location $j$, we are trying to test whether the genotype at that location is associated with the response, controlling for the genotypes at other genomic locations. Probabilistically, this may be written as:
+\begin{equation}
+H_{0j}: x_j \perp \! \! \! \perp y \mid \bm x_{\text{-}j}.
+\label{eq:conditional-independence}
+\end{equation}
+Under mild assumptions, this hypothesis turns out to coincide with the usual $H_{0j}: \beta_j = 0$ in the case when $y$ does follow a GLM. The problem statement, then, is to test the hypotheses $H_{0j}$ based on data 
+\begin{equation}
+(x_{i1}, \dots, x_{ip}, y_i) \overset{\text{i.i.d.}}\sim F_{\bm x, y}, \quad i = 1, \dots, n,
+\end{equation}
+given knowledge of the distribution $F_{\bm x}$. Note that \textit{regularized regression} methods such as the LASSO have been developed to get estimates of regression coefficients in high dimensions. However, the issue with these shrinkage-based estimation methodologies is that they do not come with inferential guarantees and therefore cannot provide valid tests of the conditional independence hypothesis~\eqref{eq:conditional-independence}. Under the model-X assumption, we can get around this roadblock.
+
+\subsection{Conditional randomization test}
+
+One idea is to view $x_j$ as a treatment (though not necessarily binary) and $\bm x_{\text{-}j}$ as a set of covariates. The model-X assumption gives us knowledge of the \textit{propensity function} $p(x_j|\bm x_{\text{-}j})$, i.e. the distribution of treatment assignments given the covariates. In the spirit of Fisher's randomization test (see Homework 5 Problem 1), we can build a null distribution for any test statistic $T(\bm X, \bm y)$---e.g. a lasso coefficient---by \textit{randomly reassigning the treatment $x_j$ to each individual based on its covariates $\bm x_{\text{-}j}$}. More explicitly, let 
+\begin{equation}
+\widetilde x_{ij} | \bm X, \bm y \overset{\text{ind}}\sim F_{x_j|\bm x_{\text{-}j} = \bm x_{i,\text{-}j}}.
+\end{equation}
+Let $\bm{\widetilde X}$ be the matrix obtained by replacing the $j$th column in $\bm X$ with $\widetilde{\widehat x}_{*j}$ as defined above. For a test statistic $T$, we then define the CRT $p$-value by comparing the test statistic's value on the original data with its distribution under resampling:
+\begin{equation}
+p_j^{\text{CRT}} \equiv \mathbb P[T(\bm{\widetilde X}, \bm y) \geq T(\bm X, \bm y)|\bm X, \bm y]. 
+\end{equation}
+In practice, we approximate this $p$-value by resampling a finite number $B$ of instances $\bm{\widetilde X}^b$ and setting
+\begin{equation}
+\widehat p_j^{\text{CRT}} \equiv \frac{1}{B+1}\sum_{b = 1}^B \mathbbm 1(T(\bm{\widetilde X}^b, \bm y) \geq T(\bm X, \bm y)).
+\end{equation}
+The CRT is a simple and elegant inferential framework that gives finite-sample valid $p$-values for high-dimensional inference. However, its adoption has been slowed by the computational cost of resampling. 
+
+\subsection{Model-X knockoffs}
+
+An alternative to the CRT for model-X inference is \textit{model-X knockoffs}. This methodology requires constructing a set of $p$ new \textit{knockoff} variables $(\widetilde x_1, \dots, \widetilde x_p)$, whose joint distribution with the original variables satisfies the following exchangeability criterion:
+\begin{equation}
+\text{for each } j, \quad (x_j, \widetilde x_{j}) \overset d = (\widetilde x_{j}, x_j) \mid \bm x_{\text{-}j}, \bm{\widetilde x}_{\text{-}j}.
+\end{equation}
+Knockoff variables are meant to serve as valid \textit{negative controls} for the original variables: they have the same dependency structure but they have no association with the response $y$. Constructing such knockoff variables is a nontrivial endeavor that depends on the joint distribution of the original variables. If this can be done, then we can sample an entire knockoff matrix $\bm{\widetilde X}$, row by row. We then assess the significant of all $2p$ variables using test statistics $Z_1(\bm X, \bm{\widetilde X}, \bm y), \dots, Z_p(\bm X, \bm{\widetilde X}, \bm y), \widetilde Z_1(\bm X, \bm{\widetilde X}, \bm y), \dots, \widetilde Z_p(\bm X, \bm{\widetilde X}, \bm y)$, constructed to ensure the following swap-equivariance property: swapping $\bm X_{*j}$ with $\bm{\widetilde X}_{*j}$ results in $Z_j(\bm X, \bm{\widetilde X}, \bm y)$ swapping with $\widetilde Z_j(\bm X, \bm{\widetilde X}, \bm y)$, while all the other test statistics stay the same. For example, consider running the LASSO of $\bm y$ on the \textit{augmented design matrix} $[\bm X, \bm{\widetilde X}]$, and defining the $Z_j$'s as the fitted coefficients for the corresponding variables. With these $Z_j$'s in hand, the idea is to define the significance of the $j$th original variable by comparing the test statistics for itself and for its knockoff: 
+\begin{equation}
+T_j(\bm X, \bm{\widetilde X}, \bm y) \equiv Z_j(\bm X, \bm{\widetilde X}, \bm y) - \widetilde Z_j(\bm X, \bm{\widetilde X}, \bm y).
+\end{equation}
+Large values of $T_j$ are evidence against $H_{0j}$. If the knockoffs are constructed correctly, then the test statistics $T_j$ for null $j$ can be shown to have symmetric distributions around zero. In other words, the original variable and its knockoff are equally likely to be more significant. Using this observation, a clever multiple testing algorithm called \textit{Selective SeqStep} can be used to choose a cutoff $\widehat t$ for the test statistics in a way that provably controls the FDR at a pre-specified level $q$. Remarkably, this entire construction bypasses the construction of $p$-values!
+
+\subsection{Comparing CRT to MX knockoffs} \label{sec:crt-knockoffs-comparison}
+
+There are pros and cons to both the CRT and MX knockoffs. Both procedures offer valid, finite-sample inference in high dimensions, which sets them apart from many other inferential methodologies. Both procedures require the model-X assumption, however, which may or may not be reasonable in a given application. MX knockoffs is the more popular methodology at this time, due to its computational speed. It can be used to carry out inference for all $p$ hypotheses in ``one shot'', by running one big regularized regression on the augmented design matrix. It has been applied successfully to genome-wide association studies, using a hidden Markov model as the model for X. On the other hand, MX knockoffs is a randomized procedure, giving different results for different realizations of $\bm{\widetilde X}$. Furthermore, it does not provide $p$-values quantifying the significance of individual predictors, which hinders the interpretability of its results. On the other hand, the CRT requires more computation than knockoffs, so it has been slower to be adopted in practice. But this procedure is not randomized in the same way that knockoffs is; with more computation its results can be arbitrarily ``de-randomized.'' Furthermore, the CRT does have a $p$-value output, which facilitates easy interpretation and more flexibility for downstream multiple testing.
 
 \end{document}
