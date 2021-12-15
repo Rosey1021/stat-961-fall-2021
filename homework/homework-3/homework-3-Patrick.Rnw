@@ -86,14 +86,9 @@ innerbottommargin=4pt}
 % set knitr options
 %==============================================================================
 % latex (change space before and after knitr kframe; based on framed package)
-%\setlength{\OuterFrameSep}{0.3em}
-
-
-\begin{document}
-
+\setlength{\OuterFrameSep}{0.3em}
 % R
-<<setup, include=FALSE, echo=FALSE,cache=FALSE>>=
-
+<<setup, include=FALSE, cache=FALSE>>=
 library(knitr)
 # inline hook to process the output of \Sexpr{} statements to just 2 digits
 inline_hook <- function(x) {
@@ -111,7 +106,7 @@ if(!dir.exists("figures")){
 }
 @
 
-\SweaveOpts{concordance=TRUE}
+\begin{document}
 
 
 \maketitle
@@ -519,28 +514,28 @@ print(ad_data, n = 5)
 \begin{sol}
 \begin{enumerate}
 \item
-<<fig=True,height=6,width=6>>=
+<<fig=TRUE,height=6,width=6>>=
 library(GGally)
 GGally::ggpairs(ad_data)+
     theme_classic()
 @
 
-<<fig=True,height=5,width=5>>=
+<<fig=TRUE,height=5,width=5>>=
 fit <- lm(sales~TV+radio+newspaper,data=ad_data)
 plot(fit,which=1)
 @
 
-<<fig=True,height=5,width=5>>=
+<<fig=TRUE,height=5,width=5>>=
 
 plot(fit,which=2)
 @
 
-<<fig=True,height=5,width=5>>=
+<<fig=TRUE,height=5,width=5>>=
 
 plot(fit,which=3)
 @
 
-<<fig=True,height=5,width=5>>=
+<<fig=TRUE,height=5,width=5>>=
 
 plot(fit,which=4)
 @
